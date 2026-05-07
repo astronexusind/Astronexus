@@ -36,8 +36,9 @@ class AppGradients {
   }
 
   static Color glassFill(ThemeData theme) {
+    // Use a solid dark color for dark theme fields (no transparency)
     return theme.brightness == Brightness.dark
-        ? AppColors.surfaceAlt
+        ? const Color(0xFF23243A) // deep solid dark
         : AppColors.lightContainer;
   }
 

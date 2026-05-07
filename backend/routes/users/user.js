@@ -1,5 +1,5 @@
 import express from "express";
-import { authenticateToken , authorizeAdmin} from "../../middlewares/auth.js";
+import { authenticateToken, authorizeAdmin } from "../../middlewares/auth.js";
 import upload from "../../middlewares/upload.js";
 
 import {
@@ -7,11 +7,11 @@ import {
   handleAstrologySignup,
   handleUserLogin,
   handleUserLogout,
-  handleUserLoginWithPhone
-  , uploadProfileImage, getMyProfile
-  , updateMyProfile
-  , changePassword
-   // ✅ import the new phone login
+  handleUserLoginWithPhone,
+  uploadProfileImage,
+  getMyProfile,
+  updateMyProfile,
+  changePassword
 } from "../../controllers/users/user.js";
 
 import * as categoryController from "../../controllers/users/category.controller.js";
@@ -21,14 +21,9 @@ import * as orderController from "../../controllers/users/orderController.js";
 import * as paymentController from "../../controllers/users/payment.controller.js";
 import * as addressController from "../../controllers/users/address.controller.js";
 import { verifyFirebaseOtp } from "../../controllers/users/firebase_auth.js";
-import uploadProfile from "../../middlewares/upload.js";
 import * as wishlistController from "../../controllers/users/wishlistController.js";
 import { getHomeProducts } from "../../controllers/admin/admin.product.controller.js";
 import * as walletController from "../../controllers/wallet/walletController.js";
-
-
-
-
 
 const router = express.Router();
 

@@ -217,9 +217,12 @@ class _AstrologySignupTimelineState extends State<AstrologySignupTimeline> {
   Widget _nextButton() {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final keyboardOpen = MediaQuery.viewInsetsOf(context).bottom > 0;
 
-    return Padding(
-      padding: const EdgeInsets.all(24),
+    return AnimatedPadding(
+      duration: const Duration(milliseconds: 220),
+      curve: Curves.easeOut,
+      padding: EdgeInsets.fromLTRB(24, keyboardOpen ? 12 : 24, 24, 24),
       child: SizedBox(
         height: 52,
         width: double.infinity,
@@ -283,11 +286,17 @@ class _AstrologySignupTimelineState extends State<AstrologySignupTimeline> {
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
     final l10n = context.l10n;
+    final keyboardInset = MediaQuery.viewInsetsOf(context).bottom;
+    final keyboardOpen = keyboardInset > 0;
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: Colors.transparent,
-      appBar: SignupAppBar(step: step, onBack: previousStep),
+      appBar: SignupAppBar(
+        step: step,
+        onBack: previousStep,
+        compact: keyboardOpen,
+      ),
       body: Stack(
         children: [
           const Positioned.fill(
@@ -309,45 +318,76 @@ class _AstrologySignupTimelineState extends State<AstrologySignupTimeline> {
             onTap: () => FocusScope.of(context).unfocus(),
             child: SafeArea(
               bottom: false,
-              child: Column(
-                children: [
-                  const SizedBox(height: 14),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 26),
-                    child: Column(
-                      children: [
-                        Text(
-                          l10n.tr('modernSignupTitle'),
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.dmSans(
-                            color: isDark ? Colors.white : colors.onSurface,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          l10n.tr('modernSignupSubtitle'),
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.dmSans(
-                            color: isDark
-                                ? Colors.white70
-                                : colors.onSurface.withValues(alpha: 0.72),
-                            fontSize: 13,
-                          ),
-                        ),
-                      ],
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 220),
+                curve: Curves.easeOut,
+                padding: EdgeInsets.only(bottom: keyboardOpen ? 8 : 0),
+                child: Column(
+                  children: [
+                    SizedBox(height: keyboardOpen ? 8 : 14),
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 180),
+                      child: keyboardOpen
+                          ? const SizedBox.shrink()
+                          : Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 26,
+                              ),
+                              child: Column(
+                                children: [
+                                  Text(
+                                    l10n.tr('modernSignupTitle'),
+                                    textAlign: TextAlign.center,
+                                    style: GoogleFonts.dmSans(
+                                      color: isDark
+                                          ? Colors.white
+                                          : colors.onSurface,
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w800,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    l10n.tr('modernSignupSubtitle'),
+                                    textAlign: TextAlign.center,
+                                    style: GoogleFonts.dmSans(
+                                      color: isDark
+                                          ? Colors.white70
+                                          : colors.onSurface.withValues(
+                                              alpha: 0.72,
+                                            ),
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                  SignupStepper(
-                    step: step,
-                    totalSteps: 7,
-                    onStepChanged: (i) => setState(() => step = i),
-                  ),
-                  Expanded(child: SignupCard(child: _buildStep())),
-                  _nextButton(),
-                ],
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 180),
+                      child: keyboardOpen
+                          ? const SizedBox.shrink()
+                          : Column(
+                              children: [
+                                const SizedBox(height: 12),
+                                SignupStepper(
+                                  step: step,
+                                  totalSteps: 7,
+                                  onStepChanged: (i) =>
+                                      setState(() => step = i),
+                                ),
+                              ],
+                            ),
+                    ),
+                    Expanded(
+                      child: SignupCard(
+                        compact: keyboardOpen,
+                        child: _buildStep(),
+                      ),
+                    ),
+                    _nextButton(),
+                  ],
+                ),
               ),
             ),
           ),

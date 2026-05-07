@@ -5,6 +5,7 @@ import "package:astro_tale/core/constants/app_colors.dart";
 import "package:astro_tale/core/widgets/animated_app_background.dart";
 import "package:astro_tale/core/widgets/unified_dark_ui.dart";
 import "package:astro_tale/services/api_services/chatbot/chat_bot_services.dart";
+import "package:astro_tale/services/api_services/chatbot/profile_services.dart";
 import "package:flutter/material.dart";
 import "package:google_fonts/google_fonts.dart";
 import "package:lucide_icons_flutter/lucide_icons.dart";
@@ -34,6 +35,7 @@ class _MatiChatBotScreenState extends State<MatiChatBotScreen>
   List<_ChatMessage> messages = <_ChatMessage>[];
   bool isTyping = false;
   bool isComposing = false;
+  String userAvatar = "";
 
   late final AnimationController planetController;
 
@@ -46,6 +48,7 @@ class _MatiChatBotScreenState extends State<MatiChatBotScreen>
       duration: const Duration(seconds: 40),
     )..repeat();
     controller.addListener(_onComposerTextChanged);
+    _loadUserAvatar();
 
     suggestions = ChatSuggestions.getInitialSuggestions();
     Future<void>.delayed(const Duration(milliseconds: 350), () {
@@ -71,6 +74,23 @@ class _MatiChatBotScreenState extends State<MatiChatBotScreen>
       return;
     }
     setState(() => isComposing = hasInput);
+  }
+
+  Future<void> _loadUserAvatar() async {
+    final cachedAvatar = await ProfileService.getCachedAvatarUrl();
+    if (mounted && cachedAvatar != userAvatar) {
+      setState(() => userAvatar = cachedAvatar);
+    }
+
+    try {
+      await ProfileService.fetchMyProfile();
+      final refreshedAvatar = await ProfileService.getCachedAvatarUrl();
+      if (mounted && refreshedAvatar != userAvatar) {
+        setState(() => userAvatar = refreshedAvatar);
+      }
+    } catch (_) {
+      // Keep rendering cached avatar when refresh fails.
+    }
   }
 
   void addBotMessage(String text) {
@@ -243,7 +263,7 @@ class _MatiChatBotScreenState extends State<MatiChatBotScreen>
           bubble = ChatBubble(
             text: msg.text,
             isUser: true,
-            userAvatar: null,
+            userAvatar: userAvatar,
             botAvatar: "assets/images/mati.png",
           );
         } else if (msg.response != null && msg.response!.hasRichData) {
@@ -255,7 +275,7 @@ class _MatiChatBotScreenState extends State<MatiChatBotScreen>
           bubble = ChatBubble(
             text: msg.text,
             isUser: false,
-            userAvatar: null,
+            userAvatar: userAvatar,
             botAvatar: "assets/images/mati.png",
           );
         }
@@ -308,11 +328,24 @@ class _MatiChatBotScreenState extends State<MatiChatBotScreen>
               onFieldSubmitted: (_) => sendMessage(),
               minLines: 1,
               maxLines: 4,
-              style: GoogleFonts.dmSans(color: textColor),
+              style: GoogleFonts.dmSans(
+                color: isDark ? Colors.black : textColor,
+              ),
               decoration: InputDecoration(
+                filled: true,
+                fillColor: isDark ? Colors.white : barColor,
                 hintText: "Ask about your destiny...",
-                hintStyle: TextStyle(color: hintColor),
-                border: InputBorder.none,
+                hintStyle: TextStyle(
+                  color: isDark ? Colors.black54 : hintColor,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(18),
+                  borderSide: BorderSide.none,
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
               ),
             ),
           ),
@@ -495,6 +528,7 @@ class _MatiInsightBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final isReportResponse = response.hasReport;
     final cardGradient = isDark
         ? <Color>[
             const Color(0xFF1A2344).withValues(alpha: 0.95),
@@ -546,73 +580,101 @@ class _MatiInsightBubble extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Row(
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    crossAxisAlignment: WrapCrossAlignment.center,
                     children: <Widget>[
                       _InsightHeader(response: response),
-                      const Spacer(),
-                      Icon(Icons.query_stats_rounded, size: 18, color: accent),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: accent.withValues(alpha: isDark ? 0.18 : 0.12),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(
+                          Icons.query_stats_rounded,
+                          size: 18,
+                          color: accent,
+                        ),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 10),
-                  TweenAnimationBuilder<double>(
-                    key: ValueKey<String>(
-                      "answer-${response.answer.isEmpty ? fallback : response.answer}",
-                    ),
-                    duration: const Duration(milliseconds: 360),
-                    tween: Tween<double>(begin: 0, end: 1),
-                    curve: Curves.easeOutCubic,
-                    builder: (context, value, child) {
-                      return Opacity(
-                        opacity: value,
-                        child: Transform.translate(
-                          offset: Offset(0, (1 - value) * 8),
-                          child: child,
+                  if (!isReportResponse)
+                    TweenAnimationBuilder<double>(
+                      key: ValueKey<String>(
+                        "answer-${response.answer.isEmpty ? fallback : response.answer}",
+                      ),
+                      duration: const Duration(milliseconds: 360),
+                      tween: Tween<double>(begin: 0, end: 1),
+                      curve: Curves.easeOutCubic,
+                      builder: (context, value, child) {
+                        return Opacity(
+                          opacity: value,
+                          child: Transform.translate(
+                            offset: Offset(0, (1 - value) * 8),
+                            child: child,
+                          ),
+                        );
+                      },
+                      child: Text(
+                        response.answer.isEmpty ? fallback : response.answer,
+                        style: GoogleFonts.dmSans(
+                          fontSize: 14.5,
+                          height: 1.5,
+                          fontWeight: FontWeight.w500,
+                          color: titleColor,
                         ),
-                      );
-                    },
-                    child: Text(
-                      response.answer.isEmpty ? fallback : response.answer,
-                      style: GoogleFonts.dmSans(
-                        fontSize: 14.5,
-                        height: 1.5,
-                        fontWeight: FontWeight.w500,
-                        color: titleColor,
                       ),
                     ),
-                  ),
-                  if (response.timing != null && response.timing!.hasContent) ...<Widget>[
+                  if (response.hasReport) ...<Widget>[
+                    const SizedBox(height: 12),
+                    _ReportDownloadCard(
+                      response: response,
+                      compact: isReportResponse,
+                    ),
+                  ],
+                  if (!isReportResponse &&
+                      response.timing != null &&
+                      response.timing!.hasContent) ...<Widget>[
                     const SizedBox(height: 12),
                     _TimingCard(timing: response.timing!),
                   ],
-                  if (response.analysis != null) ...<Widget>[
+                  if (!isReportResponse &&
+                      response.analysis != null) ...<Widget>[
                     const SizedBox(height: 10),
                     _InsightMetricStrip(analysis: response.analysis!),
                   ],
-                  if (response.analysis != null) ...<Widget>[
+                  if (!isReportResponse &&
+                      response.analysis != null) ...<Widget>[
                     const SizedBox(height: 12),
                     _AnalysisChart(analysis: response.analysis!),
                   ],
-                  if (response.uiMetadata != null) ...<Widget>[
+                  if (!isReportResponse &&
+                      response.uiMetadata != null) ...<Widget>[
                     const SizedBox(height: 12),
                     _VerdictCard(uiMetadata: response.uiMetadata!),
                   ],
-                  if (response.nutritionGuidance != null) ...<Widget>[
+                  if (!isReportResponse &&
+                      response.nutritionGuidance != null) ...<Widget>[
                     const SizedBox(height: 12),
                     _NutritionGuidanceCard(
                       guidance: response.nutritionGuidance!,
                     ),
                   ],
-                  if (response.shopSuggestions.isNotEmpty) ...<Widget>[
+                  if (!isReportResponse &&
+                      response.shopSuggestions.isNotEmpty) ...<Widget>[
                     const SizedBox(height: 12),
                     _ShopSuggestionList(
                       suggestions: response.shopSuggestions.take(2).toList(),
                     ),
                   ],
-                  if (response.report != null && response.report!.hasContent) ...<Widget>[
-                    const SizedBox(height: 12),
-                    _ReportDownloadCard(response: response),
-                  ],
-                  if (response.service.isNotEmpty) ...<Widget>[
+                  if (!isReportResponse &&
+                      response.service.isNotEmpty) ...<Widget>[
                     const SizedBox(height: 10),
                     Text(
                       "Source: ${response.service}",
@@ -724,7 +786,9 @@ class _TimingCard extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Text(
-                timing.requiresBirthData ? "Exact Date Needed" : "Timing Guidance",
+                timing.requiresBirthData
+                    ? "Exact Date Needed"
+                    : "Timing Guidance",
                 style: GoogleFonts.dmSans(
                   fontSize: 13.5,
                   fontWeight: FontWeight.w700,
@@ -761,10 +825,7 @@ class _TimingCard extends StatelessWidget {
               runSpacing: 8,
               children: timing.favorableDates
                   .map(
-                    (item) => _DateSuggestionChip(
-                      item: item,
-                      positive: true,
-                    ),
+                    (item) => _DateSuggestionChip(item: item, positive: true),
                   )
                   .toList(),
             ),
@@ -785,10 +846,7 @@ class _TimingCard extends StatelessWidget {
               runSpacing: 8,
               children: timing.avoidDates
                   .map(
-                    (item) => _DateSuggestionChip(
-                      item: item,
-                      positive: false,
-                    ),
+                    (item) => _DateSuggestionChip(item: item, positive: false),
                   )
                   .toList(),
             ),
@@ -811,9 +869,7 @@ class _DateSuggestionChip extends StatelessWidget {
     final fill = positive
         ? const Color(0xFF22C55E).withValues(alpha: isDark ? 0.16 : 0.12)
         : const Color(0xFFEF4444).withValues(alpha: isDark ? 0.16 : 0.1);
-    final stroke = positive
-        ? const Color(0xFF16A34A)
-        : const Color(0xFFDC2626);
+    final stroke = positive ? const Color(0xFF16A34A) : const Color(0xFFDC2626);
     final titleColor = isDark ? Colors.white : const Color(0xFF0F172A);
     final bodyColor = isDark ? Colors.white70 : const Color(0xFF64748B);
 
@@ -842,7 +898,7 @@ class _DateSuggestionChip extends StatelessWidget {
               [
                 if (item.label.isNotEmpty) item.label,
                 if (item.confidence.isNotEmpty) item.confidence.toUpperCase(),
-              ].join(" • "),
+              ].join(" | "),
               style: GoogleFonts.dmSans(
                 fontSize: 10.5,
                 fontWeight: FontWeight.w600,
@@ -868,14 +924,61 @@ class _DateSuggestionChip extends StatelessWidget {
   }
 }
 
-class _ReportDownloadCard extends StatelessWidget {
-  const _ReportDownloadCard({required this.response});
+class _ReportDownloadCard extends StatefulWidget {
+  const _ReportDownloadCard({required this.response, this.compact = false});
 
   final MatiChatResponse response;
+  final bool compact;
+
+  @override
+  State<_ReportDownloadCard> createState() => _ReportDownloadCardState();
+}
+
+class _ReportDownloadCardState extends State<_ReportDownloadCard> {
+  bool _isOpeningPdf = false;
+
+  Future<void> _openPdf() async {
+    if (_isOpeningPdf) {
+      return;
+    }
+
+    setState(() => _isOpeningPdf = true);
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      final file = await MatiReportPdfService.generateAndOpen(widget.response);
+      if (!mounted) {
+        return;
+      }
+      final fileName = file.uri.pathSegments.isEmpty
+          ? "report.pdf"
+          : file.uri.pathSegments.last;
+      messenger.showSnackBar(SnackBar(content: Text("Opened $fileName")));
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      messenger.showSnackBar(
+        SnackBar(content: Text("Unable to open PDF: $error")),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isOpeningPdf = false);
+      }
+    }
+  }
+
+  void _showPreview() {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => _ReportPreviewSheet(response: widget.response),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    final report = response.report!;
+    final report = widget.response.report!;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final titleColor = isDark ? Colors.white : const Color(0xFF0F172A);
     final bodyColor = isDark ? Colors.white70 : const Color(0xFF475569);
@@ -897,13 +1000,14 @@ class _ReportDownloadCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFDC2626).withValues(
-                    alpha: isDark ? 0.24 : 0.12,
-                  ),
+                  color: const Color(
+                    0xFFDC2626,
+                  ).withValues(alpha: isDark ? 0.24 : 0.12),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
@@ -925,7 +1029,8 @@ class _ReportDownloadCard extends StatelessWidget {
                         color: titleColor,
                       ),
                     ),
-                    if (report.subtitle.isNotEmpty)
+                    if (report.subtitle.isNotEmpty) ...<Widget>[
+                      const SizedBox(height: 2),
                       Text(
                         report.subtitle,
                         style: GoogleFonts.dmSans(
@@ -934,62 +1039,316 @@ class _ReportDownloadCard extends StatelessWidget {
                           color: bodyColor,
                         ),
                       ),
+                    ],
                   ],
                 ),
               ),
             ],
           ),
-          if (report.summary.isNotEmpty) ...<Widget>[
+          if (!widget.compact) ...<Widget>[
             const SizedBox(height: 10),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: <Widget>[
+                if (report.generatedOn.isNotEmpty)
+                  _DetailChip(
+                    icon: Icons.calendar_today_rounded,
+                    label: report.generatedOn,
+                  ),
+                _DetailChip(
+                  icon: Icons.article_outlined,
+                  label: "${report.sectionCount} sections",
+                ),
+                if (report.fileName.isNotEmpty)
+                  _DetailChip(
+                    icon: Icons.insert_drive_file_outlined,
+                    label: report.fileName,
+                  ),
+              ],
+            ),
+            if (report.summary.isNotEmpty) ...<Widget>[
+              const SizedBox(height: 10),
+              Text(
+                report.summary,
+                style: GoogleFonts.dmSans(
+                  fontSize: 12.5,
+                  height: 1.45,
+                  fontWeight: FontWeight.w500,
+                  color: bodyColor,
+                ),
+              ),
+            ],
+            if (report.visibleSections.isNotEmpty) ...<Widget>[
+              const SizedBox(height: 12),
+              Text(
+                "Included in this report",
+                style: GoogleFonts.dmSans(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: titleColor,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: report.visibleSections.take(4).map((section) {
+                  return _DetailChip(
+                    icon: Icons.check_circle_outline_rounded,
+                    label: section.heading,
+                  );
+                }).toList(),
+              ),
+            ],
+          ] else ...<Widget>[
+            const SizedBox(height: 8),
             Text(
-              report.summary,
+              "Your structured report is ready.",
               style: GoogleFonts.dmSans(
-                fontSize: 12.5,
-                height: 1.45,
+                fontSize: 12.2,
                 fontWeight: FontWeight.w500,
                 color: bodyColor,
               ),
             ),
           ],
           const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton.icon(
-              onPressed: () async {
-                final messenger = ScaffoldMessenger.of(context);
-                try {
-                  await MatiReportPdfService.generateAndOpen(response);
-                  if (!context.mounted) {
-                    return;
-                  }
-                  messenger.showSnackBar(
-                    const SnackBar(
-                      content: Text("PDF report generated successfully."),
-                    ),
-                  );
-                } catch (error) {
-                  if (!context.mounted) {
-                    return;
-                  }
-                  messenger.showSnackBar(
-                    SnackBar(
-                      content: Text("Unable to generate PDF: $error"),
-                    ),
-                  );
-                }
-              },
-              style: FilledButton.styleFrom(
-                backgroundColor: const Color(0xFF0F766E),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+          Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: <Widget>[
+              FilledButton.icon(
+                onPressed: _isOpeningPdf ? null : _openPdf,
+                style: FilledButton.styleFrom(
+                  backgroundColor: const Color(0xFF0F766E),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                icon: _isOpeningPdf
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Icon(Icons.open_in_new_rounded),
+                label: Text(
+                  _isOpeningPdf ? "Opening PDF..." : "Open PDF",
+                  style: GoogleFonts.dmSans(fontWeight: FontWeight.w700),
                 ),
               ),
-              icon: const Icon(Icons.download_rounded),
-              label: Text(
-                "Download PDF report",
-                style: GoogleFonts.dmSans(fontWeight: FontWeight.w700),
+              OutlinedButton.icon(
+                onPressed: _showPreview,
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: titleColor,
+                  side: BorderSide(
+                    color: isDark ? Colors.white24 : const Color(0xFFD1DDF3),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                icon: const Icon(Icons.visibility_outlined),
+                label: Text(
+                  "Preview",
+                  style: GoogleFonts.dmSans(fontWeight: FontWeight.w700),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ReportPreviewSheet extends StatelessWidget {
+  const _ReportPreviewSheet({required this.response});
+
+  final MatiChatResponse response;
+
+  @override
+  Widget build(BuildContext context) {
+    final report = response.report!;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final titleColor = isDark ? Colors.white : const Color(0xFF0F172A);
+    final bodyColor = isDark ? Colors.white70 : const Color(0xFF475569);
+
+    return DraggableScrollableSheet(
+      initialChildSize: 0.72,
+      minChildSize: 0.4,
+      maxChildSize: 0.92,
+      builder: (context, scrollController) {
+        return Container(
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF10172B) : Colors.white,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: SafeArea(
+            top: false,
+            child: Column(
+              children: <Widget>[
+                const SizedBox(height: 12),
+                Container(
+                  width: 48,
+                  height: 5,
+                  decoration: BoxDecoration(
+                    color: isDark ? Colors.white24 : const Color(0xFFD8E2F1),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                ),
+                Expanded(
+                  child: ListView(
+                    controller: scrollController,
+                    padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
+                    children: <Widget>[
+                      Text(
+                        report.title.isEmpty ? "Mati Report" : report.title,
+                        style: GoogleFonts.dmSans(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w800,
+                          color: titleColor,
+                        ),
+                      ),
+                      if (report.subtitle.isNotEmpty) ...<Widget>[
+                        const SizedBox(height: 6),
+                        Text(
+                          report.subtitle,
+                          style: GoogleFonts.dmSans(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: bodyColor,
+                          ),
+                        ),
+                      ],
+                      const SizedBox(height: 12),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: <Widget>[
+                          if (report.generatedOn.isNotEmpty)
+                            _DetailChip(
+                              icon: Icons.calendar_today_rounded,
+                              label: report.generatedOn,
+                            ),
+                          _DetailChip(
+                            icon: Icons.article_outlined,
+                            label: "${report.sectionCount} sections",
+                          ),
+                        ],
+                      ),
+                      if (report.summary.isNotEmpty) ...<Widget>[
+                        const SizedBox(height: 16),
+                        Text(
+                          report.summary,
+                          style: GoogleFonts.dmSans(
+                            fontSize: 13.5,
+                            height: 1.5,
+                            fontWeight: FontWeight.w500,
+                            color: bodyColor,
+                          ),
+                        ),
+                      ],
+                      const SizedBox(height: 18),
+                      ...report.visibleSections.map(
+                        (section) => Container(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: isDark
+                                ? Colors.white10
+                                : const Color(0xFFF8FAFF),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: isDark
+                                  ? Colors.white12
+                                  : const Color(0xFFDCE4F5),
+                            ),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Text(
+                                section.heading,
+                                style: GoogleFonts.dmSans(
+                                  fontSize: 13.5,
+                                  fontWeight: FontWeight.w700,
+                                  color: titleColor,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                section.content,
+                                style: GoogleFonts.dmSans(
+                                  fontSize: 12.5,
+                                  height: 1.45,
+                                  fontWeight: FontWeight.w500,
+                                  color: bodyColor,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _DetailChip extends StatelessWidget {
+  const _DetailChip({required this.icon, required this.label});
+
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white70 : const Color(0xFF475569);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      decoration: BoxDecoration(
+        color: isDark ? Colors.white10 : const Color(0xFFEFF5FF),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(
+          color: isDark ? Colors.white12 : const Color(0xFFDCE4F5),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Icon(icon, size: 14, color: textColor),
+          const SizedBox(width: 6),
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 180),
+            child: Text(
+              label,
+              overflow: TextOverflow.ellipsis,
+              style: GoogleFonts.dmSans(
+                fontSize: 11.2,
+                fontWeight: FontWeight.w600,
+                color: textColor,
               ),
             ),
           ),
@@ -1120,13 +1479,15 @@ class _AnalysisChart extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 10),
-          Row(
-            children: <Widget>[
-              _ScoreRing(score: score),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final compact = constraints.maxWidth < 300;
+              if (compact) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
+                    Center(child: _ScoreRing(score: score)),
+                    const SizedBox(height: 12),
                     _PercentTrack(
                       label: "Positive",
                       value: _percent(analysis.positivePercentage),
@@ -1139,9 +1500,33 @@ class _AnalysisChart extends StatelessWidget {
                       color: const Color(0xFFEF4444),
                     ),
                   ],
-                ),
-              ),
-            ],
+                );
+              }
+
+              return Row(
+                children: <Widget>[
+                  _ScoreRing(score: score),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      children: <Widget>[
+                        _PercentTrack(
+                          label: "Positive",
+                          value: _percent(analysis.positivePercentage),
+                          color: const Color(0xFF22C55E),
+                        ),
+                        const SizedBox(height: 8),
+                        _PercentTrack(
+                          label: "Negative",
+                          value: _percent(analysis.negativePercentage),
+                          color: const Color(0xFFEF4444),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
           if (analysis.planetBreakdown.isNotEmpty) ...<Widget>[
             const SizedBox(height: 12),
@@ -1350,7 +1735,10 @@ class _VerdictCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Row(
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: <Widget>[
               Container(
                 padding: const EdgeInsets.symmetric(
@@ -1370,14 +1758,23 @@ class _VerdictCard extends StatelessWidget {
                   ),
                 ),
               ),
-              const Spacer(),
               if (uiMetadata.action.isNotEmpty)
-                Text(
-                  uiMetadata.action,
-                  style: GoogleFonts.dmSans(
-                    color: bodyColor,
-                    fontSize: 11.5,
-                    fontWeight: FontWeight.w600,
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
+                  decoration: BoxDecoration(
+                    color: borderColor.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Text(
+                    uiMetadata.action,
+                    style: GoogleFonts.dmSans(
+                      color: bodyColor,
+                      fontSize: 11.2,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
             ],
@@ -1632,25 +2029,38 @@ class _ShopSuggestionList extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Row(
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 6,
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: <Widget>[
-                    Expanded(
-                      child: Text(
-                        item.name.isEmpty ? "Product" : item.name,
-                        style: GoogleFonts.dmSans(
-                          fontSize: 12.5,
-                          fontWeight: FontWeight.w700,
-                          color: titleColor,
-                        ),
+                    Text(
+                      item.name.isEmpty ? "Product" : item.name,
+                      style: GoogleFonts.dmSans(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w700,
+                        color: titleColor,
                       ),
                     ),
                     if (item.price > 0)
-                      Text(
-                        "${item.currency} ${item.price.toStringAsFixed(0)}",
-                        style: GoogleFonts.dmSans(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: const Color(0xFF059669),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(
+                            0xFF059669,
+                          ).withValues(alpha: isDark ? 0.2 : 0.12),
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                        child: Text(
+                          "${item.currency} ${item.price.toStringAsFixed(0)}",
+                          style: GoogleFonts.dmSans(
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFF059669),
+                          ),
                         ),
                       ),
                   ],

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:astro_tale/App/views/Auth/sharedWidgets/place_suggestion_sheet.dart';
 import 'package:astro_tale/core/theme/app_gradients.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -68,10 +69,188 @@ class _MatchingScreenState extends State<MatchingScreen>
   @override
   void dispose() {
     _fadeController.dispose();
+    for (final controller in [
+      mName,
+      mDob,
+      mTime,
+      mPlace,
+      fName,
+      fDob,
+      fTime,
+      fPlace,
+      mYear,
+      mMonth,
+      mDate,
+      mHour,
+      mMinute,
+      mSecond,
+      mLat,
+      mLng,
+      mTz,
+      fYear,
+      fMonth,
+      fDate,
+      fHour,
+      fMinute,
+      fSecond,
+      fLat,
+      fLng,
+      fTz,
+    ]) {
+      controller.dispose();
+    }
     super.dispose();
   }
 
   // ───────── Date & Time Pickers ─────────
+  ThemeData _buildPickerTheme(ThemeData theme) {
+    final isDark = theme.brightness == Brightness.dark;
+    final colors = theme.colorScheme;
+    final pickerSurface = isDark
+        ? const Color(0xFF171B33)
+        : theme.colorScheme.surface;
+    final headerBackground = isDark ? const Color(0xFF23264A) : colors.primary;
+    final headerForeground = isDark ? Colors.white : colors.onPrimary;
+    final selectedFill = isDark ? const Color(0xFFF6C65A) : colors.primary;
+    final selectedForeground = isDark
+        ? const Color(0xFF1B1535)
+        : colors.onPrimary;
+    final dayTextColor = isDark ? Colors.white : colors.onSurface;
+    final mutedTextColor = isDark ? Colors.white70 : const Color(0xFF475569);
+    final outlineColor = isDark
+        ? Colors.white.withValues(alpha: 0.16)
+        : const Color(0xFFD6E3F6);
+
+    return theme.copyWith(
+      colorScheme: colors.copyWith(
+        primary: selectedFill,
+        onPrimary: selectedForeground,
+        surface: pickerSurface,
+        onSurface: dayTextColor,
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: pickerSurface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+      ),
+      datePickerTheme: DatePickerThemeData(
+        backgroundColor: pickerSurface,
+        surfaceTintColor: Colors.transparent,
+        headerBackgroundColor: headerBackground,
+        headerForegroundColor: headerForeground,
+        weekdayStyle: GoogleFonts.dmSans(
+          color: mutedTextColor,
+          fontWeight: FontWeight.w700,
+        ),
+        dayStyle: GoogleFonts.dmSans(
+          color: dayTextColor,
+          fontWeight: FontWeight.w500,
+        ),
+        yearStyle: GoogleFonts.dmSans(
+          color: dayTextColor,
+          fontWeight: FontWeight.w600,
+        ),
+        dividerColor: outlineColor,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        dayForegroundColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return selectedForeground;
+          }
+          if (states.contains(WidgetState.disabled)) {
+            return mutedTextColor.withValues(alpha: 0.45);
+          }
+          return dayTextColor;
+        }),
+        dayBackgroundColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return selectedFill;
+          }
+          return Colors.transparent;
+        }),
+        todayForegroundColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return selectedForeground;
+          }
+          return dayTextColor;
+        }),
+        todayBackgroundColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return selectedFill;
+          }
+          return isDark
+              ? const Color(0xFFF6C65A).withValues(alpha: 0.18)
+              : colors.primary.withValues(alpha: 0.12);
+        }),
+        todayBorder: BorderSide(
+          color: isDark ? const Color(0xFFF6C65A) : colors.primary,
+        ),
+        yearForegroundColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return selectedForeground;
+          }
+          return dayTextColor;
+        }),
+        yearBackgroundColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return selectedFill;
+          }
+          return Colors.transparent;
+        }),
+        cancelButtonStyle: TextButton.styleFrom(
+          foregroundColor: mutedTextColor,
+          textStyle: GoogleFonts.dmSans(fontWeight: FontWeight.w700),
+        ),
+        confirmButtonStyle: TextButton.styleFrom(
+          foregroundColor: isDark ? const Color(0xFFF6C65A) : colors.primary,
+          textStyle: GoogleFonts.dmSans(fontWeight: FontWeight.w700),
+        ),
+      ),
+      timePickerTheme: TimePickerThemeData(
+        backgroundColor: pickerSurface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        hourMinuteColor: isDark
+            ? const Color(0xFF23264A)
+            : colors.surfaceContainerHighest,
+        hourMinuteTextColor: dayTextColor,
+        dayPeriodColor: isDark
+            ? const Color(0xFF23264A)
+            : colors.surfaceContainerHighest,
+        dayPeriodTextColor: dayTextColor,
+        dialBackgroundColor: isDark
+            ? const Color(0xFF23264A)
+            : colors.surfaceContainerHighest,
+        dialHandColor: selectedFill,
+        dialTextColor: dayTextColor,
+        entryModeIconColor: selectedFill,
+        helpTextStyle: GoogleFonts.dmSans(
+          color: mutedTextColor,
+          fontWeight: FontWeight.w700,
+        ),
+        hourMinuteTextStyle: GoogleFonts.dmSans(
+          color: dayTextColor,
+          fontWeight: FontWeight.w700,
+        ),
+        dayPeriodTextStyle: GoogleFonts.dmSans(
+          color: dayTextColor,
+          fontWeight: FontWeight.w700,
+        ),
+        cancelButtonStyle: TextButton.styleFrom(
+          foregroundColor: mutedTextColor,
+          textStyle: GoogleFonts.dmSans(fontWeight: FontWeight.w700),
+        ),
+        confirmButtonStyle: TextButton.styleFrom(
+          foregroundColor: isDark ? const Color(0xFFF6C65A) : colors.primary,
+          textStyle: GoogleFonts.dmSans(fontWeight: FontWeight.w700),
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: isDark ? const Color(0xFFF6C65A) : colors.primary,
+          textStyle: GoogleFonts.dmSans(fontWeight: FontWeight.w700),
+        ),
+      ),
+    );
+  }
+
   Future<void> _pickDate(
     TextEditingController display,
     TextEditingController year,
@@ -83,17 +262,10 @@ class _MatchingScreenState extends State<MatchingScreen>
       initialDate: DateTime.now(),
       firstDate: DateTime(1900),
       lastDate: DateTime.now(),
-      builder: (context, child) => Theme(
-        data: Theme.of(context).copyWith(
-          colorScheme: Theme.of(context).colorScheme.copyWith(
-            primary: Theme.of(context).colorScheme.primary,
-            onPrimary: Theme.of(context).colorScheme.onPrimary,
-            surface: Theme.of(context).colorScheme.surface,
-            onSurface: Theme.of(context).colorScheme.onSurface,
-          ),
-        ),
-        child: child!,
-      ),
+      builder: (context, child) {
+        final theme = Theme.of(context);
+        return Theme(data: _buildPickerTheme(theme), child: child!);
+      },
     );
 
     if (picked != null) {
@@ -115,17 +287,10 @@ class _MatchingScreenState extends State<MatchingScreen>
     TimeOfDay? picked = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.now(),
-      builder: (context, child) => Theme(
-        data: Theme.of(context).copyWith(
-          colorScheme: Theme.of(context).colorScheme.copyWith(
-            primary: Theme.of(context).colorScheme.primary,
-            onPrimary: Theme.of(context).colorScheme.onPrimary,
-            surface: Theme.of(context).colorScheme.surface,
-            onSurface: Theme.of(context).colorScheme.onSurface,
-          ),
-        ),
-        child: child!,
-      ),
+      builder: (context, child) {
+        final theme = Theme.of(context);
+        return Theme(data: _buildPickerTheme(theme), child: child!);
+      },
     );
 
     if (picked != null) {
@@ -140,6 +305,36 @@ class _MatchingScreenState extends State<MatchingScreen>
 
   // ───────── API Logic ─────────
   Future<void> _checkCompatibility() async {
+    FocusScope.of(context).unfocus();
+
+    final maleMissing = _missingVisibleFields(
+      name: mName,
+      dob: mDob,
+      time: mTime,
+      place: mPlace,
+    );
+    if (maleMissing.isNotEmpty) {
+      if (!showMale) {
+        setState(() => showMale = true);
+      }
+      _showError("Please fill male ${maleMissing.first}.");
+      return;
+    }
+
+    final femaleMissing = _missingVisibleFields(
+      name: fName,
+      dob: fDob,
+      time: fTime,
+      place: fPlace,
+    );
+    if (femaleMissing.isNotEmpty) {
+      if (showMale) {
+        setState(() => showMale = false);
+      }
+      _showError("Please fill female ${femaleMissing.first}.");
+      return;
+    }
+
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => isLoading = true);
@@ -147,6 +342,45 @@ class _MatchingScreenState extends State<MatchingScreen>
     try {
       await _resolvePlace(mPlace.text, mLat, mLng, mTz, 19.0760, 72.8777);
       await _resolvePlace(fPlace.text, fLat, fLng, fTz, 28.6139, 77.2090);
+
+      final generatedFields = [
+        mYear,
+        mMonth,
+        mDate,
+        mHour,
+        mMinute,
+        mSecond,
+        mLat,
+        mLng,
+        mTz,
+        fYear,
+        fMonth,
+        fDate,
+        fHour,
+        fMinute,
+        fSecond,
+        fLat,
+        fLng,
+        fTz,
+      ];
+
+      final hasEmptyGeneratedField = generatedFields.any(
+        (controller) => controller.text.trim().isEmpty,
+      );
+      if (hasEmptyGeneratedField) {
+        _showError("Please reselect the birth details and try again.");
+        return;
+      }
+
+      final hasInvalidNumber = generatedFields.any(
+        (controller) => double.tryParse(controller.text.trim()) == null,
+      );
+      if (hasInvalidNumber) {
+        _showError(
+          "Some birth details are invalid. Please check and try again.",
+        );
+        return;
+      }
 
       final body = {
         "male": _buildPerson(
@@ -207,6 +441,20 @@ class _MatchingScreenState extends State<MatchingScreen>
     }
   }
 
+  List<String> _missingVisibleFields({
+    required TextEditingController name,
+    required TextEditingController dob,
+    required TextEditingController time,
+    required TextEditingController place,
+  }) {
+    final missing = <String>[];
+    if (name.text.trim().isEmpty) missing.add("name");
+    if (dob.text.trim().isEmpty) missing.add("date of birth");
+    if (time.text.trim().isEmpty) missing.add("time of birth");
+    if (place.text.trim().isEmpty) missing.add("place of birth");
+    return missing;
+  }
+
   Map<String, dynamic> _buildPerson(
     TextEditingController name,
     TextEditingController year,
@@ -220,15 +468,15 @@ class _MatchingScreenState extends State<MatchingScreen>
     TextEditingController tz,
   ) => {
     "name": name.text,
-    "year": int.parse(year.text),
-    "month": int.parse(month.text),
-    "date": int.parse(date.text),
-    "hours": int.parse(hour.text),
-    "minutes": int.parse(minute.text),
-    "seconds": int.parse(second.text),
-    "latitude": double.parse(lat.text),
-    "longitude": double.parse(lng.text),
-    "timezone": double.parse(tz.text),
+    "year": int.tryParse(year.text) ?? 0,
+    "month": int.tryParse(month.text) ?? 0,
+    "date": int.tryParse(date.text) ?? 0,
+    "hours": int.tryParse(hour.text) ?? 0,
+    "minutes": int.tryParse(minute.text) ?? 0,
+    "seconds": int.tryParse(second.text) ?? 0,
+    "latitude": double.tryParse(lat.text) ?? 0.0,
+    "longitude": double.tryParse(lng.text) ?? 0.0,
+    "timezone": double.tryParse(tz.text) ?? 0.0,
   };
 
   Future<void> _resolvePlace(
@@ -257,6 +505,30 @@ class _MatchingScreenState extends State<MatchingScreen>
     }
   }
 
+  Future<void> _pickBirthPlace(
+    TextEditingController place,
+    TextEditingController lat,
+    TextEditingController lng,
+    TextEditingController tz,
+    double fallbackLat,
+    double fallbackLng,
+  ) async {
+    final selected = await showPlaceSuggestionSheet(
+      context: context,
+      title: "Select Place of Birth",
+      initialValue: place.text,
+    );
+    if (selected == null || selected.trim().isEmpty) {
+      return;
+    }
+
+    place.text = selected.trim();
+    await _resolvePlace(place.text, lat, lng, tz, fallbackLat, fallbackLng);
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
   void _showError(String msg) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(backgroundColor: Colors.blueGrey.shade900, content: Text(msg)),
@@ -270,6 +542,7 @@ class _MatchingScreenState extends State<MatchingScreen>
     required TextEditingController controller,
     bool readOnly = false,
     VoidCallback? onTap,
+    ValueChanged<String>? onChanged,
   }) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
@@ -288,26 +561,31 @@ class _MatchingScreenState extends State<MatchingScreen>
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
-          BoxShadow(
-            color: Colors.black.withOpacity(0.003),
-            blurRadius: 10,
-            offset: const Offset(0, 0),
-          ),
         ],
       ),
       child: TextFormField(
         controller: controller,
         readOnly: readOnly,
         onTap: onTap,
-        validator: (v) => v!.isEmpty ? "Required" : null,
-        style: GoogleFonts.dmSans(color: colors.onSurface, fontSize: 14),
+        onChanged: onChanged,
+        validator: (value) =>
+            value == null || value.trim().isEmpty ? "Required" : null,
+        style: GoogleFonts.dmSans(
+          color: isDark ? Colors.white : colors.onSurface,
+          fontSize: 14,
+        ),
         decoration: InputDecoration(
+          filled: true,
+          fillColor: AppGradients.glassFill(theme),
           prefixIcon: Icon(icon, color: colors.primary),
           hintText: label,
           hintStyle: GoogleFonts.dmSans(
-            color: colors.onSurface.withOpacity(0.6),
+            color: isDark ? Colors.white70 : colors.onSurface.withOpacity(0.6),
           ),
-          border: InputBorder.none,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: BorderSide.none,
+          ),
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 14,
             vertical: 14,
@@ -533,6 +811,7 @@ class _MatchingScreenState extends State<MatchingScreen>
             label: "Full Name",
             icon: Icons.person_outline,
             controller: mName,
+            onChanged: (v) {},
           ),
           const SizedBox(height: 12),
           _glassInputField(
@@ -541,6 +820,14 @@ class _MatchingScreenState extends State<MatchingScreen>
             controller: mDob,
             readOnly: true,
             onTap: () => _pickDate(mDob, mYear, mMonth, mDate),
+            onChanged: (v) {
+              // If user clears DOB, clear hidden fields
+              if (v.isEmpty) {
+                mYear.text = '';
+                mMonth.text = '';
+                mDate.text = '';
+              }
+            },
           ),
           const SizedBox(height: 12),
           _glassInputField(
@@ -549,12 +836,22 @@ class _MatchingScreenState extends State<MatchingScreen>
             controller: mTime,
             readOnly: true,
             onTap: () => _pickTime(mTime, mHour, mMinute, mSecond),
+            onChanged: (v) {
+              if (v.isEmpty) {
+                mHour.text = '';
+                mMinute.text = '';
+                mSecond.text = '';
+              }
+            },
           ),
           const SizedBox(height: 12),
           _glassInputField(
             label: "Place of Birth",
             icon: Icons.location_on,
             controller: mPlace,
+            readOnly: true,
+            onTap: () =>
+                _pickBirthPlace(mPlace, mLat, mLng, mTz, 19.0760, 72.8777),
           ),
         ],
       ),
@@ -592,6 +889,7 @@ class _MatchingScreenState extends State<MatchingScreen>
             label: "Full Name",
             icon: Icons.person_outline,
             controller: fName,
+            onChanged: (v) {},
           ),
           const SizedBox(height: 12),
           _glassInputField(
@@ -600,6 +898,13 @@ class _MatchingScreenState extends State<MatchingScreen>
             controller: fDob,
             readOnly: true,
             onTap: () => _pickDate(fDob, fYear, fMonth, fDate),
+            onChanged: (v) {
+              if (v.isEmpty) {
+                fYear.text = '';
+                fMonth.text = '';
+                fDate.text = '';
+              }
+            },
           ),
           const SizedBox(height: 12),
           _glassInputField(
@@ -608,12 +913,22 @@ class _MatchingScreenState extends State<MatchingScreen>
             controller: fTime,
             readOnly: true,
             onTap: () => _pickTime(fTime, fHour, fMinute, fSecond),
+            onChanged: (v) {
+              if (v.isEmpty) {
+                fHour.text = '';
+                fMinute.text = '';
+                fSecond.text = '';
+              }
+            },
           ),
           const SizedBox(height: 12),
           _glassInputField(
             label: "Place of Birth",
             icon: Icons.location_on,
             controller: fPlace,
+            readOnly: true,
+            onTap: () =>
+                _pickBirthPlace(fPlace, fLat, fLng, fTz, 28.6139, 77.2090),
           ),
         ],
       ),

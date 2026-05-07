@@ -1,0 +1,1253 @@
+{
+  "info": {
+    "_postman_id": "user-operations-collection-001",
+    "name": "AstroNexus User Operations",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Updated collection for AstroNexus user, commerce, and astrology APIs."
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://astronexus-live.onrender.com"
+    },
+    {
+      "key": "baseUrl",
+      "value": "https://astronexus-live.onrender.com"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "sessionId",
+      "value": ""
+    },
+    {
+      "key": "productId",
+      "value": ""
+    },
+    {
+      "key": "categoryId",
+      "value": ""
+    },
+    {
+      "key": "addressId",
+      "value": ""
+    },
+    {
+      "key": "orderId",
+      "value": ""
+    },
+    {
+      "key": "paymentId",
+      "value": ""
+    },
+    {
+      "key": "userId",
+      "value": ""
+    },
+    {
+      "key": "birthChartId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Sign Up (Basic)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test User\",\n  \"phone\": \"9876543210\",\n  \"email\": \"user1@example.com\",\n  \"password\": \"Test@1234\",\n  \"confirmPassword\": \"Test@1234\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/user/signup/basic",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user",
+                "signup",
+                "basic"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Sign Up (Astrology)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test User\",\n  \"phone\": \"9876543210\",\n  \"email\": \"user1@example.com\",\n  \"password\": \"Test@1234\",\n  \"confirmPassword\": \"Test@1234\",\n  \"dateOfBirth\": \"1990-01-01\",\n  \"timeOfBirth\": \"12:00\",\n  \"placeOfBirth\": \"Mumbai\",\n  \"birthChartId\": \"{{birthChartId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/user/signup/astrology",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user",
+                "signup",
+                "astrology"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Login (Email)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user1@example.com\",\n  \"password\": \"Test@1234\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/user/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Login (Phone)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"9876543210\",\n  \"password\": \"Test@1234\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/user/login/phone",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user",
+                "login",
+                "phone"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Verify Firebase OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idToken\": \"FIREBASE_ID_TOKEN_HERE\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/user/verify-otp",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user",
+                "verify-otp"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/user/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user",
+                "logout"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"oldPassword\": \"Test@1234\",\n  \"newPassword\": \"NewPass@5678\",\n  \"confirmPassword\": \"NewPass@5678\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/user/change-password",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user",
+                "change-password"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Profile",
+      "item": [
+        {
+          "name": "Get My Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/user/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user",
+                "me"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update My Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated User\",\n  \"email\": \"updated.user@example.com\",\n  \"phone\": \"9876543210\",\n  \"astrologyProfile\": {\n    \"dateOfBirth\": \"1991-02-02\",\n    \"timeOfBirth\": \"10:30\",\n    \"placeOfBirth\": \"Delhi\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/user/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user",
+                "me"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Upload Profile Image",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "profileImg",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/user/profile-image",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user",
+                "profile-image"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Catalog",
+      "item": [
+        {
+          "name": "Home Products",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/user/home-products",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user",
+                "home-products"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Categories",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/user/categories",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user",
+                "categories"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Products",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/user/products",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user",
+                "products"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Products By Category",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/user/products?category={{categoryId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user",
+                "products"
+              ],
+              "query": [
+                {
+                  "key": "category",
+                  "value": "{{categoryId}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Product By ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/user/products/{{productId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user",
+                "products",
+                "{{productId}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cart",
+      "item": [
+        {
+          "name": "Get Cart",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/user/cart",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user",
+                "cart"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Add To Cart",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": \"{{productId}}\",\n  \"quantity\": 2\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/user/cart/add",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user",
+                "cart",
+                "add"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Cart Item",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": \"{{productId}}\",\n  \"quantity\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/user/cart/update",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user",
+                "cart",
+                "update"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Remove Cart Item",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/user/cart/remove/{{productId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user",
+                "cart",
+                "remove",
+                "{{productId}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Wishlist",
+      "item": [
+        {
+          "name": "Add Wishlist Product",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": \"{{productId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/user/wishlist",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user",
+                "wishlist"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Wishlist",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/user/wishlist",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user",
+                "wishlist"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Remove Wishlist Product",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": \"{{productId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/user/wishlist/remove",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user",
+                "wishlist",
+                "remove"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Addresses",
+      "item": [
+        {
+          "name": "Get My Addresses",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/user/addresses",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user",
+                "addresses"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Add Address",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Test User\",\n  \"phone\": \"9876543210\",\n  \"line1\": \"123 Main Street\",\n  \"line2\": \"Near City Mall\",\n  \"city\": \"Mumbai\",\n  \"state\": \"Maharashtra\",\n  \"postalCode\": \"400001\",\n  \"country\": \"India\",\n  \"isDefault\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/user/addresses/add",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user",
+                "addresses",
+                "add"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Address",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"city\": \"Pune\",\n  \"postalCode\": \"411001\",\n  \"isDefault\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/user/addresses/{{addressId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user",
+                "addresses",
+                "{{addressId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Address",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/user/addresses/{{addressId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user",
+                "addresses",
+                "{{addressId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get All Addresses (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/user/addresses/all",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user",
+                "addresses",
+                "all"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Address (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/user/admin/addresses/{{addressId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user",
+                "admin",
+                "addresses",
+                "{{addressId}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Orders",
+      "item": [
+        {
+          "name": "Place Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"addressId\": \"{{addressId}}\",\n  \"deliveryType\": \"physical\",\n  \"paymentMethod\": \"UPI\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/user/orders",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user",
+                "orders"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get My Orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/user/orders/my",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user",
+                "orders",
+                "my"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Order By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/user/orders/{{orderId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user",
+                "orders",
+                "{{orderId}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Payments",
+      "item": [
+        {
+          "name": "Create Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 499,\n  \"method\": \"UPI\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/user/payment/create",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user",
+                "payment",
+                "create"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Verify Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paymentId\": \"{{paymentId}}\",\n  \"transactionId\": \"txn_123456789\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/user/payment/verify",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user",
+                "payment",
+                "verify"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Wallet",
+      "item": [
+        {
+          "name": "Get Wallet",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/user/{{userId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user",
+                "{{userId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Deposit Wallet",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 500\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/user/{{userId}}/deposit",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user",
+                "{{userId}}",
+                "deposit"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Withdraw Wallet",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 200\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/user/{{userId}}/withdraw",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user",
+                "{{userId}}",
+                "withdraw"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Feedback",
+      "item": [
+        {
+          "name": "Create Feedback",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": \"{{productId}}\",\n  \"rating\": 5,\n  \"comment\": \"Amazing product, highly recommend!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/feedback",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "feedback"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Chat",
+      "item": [
+        {
+          "name": "Ask Mati Chat",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sessionId\": \"{{sessionId}}\",\n  \"message\": \"which products is good for me\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/unified/mati-chat",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "unified",
+                "mati-chat"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Horoscope",
+      "item": [
+        {
+          "name": "Generate Horoscope Chart",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"year\": 1990,\n  \"month\": 1,\n  \"date\": 1,\n  \"hours\": 12,\n  \"minutes\": 0,\n  \"seconds\": 0,\n  \"latitude\": 19.076,\n  \"longitude\": 72.8777,\n  \"timezone\": 5.5\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/horoscope/chart",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "horoscope",
+                "chart"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tarot",
+      "item": [
+        {
+          "name": "Get Random Tarot Cards",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/tarot/random?n=3",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "tarot",
+                "random"
+              ],
+              "query": [
+                {
+                  "key": "n",
+                  "value": "3"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Compatibility",
+      "item": [
+        {
+          "name": "Ashtakoot Score",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"male\": {\n    \"year\": 1990,\n    \"month\": 1,\n    \"date\": 1,\n    \"hours\": 12,\n    \"minutes\": 0,\n    \"seconds\": 0,\n    \"latitude\": 19.076,\n    \"longitude\": 72.8777,\n    \"timezone\": 5.5\n  },\n  \"female\": {\n    \"year\": 1992,\n    \"month\": 2,\n    \"date\": 2,\n    \"hours\": 14,\n    \"minutes\": 0,\n    \"seconds\": 0,\n    \"latitude\": 28.6139,\n    \"longitude\": 77.209,\n    \"timezone\": 5.5\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/compatibility/match-making/ashtakoot-score",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "compatibility",
+                "match-making",
+                "ashtakoot-score"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Birth Chart",
+      "item": [
+        {
+          "name": "Generate Birth Chart",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test User\",\n  \"gender\": \"male\",\n  \"birth_date\": {\n    \"year\": 1990,\n    \"month\": 1,\n    \"day\": 1\n  },\n  \"birth_time\": {\n    \"hour\": 12,\n    \"minute\": 0,\n    \"ampm\": \"pm\"\n  },\n  \"place_of_birth\": \"Mumbai\",\n  \"astrology_type\": \"vedic\",\n  \"ayanamsa\": \"lahiri\",\n  \"userId\": \"{{userId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/birthchart/generate",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "birthchart",
+                "generate"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Unified Horoscope",
+      "item": [
+        {
+          "name": "Get Unified Horoscope",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/unified/horoscope?sign=leo&type=daily&day=TODAY",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "unified",
+                "horoscope"
+              ],
+              "query": [
+                {
+                  "key": "sign",
+                  "value": "leo"
+                },
+                {
+                  "key": "type",
+                  "value": "daily"
+                },
+                {
+                  "key": "day",
+                  "value": "TODAY"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

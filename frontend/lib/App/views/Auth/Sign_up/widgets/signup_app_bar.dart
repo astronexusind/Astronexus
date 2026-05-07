@@ -5,11 +5,17 @@ import 'package:google_fonts/google_fonts.dart';
 class SignupAppBar extends StatelessWidget implements PreferredSizeWidget {
   final int step;
   final VoidCallback onBack;
+  final bool compact;
 
-  const SignupAppBar({super.key, required this.step, required this.onBack});
+  const SignupAppBar({
+    super.key,
+    required this.step,
+    required this.onBack,
+    this.compact = false,
+  });
 
   @override
-  Size get preferredSize => const Size.fromHeight(110);
+  Size get preferredSize => Size.fromHeight(compact ? 84 : 110);
 
   @override
   Widget build(BuildContext context) {
@@ -38,19 +44,23 @@ class SignupAppBar extends StatelessWidget implements PreferredSizeWidget {
 
           title: Column(
             children: [
-              const SizedBox(height: 20),
+              SizedBox(height: compact ? 8 : 20),
               Text(
                 _title(step),
                 style: GoogleFonts.dmSans(
-                  fontSize: 18,
+                  fontSize: compact ? 16 : 18,
                   fontWeight: FontWeight.w600,
                   color: AppColors.onDark,
                 ),
               ),
-              Text(
-                "Cosmic Step ${step + 1} / 7",
-                style: GoogleFonts.dmSans(fontSize: 12, color: Colors.white70),
-              ),
+              if (!compact)
+                Text(
+                  "Cosmic Step ${step + 1} / 7",
+                  style: GoogleFonts.dmSans(
+                    fontSize: 12,
+                    color: Colors.white70,
+                  ),
+                ),
             ],
           ),
         ),

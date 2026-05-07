@@ -10,6 +10,15 @@ import "package:shared_preferences/shared_preferences.dart";
 class ProfileService {
   const ProfileService._();
 
+  static String normalizeAvatarUrl(String rawUrl) {
+    return _normalizeAvatarUrl(rawUrl);
+  }
+
+  static Future<String> getCachedAvatarUrl() async {
+    final prefs = await SharedPreferences.getInstance();
+    return _normalizeAvatarUrl(prefs.getString("userAvatar") ?? "");
+  }
+
   static Future<void> fetchMyProfile() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString("auth_token");

@@ -102,10 +102,12 @@ class MatiChatResponse {
   final List<MatiShopSuggestion> shopSuggestions;
   final Map<String, dynamic> raw;
 
+  bool get hasReport => report?.hasContent ?? false;
+
   bool get hasRichData =>
       analysis != null ||
       (timing?.hasContent ?? false) ||
-      (report?.hasContent ?? false) ||
+      hasReport ||
       uiMetadata != null ||
       nutritionGuidance != null ||
       shopSuggestions.isNotEmpty;
@@ -225,8 +227,18 @@ class MatiReportData {
   final String fileName;
   final List<MatiReportSection> sections;
 
+  List<MatiReportSection> get visibleSections => sections
+      .where(
+        (section) =>
+            section.heading.trim().isNotEmpty &&
+            section.content.trim().isNotEmpty,
+      )
+      .toList(growable: false);
+
+  int get sectionCount => visibleSections.length;
+
   bool get hasContent =>
-      title.isNotEmpty || summary.isNotEmpty || sections.isNotEmpty;
+      title.isNotEmpty || summary.isNotEmpty || visibleSections.isNotEmpty;
 
   factory MatiReportData.fromJson(Map<String, dynamic> json) {
     final rawSections = json["sections"];

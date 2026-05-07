@@ -22,15 +22,13 @@ class ChatBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final useLightUserBubble = isUser && isDark;
     final maxWidth = MediaQuery.of(context).size.width * 0.72;
     final textColor = isUser
-        ? Colors.white
+        ? (useLightUserBubble ? const Color(0xFF0F172A) : Colors.white)
         : (isDark
               ? Colors.white.withValues(alpha: 0.92)
               : const Color(0xFF0F172A));
-    final botBubbleColor = isDark
-        ? AppColors.surfaceAlt
-        : Colors.white.withValues(alpha: 0.96);
     final userGradient = const LinearGradient(
       colors: <Color>[Color(0xFF2B6CB0), Color(0xFF1E3A8A)],
       begin: Alignment.topLeft,
@@ -116,21 +114,15 @@ class ChatBubble extends StatelessWidget {
             : MainAxisAlignment.start,
         children: <Widget>[
           if (!isUser) ...<Widget>[
-            CircleAvatar(
+            _ChatAvatar(
               radius: 19,
               backgroundColor: isDark
                   ? const Color(0xFF24314E)
                   : const Color(0xFFEAF2FF),
-              backgroundImage: botAvatar != null
-                  ? AssetImage(botAvatar!)
-                  : null,
-              child: botAvatar == null
-                  ? const Icon(
-                      Icons.auto_awesome,
-                      size: 16,
-                      color: Color(0xFF2563EB),
-                    )
-                  : null,
+              assetPath: botAvatar,
+              fallbackAsset: "assets/images/mati.png",
+              fallbackIcon: Icons.auto_awesome,
+              iconColor: const Color(0xFF2563EB),
             ),
             const SizedBox(width: 8),
           ],
@@ -142,21 +134,23 @@ class ChatBubble extends StatelessWidget {
                   : const EdgeInsets.fromLTRB(14, 12, 14, 16),
               decoration: BoxDecoration(
                 gradient: isUser
-                    ? userGradient
+                    ? (useLightUserBubble ? null : userGradient)
                     : LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: isDark
                             ? [
-                                const Color(0xFF2B2E4A).withOpacity(0.92),
-                                const Color(0xFF23264A).withOpacity(0.98),
+                                const Color(0xFF2B2E4A).withValues(alpha: 0.92),
+                                const Color(0xFF23264A).withValues(alpha: 0.98),
                               ]
                             : [
-                                Colors.white.withOpacity(0.98),
-                                const Color(0xFFF3F7FF).withOpacity(0.98),
+                                Colors.white.withValues(alpha: 0.98),
+                                const Color(0xFFF3F7FF).withValues(alpha: 0.98),
                               ],
                       ),
-                color: isUser ? null : null,
+                color: isUser
+                    ? (useLightUserBubble ? Colors.white : null)
+                    : null,
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(18),
                   topRight: const Radius.circular(18),
@@ -165,13 +159,15 @@ class ChatBubble extends StatelessWidget {
                 ),
                 border: Border.all(
                   color: isUser
-                      ? Colors.transparent
+                      ? (useLightUserBubble
+                            ? const Color(0xFFDCE4F5)
+                            : Colors.transparent)
                       : (isDark ? Colors.white24 : const Color(0xFFD8E3F6)),
                   width: 1.2,
                 ),
                 boxShadow: <BoxShadow>[
                   BoxShadow(
-                    color: Colors.black.withOpacity(isDark ? 0.18 : 0.07),
+                    color: Colors.black.withValues(alpha: isDark ? 0.18 : 0.07),
                     blurRadius: 14,
                     offset: const Offset(0, 6),
                   ),
@@ -181,8 +177,10 @@ class ChatBubble extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (!isUser) ...[
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
                         Container(
                           padding: const EdgeInsets.symmetric(
@@ -191,8 +189,10 @@ class ChatBubble extends StatelessWidget {
                           ),
                           decoration: BoxDecoration(
                             color: isDark
-                                ? const Color(0xFF3B3F5C).withOpacity(0.7)
-                                : const Color(0xFF7C3AED).withOpacity(0.18),
+                                ? const Color(0xFF3B3F5C).withValues(alpha: 0.7)
+                                : const Color(
+                                    0xFF7C3AED,
+                                  ).withValues(alpha: 0.18),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Row(
@@ -207,7 +207,7 @@ class ChatBubble extends StatelessWidget {
                                 "Mati Prediction",
                                 style: GoogleFonts.dmSans(
                                   color: isDark
-                                      ? Colors.white.withOpacity(0.92)
+                                      ? Colors.white.withValues(alpha: 0.92)
                                       : const Color(0xFF2B2E4A),
                                   fontWeight: FontWeight.w700,
                                   fontSize: 13.2,
@@ -217,7 +217,6 @@ class ChatBubble extends StatelessWidget {
                             ],
                           ),
                         ),
-                        const Spacer(),
                         Icon(
                           Icons.auto_graph_rounded,
                           size: 17,
@@ -236,21 +235,97 @@ class ChatBubble extends StatelessWidget {
           ),
           if (isUser) ...<Widget>[
             const SizedBox(width: 8),
-            CircleAvatar(
+            _ChatAvatar(
               radius: 19,
               backgroundColor: isDark
                   ? Colors.white12
                   : const Color(0xFFEAF2FF),
-              backgroundImage: userAvatar != null
-                  ? NetworkImage(userAvatar!)
-                  : null,
-              child: userAvatar == null
-                  ? const Icon(Icons.person, size: 16, color: Color(0xFF2563EB))
-                  : null,
+              imageUrl: userAvatar,
+              fallbackAsset: "assets/icons/profile.png",
+              fallbackIcon: Icons.person,
+              iconColor: const Color(0xFF2563EB),
             ),
           ],
         ],
       ),
+    );
+  }
+}
+
+class _ChatAvatar extends StatelessWidget {
+  const _ChatAvatar({
+    required this.radius,
+    required this.backgroundColor,
+    required this.fallbackAsset,
+    required this.fallbackIcon,
+    required this.iconColor,
+    this.imageUrl,
+    this.assetPath,
+  });
+
+  final double radius;
+  final Color backgroundColor;
+  final String fallbackAsset;
+  final IconData fallbackIcon;
+  final Color iconColor;
+  final String? imageUrl;
+  final String? assetPath;
+
+  @override
+  Widget build(BuildContext context) {
+    final size = radius * 2;
+    return CircleAvatar(
+      radius: radius,
+      backgroundColor: backgroundColor,
+      child: ClipOval(
+        child: SizedBox(width: size, height: size, child: _buildImage(size)),
+      ),
+    );
+  }
+
+  Widget _buildImage(double size) {
+    final trimmedUrl = imageUrl?.trim() ?? "";
+    if (trimmedUrl.isNotEmpty) {
+      return Image.network(
+        trimmedUrl,
+        width: size,
+        height: size,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => _buildAssetFallback(size),
+      );
+    }
+
+    final trimmedAsset = assetPath?.trim() ?? "";
+    if (trimmedAsset.isNotEmpty) {
+      return Image.asset(
+        trimmedAsset,
+        width: size,
+        height: size,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => _buildAssetFallback(size),
+      );
+    }
+
+    return _buildAssetFallback(size);
+  }
+
+  Widget _buildAssetFallback(double size) {
+    final asset = fallbackAsset.trim();
+    if (asset.isNotEmpty) {
+      return Image.asset(
+        asset,
+        width: size,
+        height: size,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => _buildIconFallback(),
+      );
+    }
+    return _buildIconFallback();
+  }
+
+  Widget _buildIconFallback() {
+    return Center(
+      child: Icon(fallbackIcon, size: radius, color: iconColor),
     );
   }
 }

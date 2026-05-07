@@ -65,11 +65,8 @@ class _TarotScreenState extends State<TarotScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final cardBackground = isDark
-        ? const Color(0xFF181A2B).withOpacity(0.98)
-        : Colors.white.withOpacity(0.98);
     final cardBorder = isDark
-        ? const Color(0xFFDBC33F).withOpacity(0.22)
+        ? Colors.white.withValues(alpha: 0.18)
         : const Color(0xFFD7E4F8);
     final titleColor = isDark ? Colors.white : const Color(0xFF0F172A);
     final subtitleColor = isDark ? Colors.white70 : const Color(0xFF64748B);
@@ -103,16 +100,22 @@ class _TarotScreenState extends State<TarotScreen> {
                         gradient: isDark
                             ? LinearGradient(
                                 colors: [
-                                  const Color(0xFF181A2B),
-                                  const Color(0xFF23264A).withOpacity(0.98),
+                                  const Color(
+                                    0xFF25304F,
+                                  ).withValues(alpha: 0.96),
+                                  const Color(
+                                    0xFF1A223B,
+                                  ).withValues(alpha: 0.94),
                                 ],
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
                               )
                             : LinearGradient(
                                 colors: [
-                                  Colors.white.withOpacity(0.98),
-                                  const Color(0xFFE3E8F7).withOpacity(0.98),
+                                  Colors.white.withValues(alpha: 0.98),
+                                  const Color(
+                                    0xFFE3E8F7,
+                                  ).withValues(alpha: 0.98),
                                 ],
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
@@ -122,8 +125,10 @@ class _TarotScreenState extends State<TarotScreen> {
                         boxShadow: [
                           BoxShadow(
                             color: isDark
-                                ? Colors.black.withOpacity(0.45)
-                                : const Color(0xFF9AADD0).withOpacity(0.13),
+                                ? Colors.black.withValues(alpha: 0.45)
+                                : const Color(
+                                    0xFF9AADD0,
+                                  ).withValues(alpha: 0.13),
                             blurRadius: 18,
                             offset: const Offset(0, 10),
                           ),
@@ -182,7 +187,9 @@ class _TarotScreenState extends State<TarotScreen> {
                                   ),
                                 ),
                                 elevation: 10,
-                                shadowColor: Colors.black.withOpacity(0.22),
+                                shadowColor: Colors.black.withValues(
+                                  alpha: 0.22,
+                                ),
                                 padding: EdgeInsets.symmetric(
                                   vertical: isSmall ? 10 : 16,
                                 ),
@@ -263,21 +270,42 @@ class _TarotScreenState extends State<TarotScreen> {
     required TextEditingController controller,
     TextInputType keyboardType = TextInputType.text,
   }) {
-    // Always use pure white fill and pure black text for maximum clarity
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final fillColor = isDark
+        ? Colors.white.withValues(alpha: 0.08)
+        : Colors.white;
+    final borderColor = isDark
+        ? Colors.white.withValues(alpha: 0.26)
+        : Colors.black12;
+    final textColor = isDark ? Colors.white : Colors.black;
+    final hintColor = isDark ? Colors.white70 : Colors.black38;
+    final iconColor = isDark ? Colors.white : Colors.black54;
+
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: fillColor,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.black12, width: 1.2),
+        border: Border.all(color: borderColor, width: 1.2),
       ),
       child: TextField(
         controller: controller,
         keyboardType: keyboardType,
-        style: GoogleFonts.dmSans(color: Colors.black, fontSize: 14),
+        cursorColor: isDark
+            ? const Color(0xFFD4AF37)
+            : theme.colorScheme.primary,
+        style: GoogleFonts.dmSans(
+          color: textColor,
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+        ),
         decoration: InputDecoration(
-          prefixIcon: Icon(icon, color: Colors.black54),
+          prefixIcon: Icon(icon, color: iconColor),
           hintText: label,
-          hintStyle: GoogleFonts.dmSans(color: Colors.black38),
+          hintStyle: GoogleFonts.dmSans(
+            color: hintColor,
+            fontWeight: FontWeight.w500,
+          ),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 14,

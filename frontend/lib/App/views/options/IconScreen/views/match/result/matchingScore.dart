@@ -11,6 +11,18 @@ import '../../../../../../../ui_componets/cosmic/cosmic_one.dart';
 import '../../../../../../../ui_componets/glass/glass_card.dart';
 
 class MatchingScoreScreen extends StatelessWidget {
+  // Traditional Koota Table Data
+  static const List<Map<String, String>> kootaInfo = [
+    {"name": "Varna", "max": "1", "meaning": "Caste/Nature"},
+    {"name": "Vashya", "max": "2", "meaning": "Control/Influence"},
+    {"name": "Tara", "max": "3", "meaning": "Birth Star"},
+    {"name": "Yoni", "max": "4", "meaning": "Nature/Sexuality"},
+    {"name": "Graha Maitri", "max": "5", "meaning": "Planetary Friendship"},
+    {"name": "Gana", "max": "6", "meaning": "Temperament"},
+    {"name": "Bhakoot", "max": "7", "meaning": "Love/Relation"},
+    {"name": "Nadi", "max": "8", "meaning": "Health/Genes"},
+  ];
+
   final Map<String, dynamic> output;
 
   const MatchingScoreScreen({super.key, required this.output});
@@ -29,62 +41,86 @@ class MatchingScoreScreen extends StatelessWidget {
     final String femaleName = _personName(output["female"], "Bride");
     final List<_KootMetric> metrics = _kootMetrics();
 
+    final theme = Theme.of(context);
     return Scaffold(
-      body: Stack(
-        children: [
-          _background(),
-          SafeArea(
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                final bool compact = constraints.maxWidth < 380;
-                final double horizontalPadding = compact ? 12 : 16;
-                final double sectionSpacing = compact ? 14 : 18;
-
-                return SingleChildScrollView(
-                  padding: EdgeInsets.fromLTRB(
-                    horizontalPadding,
-                    12,
-                    horizontalPadding,
-                    24,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      _topBar(context, compact: compact),
-                      const SizedBox(height: 10),
-                      Text(
-                        "Cosmic Compatibility Overview",
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.dmSans(
-                          fontSize: compact ? 12 : 13,
-                          color: Colors.white70,
-                        ),
-                      ),
-                      SizedBox(height: sectionSpacing),
-                      _summaryCard(
-                        context,
-                        compact: compact,
-                        totalScore: totalScore,
-                        outOf: outOf,
-                        ratio: ratio,
-                        maleName: maleName,
-                        femaleName: femaleName,
-                      ),
-                      SizedBox(height: sectionSpacing),
-                      _breakdownSection(
-                        context,
-                        compact: compact,
-                        metrics: metrics,
-                      ),
-                      SizedBox(height: sectionSpacing),
-                      _downloadSection(context, compact: compact),
-                    ],
-                  ),
-                );
-              },
-            ),
+      appBar: AppBar(
+        backgroundColor: theme.colorScheme.surface,
+        elevation: 0,
+        title: Text(
+          "Matching Result",
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.w600,
+            color: theme.colorScheme.onSurface,
           ),
-        ],
+        ),
+        centerTitle: true,
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back_ios_new,
+            color: theme.colorScheme.onSurface,
+          ),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: theme.brightness == Brightness.dark
+                ? [Color(0xFF050B1E), Color(0xFF393053), Color(0xFF050B1E)]
+                : [Colors.white, Color(0xFFEAEFEF), Colors.white],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: SafeArea(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final bool compact = constraints.maxWidth < 380;
+              final double horizontalPadding = compact ? 12 : 16;
+              final double sectionSpacing = compact ? 14 : 18;
+              return SingleChildScrollView(
+                padding: EdgeInsets.fromLTRB(
+                  horizontalPadding,
+                  12,
+                  horizontalPadding,
+                  24,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _summaryCard(
+                      context,
+                      compact: compact,
+                      totalScore: totalScore,
+                      outOf: outOf,
+                      ratio: ratio,
+                      maleName: maleName,
+                      femaleName: femaleName,
+                    ),
+                    SizedBox(height: sectionSpacing),
+                    _traditionalVerdict(totalScore),
+                    SizedBox(height: sectionSpacing),
+                    _traditionalKootaTable(
+                      context,
+                      metrics: metrics,
+                      compact: compact,
+                      totalScore: totalScore,
+                      outOf: outOf,
+                    ),
+                    SizedBox(height: sectionSpacing),
+                    _breakdownTable(
+                      context,
+                      metrics: metrics,
+                      compact: compact,
+                    ),
+                    SizedBox(height: sectionSpacing),
+                    _downloadSection(context, compact: compact),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
       ),
     );
   }
@@ -421,56 +457,71 @@ class MatchingScoreScreen extends StatelessWidget {
     );
   }
 
-  Widget _breakdownSection(
+  Widget _breakdownTable(
     BuildContext context, {
-    required bool compact,
     required List<_KootMetric> metrics,
+    required bool compact,
   }) {
-    return glassCard(
-      padding: EdgeInsets.zero,
+    final theme = Theme.of(context);
+    return Card(
+      color: theme.brightness == Brightness.dark
+          ? Colors.white.withOpacity(0.03)
+          : Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+      elevation: 0,
       child: Padding(
-        padding: EdgeInsets.all(compact ? 18 : 22),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _sectionLabel("Koota Breakdown"),
-            const SizedBox(height: 8),
-            Text(
-              "Each score highlights how the pair aligns across the classic eight compatibility lenses.",
-              style: GoogleFonts.dmSans(
-                fontSize: 14,
-                height: 1.45,
-                color: Colors.white70,
+        padding: EdgeInsets.all(compact ? 10 : 16),
+        child: DataTable(
+          headingRowColor: MaterialStateProperty.all(
+            theme.colorScheme.primary.withOpacity(0.08),
+          ),
+          dataRowColor: MaterialStateProperty.all(Colors.transparent),
+          columnSpacing: 16,
+          columns: const [
+            DataColumn(
+              label: Text(
+                'Koota',
+                style: TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
-            const SizedBox(height: 16),
-            LayoutBuilder(
-              builder: (context, constraints) {
-                const double spacing = 12;
-                final int columns = constraints.maxWidth >= 760
-                    ? 4
-                    : constraints.maxWidth >= 460
-                    ? 2
-                    : 1;
-                final double cardWidth = columns == 1
-                    ? constraints.maxWidth
-                    : (constraints.maxWidth - (spacing * (columns - 1))) /
-                          columns;
-
-                return Wrap(
-                  spacing: spacing,
-                  runSpacing: spacing,
-                  children: [
-                    for (final _KootMetric metric in metrics)
-                      SizedBox(
-                        width: cardWidth,
-                        child: _kootMetricCard(metric, compact: compact),
-                      ),
-                  ],
-                );
-              },
+            DataColumn(
+              label: Text(
+                'Score',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            DataColumn(
+              label: Text(
+                'Status',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
             ),
           ],
+          rows: metrics.map((metric) {
+            final Color tone = _verdictColor(metric.ratio);
+            return DataRow(
+              cells: [
+                DataCell(
+                  Text(
+                    metric.title,
+                    style: TextStyle(
+                      color: theme.colorScheme.onSurface,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                DataCell(
+                  Text(
+                    metric.scoreLabel,
+                    style: TextStyle(color: theme.colorScheme.onSurface),
+                  ),
+                ),
+                DataCell(
+                  Row(children: [_miniBadge(_metricLabel(metric.ratio), tone)]),
+                ),
+              ],
+            );
+          }).toList(),
         ),
       ),
     );
@@ -885,4 +936,203 @@ class _KootMetric {
         : score.toStringAsFixed(0);
     return "$scoreText / $outOf";
   }
+}
+
+Widget _traditionalVerdict(double score) {
+  // Classic verdicts: Uttam (Excellent), Madhyam (Average), Adham (Poor)
+  String verdict;
+  Color color;
+  if (score >= 30) {
+    verdict = "Uttam (Excellent)";
+    color = Colors.green;
+  } else if (score >= 18) {
+    verdict = "Madhyam (Average)";
+    color = Colors.orange;
+  } else {
+    verdict = "Adham (Poor)";
+    color = Colors.red;
+  }
+  return Text(
+    verdict,
+    style: TextStyle(fontWeight: FontWeight.bold, color: color),
+  );
+}
+
+Widget _traditionalKootaTable(
+  BuildContext context, {
+  required List<_KootMetric> metrics,
+  required bool compact,
+  required double totalScore,
+  required int outOf,
+}) {
+  final theme = Theme.of(context);
+  final Map<String, _KootMetric> metricMap = {
+    for (var m in metrics) m.title: m,
+  };
+  return Center(
+    child: ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 600),
+      child: Card(
+        color: theme.brightness == Brightness.dark
+            ? Colors.white.withOpacity(0.03)
+            : Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        elevation: 0,
+        margin: EdgeInsets.only(bottom: compact ? 10 : 18),
+        child: Padding(
+          padding: EdgeInsets.all(compact ? 10 : 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                "Traditional Koota Table",
+                textAlign: TextAlign.center,
+                style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.w700,
+                  fontSize: compact ? 16 : 19,
+                  color: theme.colorScheme.primary,
+                ),
+              ),
+              const SizedBox(height: 10),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: DataTable(
+                  headingRowColor: MaterialStateProperty.all(
+                    theme.colorScheme.primary.withOpacity(0.08),
+                  ),
+                  dataRowColor: MaterialStateProperty.all(Colors.transparent),
+                  columnSpacing: 18,
+                  columns: const [
+                    DataColumn(
+                      label: Center(
+                        child: Text(
+                          'Koota',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                    DataColumn(
+                      label: Center(
+                        child: Text(
+                          'Max',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      numeric: true,
+                    ),
+                    DataColumn(
+                      label: Center(
+                        child: Text(
+                          'Obtained',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      numeric: true,
+                    ),
+                    DataColumn(
+                      label: Center(
+                        child: Text(
+                          'Meaning',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                  ],
+                  rows: [
+                    for (
+                      int i = 0;
+                      i < MatchingScoreScreen.kootaInfo.length;
+                      i++
+                    )
+                      DataRow(
+                        cells: [
+                          DataCell(
+                            Center(
+                              child: Text(
+                                MatchingScoreScreen.kootaInfo[i]['name']!,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  color: theme.colorScheme.onSurface,
+                                ),
+                              ),
+                            ),
+                          ),
+                          DataCell(
+                            Center(
+                              child: Text(
+                                MatchingScoreScreen.kootaInfo[i]['max']!,
+                                style: TextStyle(
+                                  color: theme.colorScheme.onSurface,
+                                ),
+                              ),
+                            ),
+                          ),
+                          DataCell(
+                            Center(
+                              child: Text(
+                                metricMap[MatchingScoreScreen
+                                            .kootaInfo[i]['name']]
+                                        ?.scoreLabel ??
+                                    '-',
+                                style: TextStyle(
+                                  color: theme.colorScheme.onSurface,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                          DataCell(
+                            Center(
+                              child: Text(
+                                MatchingScoreScreen.kootaInfo[i]['meaning']!,
+                                style: TextStyle(
+                                  color: theme.colorScheme.onSurface
+                                      .withOpacity(0.7),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    // Total row
+                    DataRow(
+                      cells: [
+                        const DataCell(
+                          Center(
+                            child: Text(
+                              'Total',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ),
+                        DataCell(
+                          Center(
+                            child: Text(
+                              '36',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ),
+                        DataCell(
+                          Center(
+                            child: Text(
+                              '${totalScore.toStringAsFixed(0)}',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ),
+                        DataCell(
+                          Center(child: _traditionalVerdict(totalScore)),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
 }

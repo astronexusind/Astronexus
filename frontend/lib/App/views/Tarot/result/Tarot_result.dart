@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:astro_tale/App/Model/tarot_model.dart';
+import 'package:astro_tale/core/widgets/animated_app_background.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -10,7 +11,6 @@ import '../../../../services/api_services/tarot_api.dart';
 import '../pdf/tarot_pdf.dart';
 import '../widgets/modern_action_button.dart';
 import '../widgets/modern_tarot_card.dart';
-import '../../../../ui_componets/cosmic/cosmic_one.dart';
 
 class TarotResult extends StatefulWidget {
   final String name;
@@ -58,121 +58,117 @@ class _TarotResultState extends State<TarotResult> {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
-    final topGradient = isDark
-        ? const <Color>[Color(0xff070D26), Color(0xff241A3D), Color(0xff070D26)]
-        : const <Color>[
-            Color(0xFFF5F7FF),
-            Color(0xFFE7EEFF),
-            Color(0xFFF8FAFF),
-          ];
     final titleColor = isDark ? Colors.white : const Color(0xFF0F172A);
     final subtitleColor = isDark ? Colors.white70 : const Color(0xFF475569);
     final accentColor = isDark ? const Color(0xFFD4AF37) : colors.primary;
     final panelFill = isDark
-        ? const Color(0xFF1E2236)
+        ? const Color(0xFF232C4D).withValues(alpha: 0.84)
         : Colors.white.withValues(alpha: 0.94);
     final tabFill = isDark
-        ? const Color(0xFF1A2036)
+        ? const Color(0xFF18213C).withValues(alpha: 0.86)
         : Colors.white.withValues(alpha: 0.95);
+    final panelBorder = isDark ? Colors.white12 : const Color(0xFFD6E3F6);
 
     return Scaffold(
-      body: Stack(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: topGradient,
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
+      backgroundColor: theme.scaffoldBackgroundColor,
+      body: AnimatedAppBackground(
+        showStarsInDark: true,
+        showStarsInLight: true,
+        child: Stack(
+          children: [
+            if (!isDark) Positioned.fill(child: _lightTarotAura()),
+            Positioned.fill(
+              child: Container(
+                color: isDark
+                    ? Colors.black.withValues(alpha: 0.3)
+                    : Colors.white.withValues(alpha: 0.12),
               ),
             ),
-          ),
-          if (isDark) Positioned.fill(child: SmoothShootingStars()),
-          Positioned.fill(
-            child: Container(
-              color: isDark
-                  ? Colors.black.withValues(alpha: .55)
-                  : Colors.white.withValues(alpha: .45),
-            ),
-          ),
-          SafeArea(
-            child: Column(
-              children: [
-                _buildAppBar(titleColor: titleColor, accentColor: accentColor),
-                Expanded(
-                  child: FutureBuilder<List<TarotCard>>(
-                    future: futureCards,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return _shimmerLoading(
-                          isDark: isDark,
-                          titleColor: titleColor,
-                        );
-                      }
-
-                      if (snapshot.hasError) {
-                        return _errorView(
-                          snapshot.error,
-                          titleColor: titleColor,
-                          bodyColor: subtitleColor,
-                          accentColor: accentColor,
-                          isDark: isDark,
-                        );
-                      }
-
-                      final cards = snapshot.data ?? const <TarotCard>[];
-                      if (cards.isEmpty) {
-                        return _errorView(
-                          'No tarot cards returned from API.',
-                          titleColor: titleColor,
-                          bodyColor: subtitleColor,
-                          accentColor: accentColor,
-                          isDark: isDark,
-                        );
-                      }
-
-                      return SingleChildScrollView(
-                        padding: const EdgeInsets.all(18),
-                        child: Column(
-                          children: [
-                            const SizedBox(height: 20),
-                            _headerSection(
-                              cards.length,
-                              titleColor: titleColor,
-                              subtitleColor: subtitleColor,
-                            ),
-                            const SizedBox(height: 24),
-                            _readingToggle(
-                              tabFill: tabFill,
-                              accentColor: accentColor,
-                              activeTextColor: isDark
-                                  ? Colors.black
-                                  : Colors.white,
-                              inactiveTextColor: subtitleColor,
-                            ),
-                            const SizedBox(height: 26),
-                            _cardsSpread(cards),
-                            const SizedBox(height: 28),
-                            _dynamicInfoPanel(
-                              cards,
-                              panelFill: panelFill,
-                              titleColor: titleColor,
-                              accentColor: accentColor,
-                              bodyColor: subtitleColor,
-                            ),
-                            const SizedBox(height: 30),
-                            _saveButton(cards),
-                            const SizedBox(height: 40),
-                          ],
-                        ),
-                      );
-                    },
+            SafeArea(
+              child: Column(
+                children: [
+                  _buildAppBar(
+                    titleColor: titleColor,
+                    accentColor: accentColor,
                   ),
-                ),
-              ],
+                  Expanded(
+                    child: FutureBuilder<List<TarotCard>>(
+                      future: futureCards,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return _shimmerLoading(
+                            isDark: isDark,
+                            titleColor: titleColor,
+                          );
+                        }
+
+                        if (snapshot.hasError) {
+                          return _errorView(
+                            snapshot.error,
+                            titleColor: titleColor,
+                            bodyColor: subtitleColor,
+                            accentColor: accentColor,
+                            isDark: isDark,
+                          );
+                        }
+
+                        final cards = snapshot.data ?? const <TarotCard>[];
+                        if (cards.isEmpty) {
+                          return _errorView(
+                            'No tarot cards returned from API.',
+                            titleColor: titleColor,
+                            bodyColor: subtitleColor,
+                            accentColor: accentColor,
+                            isDark: isDark,
+                          );
+                        }
+
+                        return SingleChildScrollView(
+                          padding: const EdgeInsets.all(18),
+                          child: Column(
+                            children: [
+                              const SizedBox(height: 20),
+                              _headerSection(
+                                cards.length,
+                                titleColor: titleColor,
+                                subtitleColor: subtitleColor,
+                              ),
+                              const SizedBox(height: 24),
+                              _readingToggle(
+                                tabFill: tabFill,
+                                accentColor: accentColor,
+                                activeTextColor: isDark
+                                    ? Colors.black
+                                    : Colors.white,
+                                inactiveTextColor: subtitleColor,
+                                borderColor: panelBorder,
+                              ),
+                              const SizedBox(height: 26),
+                              _cardsSpread(cards),
+                              const SizedBox(height: 28),
+                              _dynamicInfoPanel(
+                                cards,
+                                panelFill: panelFill,
+                                panelBorder: panelBorder,
+                                titleColor: titleColor,
+                                accentColor: accentColor,
+                                bodyColor: subtitleColor,
+                              ),
+                              const SizedBox(height: 30),
+                              _saveButton(cards),
+                              const SizedBox(height: 40),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -232,6 +228,7 @@ class _TarotResultState extends State<TarotResult> {
     required Color accentColor,
     required Color activeTextColor,
     required Color inactiveTextColor,
+    required Color borderColor,
   }) {
     final tabs = ['Cards', 'Meanings', 'Details'];
     return Container(
@@ -239,7 +236,7 @@ class _TarotResultState extends State<TarotResult> {
       decoration: BoxDecoration(
         color: tabFill,
         borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: Colors.white24),
+        border: Border.all(color: borderColor),
       ),
       child: Row(
         children: List.generate(tabs.length, (index) {
@@ -294,6 +291,7 @@ class _TarotResultState extends State<TarotResult> {
   Widget _dynamicInfoPanel(
     List<TarotCard> cards, {
     required Color panelFill,
+    required Color panelBorder,
     required Color titleColor,
     required Color accentColor,
     required Color bodyColor,
@@ -306,7 +304,7 @@ class _TarotResultState extends State<TarotResult> {
       decoration: BoxDecoration(
         color: panelFill,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.white24),
+        border: Border.all(color: panelBorder),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -544,6 +542,43 @@ class _TarotResultState extends State<TarotResult> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _lightTarotAura() {
+    return IgnorePointer(
+      child: Stack(
+        children: [
+          Positioned(
+            top: -40,
+            right: -40,
+            child: Container(
+              width: 220,
+              height: 220,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: <Color>[Color(0x66A5B4FC), Color(0x00A5B4FC)],
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: 60,
+            left: -40,
+            child: Container(
+              width: 180,
+              height: 180,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: <Color>[Color(0x66FDE68A), Color(0x00FDE68A)],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
