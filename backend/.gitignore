@@ -26,6 +26,6 @@ dist/
 build/
 
 # Sensitive/important files
-service/config/firebaseServiceAccount.json
+src/service/config/firebaseServiceAccount.json
 service/config/firebase.js
 service/config/cloudinary.js

@@ -1,0 +1,9 @@
+node_modules
+.venv
+venv
+__pycache__
+.git
+.env
+*.log
+backend/src/controllers/charts/*.png
+.DS_Store
