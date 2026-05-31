@@ -1,6 +1,7 @@
 import express from "express";
 import { authenticateToken, authorizeAdmin } from "../../middlewares/auth.js";
 import upload from "../../middlewares/upload.js";
+import { authLimiter, uploadLimiter } from "../../middlewares/rateLimiters.js";
 
 import {
   handleBasicSignup,
@@ -31,24 +32,25 @@ import { userSignupSchema, userLoginSchema, userLoginPhoneSchema } from "../../v
 const router = express.Router();
 
 // ================== AUTH ROUTES ==================
-router.post("/signup/basic", validate(userSignupSchema), handleBasicSignup);          // Step 1 signup
-router.post("/signup/astrology", handleAstrologySignup);  // Full astrology signup
-router.post("/login", validate(userLoginSchema), handleUserLogin);                   // login by email
-router.post("/login/phone", validate(userLoginPhoneSchema), handleUserLoginWithPhone);   // login by phone
+router.post("/signup/basic", authLimiter, validate(userSignupSchema), handleBasicSignup);          // Step 1 signup
+router.post("/signup/astrology", authLimiter, handleAstrologySignup);  // Full astrology signup
+router.post("/login", authLimiter, validate(userLoginSchema), handleUserLogin);                   // login by email
+router.post("/login/phone", authLimiter, validate(userLoginPhoneSchema), handleUserLoginWithPhone);   // login by phone
 router.post("/logout", authenticateToken, handleUserLogout);
 
 router.post(
   "/profile-image",
   authenticateToken,
+  uploadLimiter,
   upload.single("profileImg"), // ✅ MUST MATCH POSTMAN
   uploadProfileImage
 );
 router.get("/me", authenticateToken, getMyProfile);
 router.put("/me", authenticateToken, updateMyProfile);
 
-router.post("/change-password", authenticateToken, changePassword);
+router.post("/change-password", authenticateToken, authLimiter, changePassword);
 
-router.post("/verify-otp", verifyFirebaseOtp);
+router.post("/verify-otp", authLimiter, verifyFirebaseOtp);
 
 
 router.get("/home-products", getHomeProducts);

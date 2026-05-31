@@ -2,13 +2,13 @@ import bcrypt from "bcryptjs";
 import validator from "validator";
 import User from "../../models/user/user.js";
 import { createToken, createRefreshToken, verifyRefreshToken } from "../../service/auth.js";
-import cloudinary from "../../service/config/cloudinary.js";
 import upload from "../../middlewares/upload.js";     
 import { authenticateToken } from "../../middlewares/auth.js";
 import BirthChart from "../../models/features/birthChartModel.js";
 import { asyncHandler } from "../../utils/asyncHandler.js";
 import { ApiError } from "../../utils/ApiError.js";
 import { ApiResponse } from "../../utils/ApiResponse.js";
+import { createS3Key, deleteS3Object, uploadBufferToS3 } from "../../service/config/s3.js";
 
 const normalizeChartId = (value) => {
   if (!value) return null;
@@ -538,12 +538,19 @@ export const uploadProfileImage = async (req, res) => {
     }
 
     if (user.profileImage?.publicId) {
-      await cloudinary.uploader.destroy(user.profileImage.publicId);
+      await deleteS3Object(user.profileImage.publicId);
     }
 
+    const key = createS3Key("users/profile-images", req.file.originalname);
+    const uploadedImage = await uploadBufferToS3({
+      key,
+      buffer: req.file.buffer,
+      mimetype: req.file.mimetype,
+    });
+
     user.profileImage = {
-      url: req.file.secure_url,
-      publicId: req.file.filename,
+      url: uploadedImage.url,
+      publicId: uploadedImage.key,
     };
 
     await user.save();

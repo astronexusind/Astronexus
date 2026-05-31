@@ -1,18 +1,21 @@
 import multer from "multer";
-import { CloudinaryStorage } from "multer-storage-cloudinary";
-import cloudinary from "../service/config/cloudinary.js";
 
-const profileStorage = new CloudinaryStorage({
-  cloudinary,
-  params: {
-    folder: "users/profile-images",
-    allowed_formats: ["jpg", "jpeg", "png", "webp"],
-    transformation: [{ width: 400, height: 400, crop: "limit" }],
-  },
-});
+const allowedImageTypes = new Set(["image/jpeg", "image/jpg", "image/png", "image/webp"]);
+
+const uploadProfileStorage = multer.memoryStorage();
+
+const fileFilter = (req, file, cb) => {
+  if (allowedImageTypes.has(file.mimetype)) {
+    cb(null, true);
+    return;
+  }
+
+  cb(new Error("Only JPG, JPEG, PNG and WEBP images are allowed"));
+};
 
 const uploadProfile = multer({
-  storage: profileStorage,
+  storage: uploadProfileStorage,
+  fileFilter,
   limits: { fileSize: 2 * 1024 * 1024 }, // 2MB
 });
 

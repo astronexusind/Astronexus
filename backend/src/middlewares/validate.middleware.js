@@ -8,7 +8,8 @@ export const validate = (schemaFn) => (req, res, next) => {
   try {
     const { error, value } = schemaFn(req.body);
     if (error) {
-      throw new ApiError(400, error);
+      const errors = Array.isArray(error) ? error : String(error).split(",").map((item) => item.trim()).filter(Boolean);
+      throw new ApiError(400, "Validation failed", errors);
     }
     // Replace body with validated/sanitized value
     req.body = value;

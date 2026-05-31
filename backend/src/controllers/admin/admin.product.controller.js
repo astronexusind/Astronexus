@@ -1,6 +1,24 @@
 
 import Product from "../../models/shop/Product.model.js";
 import Category from "../../models/shop/Category.model.js";
+import { createS3Key, deleteS3Object, extractS3KeyFromUrl, uploadBufferToS3 } from "../../service/config/s3.js";
+
+const uploadProductImages = async (files = []) => {
+  const uploadedImages = await Promise.all(
+    files.map(async (file) => {
+      const key = createS3Key("products", file.originalname);
+      const uploaded = await uploadBufferToS3({
+        key,
+        buffer: file.buffer,
+        mimetype: file.mimetype,
+      });
+
+      return uploaded.url;
+    })
+  );
+
+  return uploadedImages;
+};
 
 /**
  * ================= CREATE PRODUCT =================
@@ -37,8 +55,9 @@ export const createProduct = async (req, res) => {
       categoryId = cat._id;
     }
 
-    // ✅ CLOUDINARY IMAGES (THIS IS THE FIX)
-    const images = req.files ? req.files.map(file => file.path) : [];
+    const images = req.files && req.files.length > 0
+      ? await uploadProductImages(req.files)
+      : [];
 
     const product = await Product.create({
       name,
@@ -47,7 +66,7 @@ export const createProduct = async (req, res) => {
       stock: stock ?? 0,
       category: categoryId,
       astrologyType: astrologyType || "gemstone",
-      images, // ✅ Cloudinary URLs
+      images,
       deliveryType: deliveryType || "physical",
       isActive: isActive ?? true
     });
@@ -147,18 +166,27 @@ export const updateProduct = async (req, res) => {
       req.body.category = cat._id;
     }
 
-    // ❌ REMOVE IMAGES (DB ONLY — Cloudinary safe)
     if (req.body.removedImages) {
-      const removedImages = JSON.parse(req.body.removedImages);
+      const removedImages = Array.isArray(req.body.removedImages)
+        ? req.body.removedImages
+        : JSON.parse(req.body.removedImages);
+
+      await Promise.all(
+        removedImages.map(async (imageUrl) => {
+          const key = extractS3KeyFromUrl(imageUrl);
+          if (key) {
+            await deleteS3Object(key);
+          }
+        })
+      );
 
       product.images = product.images.filter(
         img => !removedImages.includes(img)
       );
     }
 
-    // ✅ ADD NEW IMAGES
     if (req.files && req.files.length > 0) {
-      const newImages = req.files.map(file => file.path);
+      const newImages = await uploadProductImages(req.files);
       product.images.push(...newImages);
     }
 
@@ -210,11 +238,22 @@ export const deactivateProduct = async (req, res) => {
  */
 export const deleteProductPermanent = async (req, res) => {
   try {
-    const product = await Product.findByIdAndDelete(req.params.id);
+    const product = await Product.findById(req.params.id);
 
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
+
+    await Promise.all(
+      (product.images || []).map(async (imageUrl) => {
+        const key = extractS3KeyFromUrl(imageUrl);
+        if (key) {
+          await deleteS3Object(key);
+        }
+      })
+    );
+
+    await Product.findByIdAndDelete(req.params.id);
 
     res.json({ success: true, message: "Product permanently deleted" });
   } catch (err) {

@@ -1,12 +1,13 @@
 import { verifyToken } from "../service/auth.js";
 import mongoose from "mongoose";
 import User from "../models/user/user.js"; // adjust path if needed
+import { ApiError } from "../utils/ApiError.js";
 
 
 // ✅ Admin authorization middleware
 export const authorizeAdmin = (req, res, next) => {
   if (!req.user || req.user.role !== "admin") {
-    return res.status(403).json({ message: "Admin access required" });
+    return next(new ApiError(403, "Admin access required", ["Admin access required"]));
   }
   next();
 };
@@ -22,13 +23,13 @@ export function authenticateToken(req, res, next) {
     const token = req.cookies?.token || req.headers.authorization?.split(" ")[1];
 
     if (!token) {
-      return res.status(401).json({ error: "Access denied. No token provided." });
+      return next(new ApiError(401, "Access denied. No token provided.", ["Access denied. No token provided."]));
     }
 
     const decoded = verifyToken(token);
 
     if (!decoded) {
-      return res.status(401).json({ error: "Invalid or expired token." });
+      return next(new ApiError(401, "Invalid or expired token.", ["Invalid or expired token."]));
     }
 
     // Use `id` if available, else fallback to email
@@ -38,7 +39,7 @@ export function authenticateToken(req, res, next) {
     next();
   } catch (err) {
     console.error("Token error:", err);
-    return res.status(401).json({ error: "Invalid token." });
+    return next(new ApiError(401, "Invalid token.", ["Invalid token."]));
   }
 }
 

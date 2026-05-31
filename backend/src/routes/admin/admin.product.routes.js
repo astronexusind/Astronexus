@@ -3,6 +3,7 @@ import * as controller from "../../controllers/admin/admin.product.controller.js
 import { authenticateToken } from "../../middlewares/auth.js";
 import admin from "../../middlewares/admin.middleware.js";
 import uploadProduct from "../../middlewares/upload.product.js";
+import { uploadLimiter } from "../../middlewares/rateLimiters.js";
 
 const router = Router();
 
@@ -15,6 +16,7 @@ router.use(admin);
 // CREATE PRODUCT (WITH IMAGES)
 router.post(
   "/",
+  uploadLimiter,
   uploadProduct.array("images", 5), // 👈 IMPORTANT
   controller.createProduct
 );
@@ -25,6 +27,7 @@ router.get("/:id", controller.getProductById);
 // UPDATE PRODUCT (OPTIONAL IMAGE UPDATE)
 router.put(
   "/:id",
+  uploadLimiter,
   uploadProduct.array("images", 5),
   controller.updateProduct
 );
