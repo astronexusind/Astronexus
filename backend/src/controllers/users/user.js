@@ -230,6 +230,15 @@ export const handleUserLogin = asyncHandler(async (req, res) => {
       lastLoginAt: user.lastLoginAt,
       sessionId: user.sessionId,
       astrologyProfile: user.astrologyProfile || null,
+      birthChart: charts.length > 0
+        ? {
+            id: charts[0]._id,
+            chartImage: charts[0].chartImage,
+            chartData: charts[0].chartData,
+            rashi: charts[0].rashi,
+            isTemporary: charts[0].isTemporary
+          }
+        : null,
       charts: charts.map(chart => ({
         id: chart._id,
         chartImage: chart.chartImage,
@@ -297,6 +306,15 @@ export const handleUserLoginWithPhone = asyncHandler(async (req, res) => {
       lastLoginAt: user.lastLoginAt,
       sessionId: user.sessionId,
       astrologyProfile: user.astrologyProfile || null,
+      birthChart: charts.length > 0
+        ? {
+            id: charts[0]._id,
+            chartImage: charts[0].chartImage,
+            chartData: charts[0].chartData,
+            rashi: charts[0].rashi,
+            isTemporary: charts[0].isTemporary
+          }
+        : null,
       charts: charts.map(chart => ({
         id: chart._id,
         chartImage: chart.chartImage,
@@ -346,6 +364,15 @@ export async function getMyProfile(req, res) {
             }
           : null,
         astrologyProfile: user.astrologyProfile || null,
+        birthChart: charts.length > 0
+          ? {
+              id: charts[0]._id,
+              chartImage: charts[0].chartImage,
+              chartData: charts[0].chartData,
+              rashi: charts[0].rashi,
+              isTemporary: charts[0].isTemporary
+            }
+          : null,
         charts: charts.map(chart => ({
           id: chart._id,
           chartImage: chart.chartImage,

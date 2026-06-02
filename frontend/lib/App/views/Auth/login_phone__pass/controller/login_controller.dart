@@ -192,7 +192,12 @@ class LoginController extends ChangeNotifier {
     }
 
     if (dobString == null || dobString.isEmpty) {
-      throw Exception("Birth details missing in profile");
+      return <String, dynamic>{
+        "zodiac": "",
+        "daily": const <String, dynamic>{"title": "Today", "horoscope": ""},
+        "weekly": const <String, dynamic>{"title": "This Week", "horoscope": ""},
+        "monthly": const <String, dynamic>{"title": "This Month", "horoscope": ""},
+      };
     }
 
     final dob = DateTime.parse(dobString);
