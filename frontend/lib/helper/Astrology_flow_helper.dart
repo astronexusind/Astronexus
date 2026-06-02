@@ -78,9 +78,14 @@ class AstrologyFlowHelper {
       return direct.toLowerCase();
     }
 
-    final latestChart = _pickLatestChart(
-      user["charts"] as List<dynamic>? ?? const <dynamic>[],
-    );
+    // Combine user["charts"] and user["birthChart"] if present
+    final chartsList = List<dynamic>.from(
+        user["charts"] as List<dynamic>? ?? const <dynamic>[]);
+    if (user["birthChart"] != null) {
+      chartsList.add(user["birthChart"]);
+    }
+
+    final latestChart = _pickLatestChart(chartsList);
     if (latestChart.isEmpty) {
       return "";
     }
