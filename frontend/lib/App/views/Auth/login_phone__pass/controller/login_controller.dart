@@ -90,6 +90,7 @@ class LoginController extends ChangeNotifier {
       await prefs.setString("sessionId", user["sessionId"]?.toString() ?? "");
 
       AuthController.token = token;
+      AuthController.refreshToken = refreshToken;
       AuthController.userId = userId;
       AuthController.role = user["role"]?.toString() ?? "";
 

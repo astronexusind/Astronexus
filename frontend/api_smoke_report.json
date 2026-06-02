@@ -2,7 +2,7 @@
     {
         "name":  "Auth Send OTP",
         "method":  "POST",
-        "url":  "https://auth-astronexus-1.onrender.com/api/auth/send-otp",
+        "url":  "https://backend.astronexus.in/api/auth/send-otp",
         "requiresAuth":  false,
         "status":  null,
         "outcome":  "FAIL",
@@ -11,7 +11,7 @@
     {
         "name":  "Auth Verify OTP",
         "method":  "POST",
-        "url":  "https://auth-astronexus-1.onrender.com/api/auth/verify-otp",
+        "url":  "https://backend.astronexus.in/api/auth/verify-otp",
         "requiresAuth":  false,
         "status":  null,
         "outcome":  "FAIL",
@@ -20,7 +20,7 @@
     {
         "name":  "User Login",
         "method":  "POST",
-        "url":  "https://astro-nexus-new-6-46mo.onrender.com/user/login",
+        "url":  "https://backend.astronexus.in/user/login",
         "requiresAuth":  false,
         "status":  401,
         "outcome":  "PASS_EXPECTED",
@@ -29,7 +29,7 @@
     {
         "name":  "User Phone Login",
         "method":  "POST",
-        "url":  "https://astro-nexus-new-6-46mo.onrender.com/user/login/phone",
+        "url":  "https://backend.astronexus.in/user/login/phone",
         "requiresAuth":  false,
         "status":  400,
         "outcome":  "PASS_VALIDATION",
@@ -38,7 +38,7 @@
     {
         "name":  "User Signup Astrology",
         "method":  "POST",
-        "url":  "https://astro-nexus-new-6-46mo.onrender.com/user/signup/astrology",
+        "url":  "https://backend.astronexus.in/user/signup/astrology",
         "requiresAuth":  false,
         "status":  400,
         "outcome":  "PASS_VALIDATION",
@@ -47,7 +47,7 @@
     {
         "name":  "Get Profile",
         "method":  "GET",
-        "url":  "https://astro-nexus-new-6-46mo.onrender.com/user/me",
+        "url":  "https://backend.astronexus.in/user/me",
         "requiresAuth":  true,
         "status":  401,
         "outcome":  "PASS_AUTH_REQUIRED",
@@ -56,7 +56,7 @@
     {
         "name":  "Categories",
         "method":  "GET",
-        "url":  "https://astro-nexus-new-6-46mo.onrender.com/user/categories",
+        "url":  "https://backend.astronexus.in/user/categories",
         "requiresAuth":  false,
         "status":  200,
         "outcome":  "PASS",
@@ -65,7 +65,7 @@
     {
         "name":  "Products",
         "method":  "GET",
-        "url":  "https://astro-nexus-new-6-46mo.onrender.com/user/products",
+        "url":  "https://backend.astronexus.in/user/products",
         "requiresAuth":  false,
         "status":  200,
         "outcome":  "PASS",
@@ -74,7 +74,7 @@
     {
         "name":  "Products Filtered",
         "method":  "GET",
-        "url":  "https://astro-nexus-new-6-46mo.onrender.com/user/products?category=699c91af0512f920bd915138",
+        "url":  "https://backend.astronexus.in/user/products?category=699c91af0512f920bd915138",
         "requiresAuth":  false,
         "status":  200,
         "outcome":  "PASS",
@@ -83,7 +83,7 @@
     {
         "name":  "Product By Invalid Id",
         "method":  "GET",
-        "url":  "https://astro-nexus-new-6-46mo.onrender.com/user/products/invalid-id",
+        "url":  "https://backend.astronexus.in/user/products/invalid-id",
         "requiresAuth":  false,
         "status":  400,
         "outcome":  "PASS_VALIDATION",
@@ -92,7 +92,7 @@
     {
         "name":  "Home Products",
         "method":  "GET",
-        "url":  "https://astro-nexus-new-6-46mo.onrender.com/user/home-products",
+        "url":  "https://backend.astronexus.in/user/home-products",
         "requiresAuth":  false,
         "status":  200,
         "outcome":  "PASS",
@@ -101,7 +101,7 @@
     {
         "name":  "Cart Get",
         "method":  "GET",
-        "url":  "https://astro-nexus-new-6-46mo.onrender.com/user/cart",
+        "url":  "https://backend.astronexus.in/user/cart",
         "requiresAuth":  true,
         "status":  401,
         "outcome":  "PASS_AUTH_REQUIRED",
@@ -110,7 +110,7 @@
     {
         "name":  "Cart Add",
         "method":  "POST",
-        "url":  "https://astro-nexus-new-6-46mo.onrender.com/user/cart/add",
+        "url":  "https://backend.astronexus.in/user/cart/add",
         "requiresAuth":  true,
         "status":  401,
         "outcome":  "PASS_AUTH_REQUIRED",
@@ -119,7 +119,7 @@
     {
         "name":  "Cart Update",
         "method":  "POST",
-        "url":  "https://astro-nexus-new-6-46mo.onrender.com/user/cart/add",
+        "url":  "https://backend.astronexus.in/user/cart/add",
         "requiresAuth":  true,
         "status":  401,
         "outcome":  "PASS_AUTH_REQUIRED",
@@ -128,7 +128,7 @@
     {
         "name":  "Cart Remove",
         "method":  "DELETE",
-        "url":  "https://astro-nexus-new-6-46mo.onrender.com/user/cart/remove/invalid-id",
+        "url":  "https://backend.astronexus.in/user/cart/remove/invalid-id",
         "requiresAuth":  true,
         "status":  401,
         "outcome":  "PASS_AUTH_REQUIRED",
@@ -137,7 +137,7 @@
     {
         "name":  "Orders My",
         "method":  "GET",
-        "url":  "https://astro-nexus-new-6-46mo.onrender.com/user/orders/my",
+        "url":  "https://backend.astronexus.in/user/orders/my",
         "requiresAuth":  true,
         "status":  401,
         "outcome":  "PASS_AUTH_REQUIRED",
@@ -146,7 +146,7 @@
     {
         "name":  "Order By Invalid Id",
         "method":  "GET",
-        "url":  "https://astro-nexus-new-6-46mo.onrender.com/user/orders/invalid-id",
+        "url":  "https://backend.astronexus.in/user/orders/invalid-id",
         "requiresAuth":  true,
         "status":  401,
         "outcome":  "PASS_AUTH_REQUIRED",
@@ -155,7 +155,7 @@
     {
         "name":  "Place Order",
         "method":  "POST",
-        "url":  "https://astro-nexus-new-6-46mo.onrender.com/user/orders",
+        "url":  "https://backend.astronexus.in/user/orders",
         "requiresAuth":  true,
         "status":  401,
         "outcome":  "PASS_AUTH_REQUIRED",
@@ -164,7 +164,7 @@
     {
         "name":  "Create Payment",
         "method":  "POST",
-        "url":  "https://astro-nexus-new-6-46mo.onrender.com/user/payment/create",
+        "url":  "https://backend.astronexus.in/user/payment/create",
         "requiresAuth":  true,
         "status":  401,
         "outcome":  "PASS_AUTH_REQUIRED",
@@ -173,7 +173,7 @@
     {
         "name":  "Verify Payment",
         "method":  "POST",
-        "url":  "https://astro-nexus-new-6-46mo.onrender.com/user/payment/verify",
+        "url":  "https://backend.astronexus.in/user/payment/verify",
         "requiresAuth":  true,
         "status":  401,
         "outcome":  "PASS_AUTH_REQUIRED",
@@ -182,7 +182,7 @@
     {
         "name":  "Addresses Get",
         "method":  "GET",
-        "url":  "https://astro-nexus-new-6-46mo.onrender.com/user/addresses",
+        "url":  "https://backend.astronexus.in/user/addresses",
         "requiresAuth":  true,
         "status":  401,
         "outcome":  "PASS_AUTH_REQUIRED",
@@ -191,7 +191,7 @@
     {
         "name":  "Addresses Add",
         "method":  "POST",
-        "url":  "https://astro-nexus-new-6-46mo.onrender.com/user/addresses/add",
+        "url":  "https://backend.astronexus.in/user/addresses/add",
         "requiresAuth":  true,
         "status":  401,
         "outcome":  "PASS_AUTH_REQUIRED",
@@ -200,7 +200,7 @@
     {
         "name":  "Addresses Update",
         "method":  "PUT",
-        "url":  "https://astro-nexus-new-6-46mo.onrender.com/user/addresses/invalid-id",
+        "url":  "https://backend.astronexus.in/user/addresses/invalid-id",
         "requiresAuth":  true,
         "status":  401,
         "outcome":  "PASS_AUTH_REQUIRED",
@@ -209,7 +209,7 @@
     {
         "name":  "Addresses Delete",
         "method":  "DELETE",
-        "url":  "https://astro-nexus-new-6-46mo.onrender.com/user/addresses/invalid-id",
+        "url":  "https://backend.astronexus.in/user/addresses/invalid-id",
         "requiresAuth":  true,
         "status":  401,
         "outcome":  "PASS_AUTH_REQUIRED",
@@ -218,7 +218,7 @@
     {
         "name":  "Wishlist Get",
         "method":  "GET",
-        "url":  "https://astro-nexus-new-6-46mo.onrender.com/user/wishlist",
+        "url":  "https://backend.astronexus.in/user/wishlist",
         "requiresAuth":  true,
         "status":  401,
         "outcome":  "PASS_AUTH_REQUIRED",
@@ -227,7 +227,7 @@
     {
         "name":  "Wishlist Add",
         "method":  "POST",
-        "url":  "https://astro-nexus-new-6-46mo.onrender.com/user/wishlist",
+        "url":  "https://backend.astronexus.in/user/wishlist",
         "requiresAuth":  true,
         "status":  401,
         "outcome":  "PASS_AUTH_REQUIRED",
@@ -236,7 +236,7 @@
     {
         "name":  "Wishlist Remove",
         "method":  "DELETE",
-        "url":  "https://astro-nexus-new-6-46mo.onrender.com/user/wishlist/remove",
+        "url":  "https://backend.astronexus.in/user/wishlist/remove",
         "requiresAuth":  true,
         "status":  401,
         "outcome":  "PASS_AUTH_REQUIRED",
@@ -245,7 +245,7 @@
     {
         "name":  "Wallet Get",
         "method":  "GET",
-        "url":  "https://astro-nexus-new-6-46mo.onrender.com/user/mock-user-id",
+        "url":  "https://backend.astronexus.in/user/mock-user-id",
         "requiresAuth":  false,
         "status":  200,
         "outcome":  "PASS",
@@ -254,7 +254,7 @@
     {
         "name":  "Wallet Deposit",
         "method":  "POST",
-        "url":  "https://astro-nexus-new-6-46mo.onrender.com/user/mock-user-id/deposit",
+        "url":  "https://backend.astronexus.in/user/mock-user-id/deposit",
         "requiresAuth":  false,
         "status":  200,
         "outcome":  "PASS",
@@ -263,7 +263,7 @@
     {
         "name":  "Wallet Withdraw",
         "method":  "POST",
-        "url":  "https://astro-nexus-new-6-46mo.onrender.com/user/mock-user-id/withdraw",
+        "url":  "https://backend.astronexus.in/user/mock-user-id/withdraw",
         "requiresAuth":  false,
         "status":  200,
         "outcome":  "PASS",
@@ -272,7 +272,7 @@
     {
         "name":  "Tarot Random",
         "method":  "GET",
-        "url":  "https://astro-nexus-new-6-46mo.onrender.com/api/tarot/random?n=3",
+        "url":  "https://backend.astronexus.in/api/tarot/random?n=3",
         "requiresAuth":  false,
         "status":  401,
         "outcome":  "PASS_EXPECTED",
@@ -281,7 +281,7 @@
     {
         "name":  "Discount List",
         "method":  "GET",
-        "url":  "https://astro-nexus-new-6-46mo.onrender.com/api/discount",
+        "url":  "https://backend.astronexus.in/api/discount",
         "requiresAuth":  false,
         "status":  200,
         "outcome":  "PASS",
@@ -290,7 +290,7 @@
     {
         "name":  "Discount By Code",
         "method":  "GET",
-        "url":  "https://astro-nexus-new-6-46mo.onrender.com/api/discount/TESTCODE",
+        "url":  "https://backend.astronexus.in/api/discount/TESTCODE",
         "requiresAuth":  false,
         "status":  404,
         "outcome":  "PASS_EXPECTED",
@@ -299,7 +299,7 @@
     {
         "name":  "Discount Apply",
         "method":  "POST",
-        "url":  "https://astro-nexus-new-6-46mo.onrender.com/api/discount/apply",
+        "url":  "https://backend.astronexus.in/api/discount/apply",
         "requiresAuth":  false,
         "status":  404,
         "outcome":  "PASS_EXPECTED",
@@ -308,7 +308,7 @@
     {
         "name":  "Feedback List",
         "method":  "GET",
-        "url":  "https://astro-nexus-new-6-46mo.onrender.com/api/feedback/invalid-product-id",
+        "url":  "https://backend.astronexus.in/api/feedback/invalid-product-id",
         "requiresAuth":  false,
         "status":  500,
         "outcome":  "PASS_EXPECTED",
@@ -317,7 +317,7 @@
     {
         "name":  "Feedback Submit",
         "method":  "POST",
-        "url":  "https://astro-nexus-new-6-46mo.onrender.com/api/feedback",
+        "url":  "https://backend.astronexus.in/api/feedback",
         "requiresAuth":  true,
         "status":  401,
         "outcome":  "PASS_AUTH_REQUIRED",
@@ -326,7 +326,7 @@
     {
         "name":  "Notifications List",
         "method":  "GET",
-        "url":  "https://astro-nexus-new-6-46mo.onrender.com/api/notifications",
+        "url":  "https://backend.astronexus.in/api/notifications",
         "requiresAuth":  true,
         "status":  401,
         "outcome":  "PASS_AUTH_REQUIRED",
@@ -335,7 +335,7 @@
     {
         "name":  "Notifications Mark Read",
         "method":  "PUT",
-        "url":  "https://astro-nexus-new-6-46mo.onrender.com/api/notifications/invalid-id/read",
+        "url":  "https://backend.astronexus.in/api/notifications/invalid-id/read",
         "requiresAuth":  true,
         "status":  401,
         "outcome":  "PASS_AUTH_REQUIRED",
@@ -344,7 +344,7 @@
     {
         "name":  "Chatbot Ask",
         "method":  "POST",
-        "url":  "https://astro-nexus-new-6-46mo.onrender.com/api/chatbot/ask",
+        "url":  "https://backend.astronexus.in/api/chatbot/ask",
         "requiresAuth":  true,
         "status":  401,
         "outcome":  "PASS_AUTH_REQUIRED",
@@ -353,7 +353,7 @@
     {
         "name":  "Birth Chart Generate",
         "method":  "POST",
-        "url":  "https://astro-nexus-new-6-46mo.onrender.com/api/birthchart/generate",
+        "url":  "https://backend.astronexus.in/api/birthchart/generate",
         "requiresAuth":  false,
         "status":  null,
         "outcome":  "FAIL",
@@ -362,7 +362,7 @@
     {
         "name":  "Prediction",
         "method":  "POST",
-        "url":  "https://astro-nexus-new-6-46mo.onrender.com/api/prediction",
+        "url":  "https://backend.astronexus.in/api/prediction",
         "requiresAuth":  false,
         "status":  404,
         "outcome":  "FAIL",
@@ -371,7 +371,7 @@
     {
         "name":  "Match Making",
         "method":  "POST",
-        "url":  "https://astro-nexus-new-6-46mo.onrender.com/api/v1/compatibility/match-making/ashtakoot-score",
+        "url":  "https://backend.astronexus.in/api/v1/compatibility/match-making/ashtakoot-score",
         "requiresAuth":  false,
         "status":  400,
         "outcome":  "PASS_VALIDATION",
@@ -380,7 +380,7 @@
     {
         "name":  "Horoscope Daily",
         "method":  "GET",
-        "url":  "https://astronexus-horoscope-ogbl.onrender.com/api/horoscope?sign=leo\u0026type=daily",
+        "url":  "https://backend.astronexus.in/api/horoscope?sign=leo\u0026type=daily",
         "requiresAuth":  false,
         "status":  null,
         "outcome":  "FAIL",

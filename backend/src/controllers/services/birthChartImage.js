@@ -24,7 +24,7 @@ const planetColors = {
   Pluto: "#000000"
 };
 
-// 🌟 Planet symbols
+// 🌟 Planet symbols (Using real glyphs now!)
 const planetSymbols = {
   Sun: "☉",
   Moon: "☽",
@@ -153,7 +153,7 @@ const generateChartImage = async (chartData) => {
   const filePath = path.join(dir, fileName);
   fs.writeFileSync(filePath, canvas.toBuffer("image/png"));
 
-    console.log("📂 Chart image saved at:", filePath);
+  console.log("📂 Chart image saved at:", filePath);
 
   return `/charts/${fileName}`;
 };
@@ -169,7 +169,7 @@ export const generateBirthChart = async (req, res) => {
 
     // Call Astro Nexus API
     const apiRes = await axios.post(
-      "https://astronexus-live.onrender.com/api/unified/birth-chart",
+      "https://astronexus-backend.onrender.com/api/unified/birth-chart",
       payload
     );
 
@@ -215,4 +215,6 @@ export const generateBirthChart = async (req, res) => {
       error: err.message
     });
   }
-};
+};
+
+export { generateChartImage };

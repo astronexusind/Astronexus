@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:astro_tale/App/views/Auth/auth_response_parser.dart';
 import 'package:astro_tale/services/API/APIservice.dart';
 import 'package:http/http.dart' as http;
 
@@ -20,13 +21,17 @@ class LoginApi {
           )
           .timeout(const Duration(seconds: 30)); // ⬅️ increased timeout
 
-      final data = jsonDecode(response.body);
+      final decoded = jsonDecode(response.body);
+      final data = unwrapAuthResponse(decoded);
 
-      if (response.statusCode == 200 && data["success"] == true) {
+      if (response.statusCode == 200 &&
+          (data["token"] != null ||
+              data["success"] == true ||
+              (decoded is Map && decoded["success"] == true))) {
         return data;
       } else {
         throw Exception(
-          data["message"] ?? data["error"] ?? "Invalid phone or password",
+          extractAuthError(decoded, fallback: "Invalid phone or password"),
         );
       }
     }

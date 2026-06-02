@@ -1,16 +1,17 @@
 services:
   - type: web
     name: astronexus-unified
-    env: node
+    runtime: node
     plan: free
     rootDir: .
     buildCommand: |
-      cd backend && npm ci
-      cd ../Python/horoscope/astronexus-horoscope && npm ci
-      cd ../Python/mati/astro-bot && npm ci
+      npm install --prefix backend
+      npm install --prefix Python/horoscope/astronexus-horoscope
+      npm install --prefix Python/mati/astro-bot
       python3 -m venv Python/birth_chart/astro-nexus-backend/.venv
-      Python/birth_chart/astro-nexus-backend/.venv/bin/pip install -r Python/birth_chart/astro-nexus-backend/requirements.txt
-    startCommand: cd backend && node index.js
+      Python/birth_chart/astro-nexus-backend/.venv/bin/python -m pip install --upgrade pip
+      Python/birth_chart/astro-nexus-backend/.venv/bin/python -m pip install -r Python/birth_chart/astro-nexus-backend/requirements.txt
+    startCommand: cd backend && cd src && node server.js
     envVars:
       - key: BIRTH_CHART_SERVICE_URL
         value: http://127.0.0.1:8010
@@ -18,6 +19,8 @@ services:
         value: http://127.0.0.1:4000
       - key: MATI_CHAT_SERVICE_URL
         value: http://127.0.0.1:3000
+      - key: SKIP_DB
+        value: "true"
       - key: UNIFIED_AUTOSTART
         value: "true"
       - key: UNIFIED_PROXY_TIMEOUT_MS

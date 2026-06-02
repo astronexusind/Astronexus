@@ -25,20 +25,25 @@ class PlaceApiService {
     );
 
     if (res.statusCode == 200) {
-      final data = jsonDecode(res.body);
-      if (data is! List) {
+      try {
+        final data = jsonDecode(res.body);
+        if (data is! List) {
+          return const <PlaceSuggestion>[];
+        }
+
+        return data
+            .whereType<Map>()
+            .map(
+              (item) =>
+                  item.map((key, value) => MapEntry(key.toString(), value)),
+            )
+            .where(_isCityLike)
+            .map(PlaceSuggestion.fromNominatim)
+            .where((p) => p.name.trim().isNotEmpty)
+            .toList(growable: false);
+      } catch (e) {
         return const <PlaceSuggestion>[];
       }
-
-      return data
-          .whereType<Map>()
-          .map(
-            (item) => item.map((key, value) => MapEntry(key.toString(), value)),
-          )
-          .where(_isCityLike)
-          .map(PlaceSuggestion.fromNominatim)
-          .where((p) => p.name.trim().isNotEmpty)
-          .toList(growable: false);
     }
 
     return const <PlaceSuggestion>[];

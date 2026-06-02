@@ -1,6 +1,8 @@
 import "dart:convert";
 
 import "package:astro_tale/App/Model/Horoscope/horoscope_model.dart";
+import "package:astro_tale/App/controller/Auth_Controller.dart";
+import "package:astro_tale/App/views/Auth/auth_response_parser.dart";
 import "package:astro_tale/helper/Astrology_flow_helper.dart";
 import "package:astro_tale/helper/chart_cache_helper.dart";
 import "package:astro_tale/services/API/APIservice.dart";
@@ -38,10 +40,11 @@ class SignInController {
         }),
       );
 
-      final data = jsonDecode(res.body) as Map<String, dynamic>;
+      final decoded = jsonDecode(res.body);
+      final data = unwrapAuthResponse(decoded);
       if (res.statusCode != 200 || data["token"] == null) {
         if (context.mounted) {
-          _snack(context, data["message"]?.toString() ?? "Login failed");
+          _snack(context, extractAuthError(decoded, fallback: "Login failed"));
         }
         return;
       }
@@ -70,6 +73,9 @@ class SignInController {
       await prefs.setBool("isLoggedIn", true);
 
       AuthController.token = token;
+      AuthController.refreshToken = refreshToken;
+      AuthController.userId = userId;
+      AuthController.role = role;
 
       await _cacheChartFromPayload(user);
 

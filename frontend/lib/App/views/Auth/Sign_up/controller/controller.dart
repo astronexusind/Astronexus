@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:astro_tale/App/Model/Horoscope/horoscope_model.dart';
+import 'package:astro_tale/App/controller/Auth_Controller.dart';
+import 'package:astro_tale/App/views/Auth/auth_response_parser.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -93,8 +95,11 @@ class SignupController {
     final dynamic decoded = rawBody.isNotEmpty
         ? jsonDecode(rawBody)
         : <String, dynamic>{};
-    final res = decoded is Map<String, dynamic>
+    final res = unwrapAuthResponse(decoded);
+    final root = decoded is Map<String, dynamic>
         ? decoded
+        : decoded is Map
+        ? decoded.map((key, value) => MapEntry(key.toString(), value))
         : <String, dynamic>{'message': rawBody};
 
     if (response.statusCode == 200 || response.statusCode == 201) {
@@ -104,6 +109,7 @@ class SignupController {
       final refreshToken = res['refreshToken'] ?? '';
       final user = res['user'] as Map<String, dynamic>? ?? <String, dynamic>{};
       final userId = user['id']?.toString() ?? user['_id']?.toString() ?? '';
+      final role = user['role']?.toString() ?? 'user';
 
       await prefs.setString('auth_token', token);
       await prefs.setString('refresh_token', refreshToken);
@@ -115,7 +121,13 @@ class SignupController {
         'userEmail',
         user['email']?.toString() ?? payload['email']?.toString() ?? '',
       );
+      await prefs.setString('role', role);
       await prefs.setBool('isLoggedIn', true);
+
+      AuthController.token = token;
+      AuthController.refreshToken = refreshToken;
+      AuthController.userId = userId;
+      AuthController.role = role;
 
       final zodiacFromUser = AstrologyFlowHelper.resolveZodiacFromUser(user);
       final rashi = zodiacFromUser.isNotEmpty
@@ -152,8 +164,8 @@ class SignupController {
     }
 
     final message =
-        res['message']?.toString() ??
-        res['error']?.toString() ??
+        root['message']?.toString() ??
+        root['error']?.toString() ??
         'Signup failed (${response.statusCode})';
     throw Exception(message);
   }
