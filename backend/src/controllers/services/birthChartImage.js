@@ -2,11 +2,15 @@ import axios from "axios";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import { createCanvas } from "canvas";
+import { createCanvas, registerFont } from "canvas";
 import BirthChart from "../../models/features/birthChartModel.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Register custom font for consistent rendering across platforms (especially Linux)
+const fontPath = path.join(__dirname, "../../../node_modules/@vintproykt/dejavu-fonts-ttf/ttf/DejaVuSans.ttf");
+registerFont(fontPath, { family: "DejaVu Sans" });
 
 // 🌟 Planet colors
 const planetColors = {
@@ -111,13 +115,13 @@ const generateChartImage = async (chartData) => {
 
     // House label
     ctx.fillStyle = "#3e2723";
-    ctx.font = "bold 22px 'Segoe UI'";
+    ctx.font = "bold 22px 'DejaVu Sans'";
     ctx.fillText(`House ${num}`, pos.x, y);
 
     // Zodiac sign
     y += 26;
     ctx.fillStyle = "#6a1b9a";
-    ctx.font = "bold 26px 'Segoe UI'";
+    ctx.font = "bold 26px 'DejaVu Sans'";
     ctx.fillText(house.sign, pos.x, y);
 
     // Planets
@@ -127,7 +131,7 @@ const generateChartImage = async (chartData) => {
       planets.forEach((p, i) => {
         const symbol = planetSymbols[p] || "•";
         ctx.fillStyle = planetColors[p] || "#000";
-        ctx.font = "24px 'Segoe UI Symbol'";
+        ctx.font = "24px 'DejaVu Sans'";
         ctx.fillText(`${symbol} ${p}`, pos.x, y + (i * 22));
       });
     }
@@ -140,7 +144,7 @@ const generateChartImage = async (chartData) => {
     ctx.shadowColor = "rgba(255,0,0,0.6)";
     ctx.shadowBlur = 15;
     ctx.fillStyle = "#d32f2f";
-    ctx.font = "bold 20px 'Segoe UI'";
+    ctx.font = "bold 20px 'DejaVu Sans'";
     ctx.fillText("⬆ Ascendant", x, y - 70);
     ctx.shadowBlur = 0;
   }
@@ -173,6 +177,7 @@ export const generateBirthChart = async (req, res) => {
       payload
     );
 
+    
     const chartData = apiRes?.data?.data || apiRes?.data;
 
     if (!chartData || !chartData.houses) {
