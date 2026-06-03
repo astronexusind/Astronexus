@@ -36,35 +36,34 @@ class StepBirthTime extends StatelessWidget {
         const SizedBox(height: 30),
 
         Container(
-          padding: const EdgeInsets.all(20),
+          height: 160,
+          margin: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF0A1633) : const Color(0xFFF2F5FF),
-            borderRadius: BorderRadius.circular(22),
+            color: isDark ? Colors.white.withValues(alpha: 0.04) : theme.colorScheme.surface,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: isDark ? Colors.white.withValues(alpha: 0.12) : theme.colorScheme.outline.withValues(alpha: 0.3),
+              width: 1.2,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Selected time display
-              Text(
-                "${model.hour.toString().padLeft(2, '0')} : "
-                "${model.minute.toString().padLeft(2, '0')} "
-                "${model.isAM ? 'AM' : 'PM'}",
-                style: GoogleFonts.dmSans(
-                  fontSize: 26,
-                  fontWeight: FontWeight.w700,
-                  color: isDark ? Colors.white : colors.onSurface,
-                ),
-              ),
-
-              const SizedBox(height: 20),
-
-              SizedBox(
-                height: 160,
+              Expanded(
                 child: CupertinoTheme(
                   data: CupertinoThemeData(
                     textTheme: CupertinoTextThemeData(
                       pickerTextStyle: TextStyle(
                         color: isDark ? Colors.white : colors.onSurface,
                         fontSize: 18,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ),
@@ -73,7 +72,18 @@ class StepBirthTime extends StatelessWidget {
                       // Hour picker
                       Expanded(
                         child: CupertinoPicker(
-                          itemExtent: 40,
+                          itemExtent: 44,
+                          backgroundColor: Colors.transparent,
+                          selectionOverlay: Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 8),
+                            decoration: BoxDecoration(
+                              color: isDark ? Colors.white.withValues(alpha: 0.12) : theme.colorScheme.primary.withValues(alpha: 0.08),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: isDark ? Colors.white24 : theme.colorScheme.primary.withValues(alpha: 0.2),
+                              ),
+                            ),
+                          ),
                           onSelectedItemChanged: (i) {
                             model.hour = i + 1;
                             onChanged();
@@ -90,7 +100,18 @@ class StepBirthTime extends StatelessWidget {
                       // Minute picker
                       Expanded(
                         child: CupertinoPicker(
-                          itemExtent: 40,
+                          itemExtent: 44,
+                          backgroundColor: Colors.transparent,
+                          selectionOverlay: Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 8),
+                            decoration: BoxDecoration(
+                              color: isDark ? Colors.white.withValues(alpha: 0.12) : theme.colorScheme.primary.withValues(alpha: 0.08),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: isDark ? Colors.white24 : theme.colorScheme.primary.withValues(alpha: 0.2),
+                              ),
+                            ),
+                          ),
                           onSelectedItemChanged: (i) {
                             model.minute = i;
                             onChanged();
@@ -107,7 +128,18 @@ class StepBirthTime extends StatelessWidget {
                       // AM / PM picker
                       Expanded(
                         child: CupertinoPicker(
-                          itemExtent: 40,
+                          itemExtent: 44,
+                          backgroundColor: Colors.transparent,
+                          selectionOverlay: Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 8),
+                            decoration: BoxDecoration(
+                              color: isDark ? Colors.white.withValues(alpha: 0.12) : theme.colorScheme.primary.withValues(alpha: 0.08),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: isDark ? Colors.white24 : theme.colorScheme.primary.withValues(alpha: 0.2),
+                              ),
+                            ),
+                          ),
                           onSelectedItemChanged: (i) {
                             model.isAM = i == 0;
                             onChanged();

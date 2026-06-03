@@ -52,7 +52,12 @@ class SignInController {
       final prefs = await SharedPreferences.getInstance();
       final token = data["token"]?.toString() ?? "";
       final refreshToken = data["refreshToken"]?.toString() ?? "";
-      final user = _asMap(data["user"]);
+      
+      // Fix: Login API returns user data flattened in response, unlike Signup which nests it in 'user'
+      final user = data.containsKey("user") && data["user"] != null
+          ? _asMap(data["user"])
+          : data;
+          
       final userId = (user["id"] ?? user["_id"] ?? "").toString();
       final role = user["role"]?.toString() ?? "";
 
@@ -119,7 +124,7 @@ class SignInController {
       }
 
       if (context.mounted) {
-        Navigator.pushReplacement(
+        Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
             builder: (_) => DashboardScreen(
@@ -129,6 +134,7 @@ class SignInController {
               monthly: monthlyData,
             ),
           ),
+          (route) => false,
         );
       }
     } catch (e) {

@@ -36,7 +36,15 @@ class AppGradients {
   }
 
   static Color glassFill(ThemeData theme) {
-    // Use a solid dark color for dark theme fields (no transparency)
+    // Use translucent white/primary for a premium glass look in dark mode
+    // In light mode, use a beautifully frosted translucent white
+    return theme.brightness == Brightness.dark
+        ? Colors.white.withValues(alpha: 0.06) // subtle translucent glass
+        : Colors.white.withValues(alpha: 0.65); // premium frosted white
+  }
+
+  static Color navBarFill(ThemeData theme) {
+    // Use a solid dark color for the bottom navigation bar to prevent interference
     return theme.brightness == Brightness.dark
         ? const Color(0xFF23243A) // deep solid dark
         : AppColors.lightContainer;
@@ -44,8 +52,8 @@ class AppGradients {
 
   static Color glassBorder(ThemeData theme) {
     return theme.brightness == Brightness.dark
-        ? Colors.black
-        : AppColors.cardBorderLight;
+        ? Colors.white.withValues(alpha: 0.12)
+        : Colors.white.withValues(alpha: 0.9); // crisp white edge for light glass
   }
 
   static Color panelOn(ThemeData theme) => Colors.white;

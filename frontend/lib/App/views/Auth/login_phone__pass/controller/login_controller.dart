@@ -43,6 +43,8 @@ class LoginController extends ChangeNotifier {
     String phone,
     String password,
   ) async {
+    if (isLoading) return; // Prevent fast concurrent requests
+
     if (isLocked) {
       errorMessage = "Too many attempts. Try again in $secondsLeft sec";
       notifyListeners();
@@ -72,7 +74,12 @@ class LoginController extends ChangeNotifier {
       final prefs = await SharedPreferences.getInstance();
       final token = response["token"]?.toString() ?? "";
       final refreshToken = response["refreshToken"]?.toString() ?? "";
-      final user = _asMap(response["user"]);
+      
+      // Fix: Login API returns user data flattened in response, unlike Signup which nests it in 'user'
+      final user = response.containsKey("user") && response["user"] != null
+          ? _asMap(response["user"])
+          : response;
+          
       final userId = (user["id"] ?? user["_id"] ?? "").toString();
 
       await prefs.setString("auth_token", token);
@@ -141,7 +148,7 @@ class LoginController extends ChangeNotifier {
       }
 
       if (context.mounted) {
-        Navigator.pushReplacement(
+        Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
             builder: (_) => DashboardScreen(
@@ -151,6 +158,7 @@ class LoginController extends ChangeNotifier {
               monthly: monthlyData,
             ),
           ),
+          (route) => false,
         );
       }
     } on TimeoutException {

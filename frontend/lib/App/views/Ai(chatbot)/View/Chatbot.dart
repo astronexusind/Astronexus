@@ -177,7 +177,7 @@ class _MatiChatBotScreenState extends State<MatiChatBotScreen>
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      appBar: UnifiedDarkUi.appBar(context, title: "Mati AI"),
+      appBar: UnifiedDarkUi.appBar(context, title: "Mati AI", automaticallyImplyLeading: false),
       body: AnimatedAppBackground(
         child: Stack(
           children: <Widget>[

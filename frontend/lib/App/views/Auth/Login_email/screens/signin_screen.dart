@@ -117,36 +117,22 @@ class _SignInState extends State<SignIn> {
                           ),
                         ],
                       ),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ForgetPassword(),
-                            ),
-                          );
-                        },
-                        child: Text(
-                          "Forget Password?",
-                          style: TextStyle(
-                            color: AppColors.textPrimary,
-                            decoration: TextDecoration.underline,
-                          ),
-                        ),
-                      ),
                     ],
                   ),
                   const SizedBox(height: 16),
                   LoginButton(
                     loading: loading,
-                    onTap: () => SignInController.login(
-                      context: context,
-                      email: email,
-                      password: password,
-                      rememberMe: remember,
-                      onStart: () => setState(() => loading = true),
-                      onStop: () => setState(() => loading = false),
-                    ),
+                    onTap: () {
+                      if (loading) return;
+                      SignInController.login(
+                        context: context,
+                        email: email,
+                        password: password,
+                        rememberMe: remember,
+                        onStart: () => setState(() => loading = true),
+                        onStop: () => setState(() => loading = false),
+                      );
+                    },
                   ),
                   const SizedBox(height: 16),
                   orDivider(context),

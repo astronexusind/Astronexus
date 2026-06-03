@@ -21,9 +21,10 @@ class SignupStepper extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      padding: const EdgeInsets.symmetric(vertical: 10),
       child: EasyStepper(
         activeStep: step,
+        internalPadding: 24, // Adds nice spacing on the extreme left and right
         enableStepTapping: true,
         activeStepBackgroundColor: colors.primary,
         finishedStepBackgroundColor: colors.primary.withOpacity(0.76),

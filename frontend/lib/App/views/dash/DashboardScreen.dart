@@ -158,7 +158,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Container(
       key: const ValueKey<String>("bottom-dock"),
       decoration: BoxDecoration(
-        color: AppGradients.glassFill(theme).withValues(alpha: 0.95),
+        color: AppGradients.navBarFill(theme).withValues(alpha: 0.95),
         borderRadius: BorderRadius.circular(30),
         border: Border.all(
           color: theme.brightness == Brightness.dark

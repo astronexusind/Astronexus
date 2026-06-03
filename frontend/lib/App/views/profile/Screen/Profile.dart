@@ -3,6 +3,7 @@ import 'package:astro_tale/core/localization/app_localizations.dart';
 import 'package:astro_tale/core/widgets/animated_app_background.dart';
 import 'package:astro_tale/core/widgets/themed_shimmer.dart';
 import 'package:astro_tale/core/widgets/unified_dark_ui.dart';
+import 'package:astro_tale/core/theme/app_gradients.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_cropper/image_cropper.dart';
@@ -95,6 +96,9 @@ class _CosmicProfileScreenState extends State<CosmicProfileScreen> {
       // Keep upload working even if cropper fails on some devices.
       var uploadPath = picked.path;
       try {
+        // Temporarily hide the status bar so the cropper toolbar isn't covered by it (Android edge-to-edge issue)
+        SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+
         final cropped = await ImageCropper().cropImage(
           sourcePath: picked.path,
           compressFormat: ImageCompressFormat.jpg,
@@ -103,7 +107,9 @@ class _CosmicProfileScreenState extends State<CosmicProfileScreen> {
             AndroidUiSettings(
               toolbarTitle: "Crop profile photo",
               toolbarColor: const Color(0xFF111A34),
+              statusBarColor: const Color(0xFF111A34), 
               toolbarWidgetColor: Colors.white,
+              activeControlsWidgetColor: const Color(0xFF8B5CF6),
               lockAspectRatio: false,
               initAspectRatio: CropAspectRatioPreset.square,
               cropStyle: CropStyle.circle,
@@ -117,11 +123,17 @@ class _CosmicProfileScreenState extends State<CosmicProfileScreen> {
             ),
           ],
         );
+        
+        // Restore edge-to-edge UI
+        SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+
         if (cropped == null || !mounted) {
           return;
         }
         uploadPath = cropped.path;
       } catch (cropError) {
+        // Restore on error too
+        SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
         debugPrint("Cropper failed, using original image: $cropError");
       }
 
@@ -183,7 +195,7 @@ class _CosmicProfileScreenState extends State<CosmicProfileScreen> {
     final l10n = context.l10n;
     await showModalBottomSheet<void>(
       context: context,
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: AppGradients.navBarFill(Theme.of(context)),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -253,38 +265,47 @@ class _CosmicProfileScreenState extends State<CosmicProfileScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = context.l10n;
+    
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final bool isWide = screenWidth > 600;
+    final double maxContentWidth = 720;
+    final double horizontalPadding = isWide ? 24 : 16;
 
     return Scaffold(
-      appBar: UnifiedDarkUi.appBar(context, title: context.l10n.tr("profile")),
+      appBar: UnifiedDarkUi.appBar(context, title: context.l10n.tr("profile"), automaticallyImplyLeading: false),
       backgroundColor: theme.scaffoldBackgroundColor,
       body: AnimatedAppBackground(
         child: SafeArea(
-          child: isLoadingProfile
-              ? _loadingSkeleton()
-              : ListView(
-                  padding: const EdgeInsets.all(16),
-                  children: [
-                    ProfileHeaderCard(
-                      userName: userName,
-                      email: userEmail,
-                      phone: userPhone,
-                      zodiacSign: zodiacSign,
-                      userAvatar: userAvatar,
-                      localAvatarPath: localAvatarPath,
-                      isUploading: isUploadingImage,
-                      onAvatarTap: _showAvatarActions,
-                      choosePhotoLabel: l10n.tr("choosePhoto"),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: maxContentWidth),
+              child: isLoadingProfile
+                  ? _loadingSkeleton()
+                  : ListView(
+                      padding: EdgeInsets.fromLTRB(horizontalPadding, 16, horizontalPadding, 16),
+                      children: [
+                        ProfileHeaderCard(
+                          userName: userName,
+                          email: userEmail,
+                          phone: userPhone,
+                          zodiacSign: zodiacSign,
+                          userAvatar: userAvatar,
+                          localAvatarPath: localAvatarPath,
+                          isUploading: isUploadingImage,
+                          onAvatarTap: _showAvatarActions,
+                          choosePhotoLabel: l10n.tr("choosePhoto"),
+                        ),
+                        const SizedBox(height: 20),
+                        const StatsRow(),
+                        const SizedBox(height: 24),
+                        const MenuSection(),
+                        const SizedBox(height: 24),
+                        const LogoutButton(),
+                        const SizedBox(height: 120),
+                      ],
                     ),
-                    const SizedBox(height: 20),
-                    const StatsRow(),
-                    const SizedBox(height: 24),
-                    const MenuSection(),
-                    const SizedBox(height: 24),
-                    const SizedBox(height: 30),
-                    const LogoutButton(),
-                    const SizedBox(height: 120),
-                  ],
-                ),
+            ),
+          ),
         ),
       ),
     );

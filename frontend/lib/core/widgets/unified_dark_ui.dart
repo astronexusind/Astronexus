@@ -10,6 +10,7 @@ class UnifiedDarkUi {
     required String title,
     List<Widget>? actions,
     bool centerTitle = true,
+    bool automaticallyImplyLeading = true,
   }) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
@@ -17,6 +18,7 @@ class UnifiedDarkUi {
     final foreground = isDark ? AppColors.onDark : Colors.white;
 
     return AppBar(
+      automaticallyImplyLeading: automaticallyImplyLeading,
       backgroundColor: background,
       surfaceTintColor: Colors.transparent,
       elevation: 0,

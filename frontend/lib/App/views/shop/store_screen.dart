@@ -236,6 +236,7 @@ class _StoreScreenState extends State<StoreScreen> {
         context,
         title: context.l10n.tr("shop"),
         centerTitle: false,
+        automaticallyImplyLeading: false,
         actions: [
           _iconWithBadge(
             icon: Icons.favorite_border,

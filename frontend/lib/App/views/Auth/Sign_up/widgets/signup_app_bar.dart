@@ -34,13 +34,11 @@ class SignupAppBar extends StatelessWidget implements PreferredSizeWidget {
           elevation: 0,
           centerTitle: true,
 
-          // Show back button only after step 0
-          leading: step > 0
-              ? IconButton(
-                  icon: Icon(Icons.arrow_back, color: AppColors.onDark),
-                  onPressed: onBack,
-                )
-              : const SizedBox(),
+          // Always show back button so user can exit signup
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: AppColors.onDark),
+            onPressed: onBack,
+          ),
 
           title: Column(
             children: [

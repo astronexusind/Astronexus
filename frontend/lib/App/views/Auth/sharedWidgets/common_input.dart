@@ -24,11 +24,11 @@ class CommonInput extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final colors = theme.colorScheme;
-    final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
-    final hintColor = isDark
-        ? Colors.white.withValues(alpha: 0.64)
-        : const Color(0xFF64748B);
-    final iconColor = isDark ? colors.primary : const Color(0xFF1D4ED8);
+    
+    // As requested: white field and dark text even on dark theme
+    final textColor = const Color(0xFF0F172A);
+    final hintColor = const Color(0xFF64748B);
+    final iconColor = isDark ? const Color(0xFFD4AF37) : const Color(0xFF1D4ED8);
 
     return TextField(
       controller: controller,
@@ -39,12 +39,29 @@ class CommonInput extends StatelessWidget {
       cursorColor: iconColor,
       style: GoogleFonts.dmSans(color: textColor, fontWeight: FontWeight.w500),
       decoration: InputDecoration(
+        filled: true,
+        fillColor: Colors.white,
         hintText: hint,
         hintStyle: GoogleFonts.dmSans(
           color: hintColor,
           fontWeight: FontWeight.w500,
         ),
         prefixIcon: Icon(icon, color: iconColor),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(color: isDark ? Colors.white24 : colors.outline),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(color: isDark ? Colors.white24 : colors.outline),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(
+            color: isDark ? const Color(0xFFD4AF37) : colors.primary,
+            width: 1.8,
+          ),
+        ),
       ),
     );
   }

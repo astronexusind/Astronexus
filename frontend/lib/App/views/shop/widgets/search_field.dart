@@ -23,78 +23,84 @@ class SearchField extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
+
     final surface = isDark
-        ? Colors.white.withOpacity(0.97) // white background in dark mode
-        : Colors.white.withOpacity(0.96);
+        ? colors.surface.withValues(alpha: 0.6)
+        : Colors.white.withValues(alpha: 0.85);
     final border = isDark
-        ? Colors.black.withOpacity(0.08) // subtle border in dark mode
-        : colors.primary.withOpacity(0.22);
+        ? Colors.white.withValues(alpha: 0.15)
+        : colors.outline.withValues(alpha: 0.2);
     final hint = isDark
-        ? const Color(0xFF6B7280) // dark hint in white field
-        : colors.onSurface.withOpacity(0.52);
+        ? Colors.white60
+        : colors.onSurface.withValues(alpha: 0.5);
     final textColor = isDark
-        ? const Color(0xFF23264A) // dark text for white field
+        ? Colors.white
         : colors.onSurface;
     final iconColor = isDark
-        ? const Color(0xFF8B7CF6) // accent icon in dark mode
+        ? Colors.white70
         : colors.primary;
-    final shadow = isDark
-        ? Colors.black.withOpacity(0.13)
-        : Colors.black.withOpacity(0.08);
+    final iconBgColor = isDark
+        ? Colors.white10
+        : colors.primary.withValues(alpha: 0.1);
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(18),
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+          height: 54,
+          padding: const EdgeInsets.symmetric(horizontal: 6),
           decoration: BoxDecoration(
             color: surface,
             borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: border, width: 1.1),
+            border: Border.all(color: border, width: 1.2),
             boxShadow: <BoxShadow>[
               BoxShadow(
-                color: shadow,
-                blurRadius: 12,
+                color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
+                blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
             ],
           ),
-          child: TextField(
-            controller: controller,
-            onChanged: onChanged,
-            style: GoogleFonts.dmSans(
-              color: textColor,
-              fontWeight: FontWeight.w500,
-            ),
-            decoration: InputDecoration(
-              hintText: context.l10n.tr("searchProducts"),
-              hintStyle: GoogleFonts.dmSans(
-                color: hint,
+          child: Center(
+            child: TextField(
+              controller: controller,
+              onChanged: onChanged,
+              style: GoogleFonts.dmSans(
+                color: textColor,
                 fontWeight: FontWeight.w500,
+                fontSize: 15,
               ),
-              border: InputBorder.none,
-              prefixIcon: Container(
-                margin: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: isDark
-                      ? Colors.white.withOpacity(0.10)
-                      : colors.primary.withOpacity(0.10),
-                  borderRadius: BorderRadius.circular(10),
+              decoration: InputDecoration(
+                filled: false,
+                hintText: context.l10n.tr("searchProducts"),
+                hintStyle: GoogleFonts.dmSans(
+                  color: hint,
+                  fontWeight: FontWeight.w400,
+                  fontSize: 15,
                 ),
-                child: Icon(Icons.search_rounded, color: iconColor, size: 20),
+                border: InputBorder.none,
+                isDense: true,
+                contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                prefixIcon: Container(
+                  margin: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: iconBgColor,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(Icons.search_rounded, color: iconColor, size: 20),
+                ),
+                suffixIcon: isSearching
+                    ? IconButton(
+                        icon: Icon(
+                          Icons.close_rounded,
+                          color: iconColor,
+                          size: 20,
+                        ),
+                        onPressed: onClear,
+                      )
+                    : null,
               ),
-              suffixIcon: isSearching
-                  ? IconButton(
-                      icon: Icon(
-                        Icons.close_rounded,
-                        color: isDark
-                            ? const Color(0xFF23264A)
-                            : colors.onSurface.withOpacity(0.72),
-                      ),
-                      onPressed: onClear,
-                    )
-                  : null,
             ),
           ),
         ),

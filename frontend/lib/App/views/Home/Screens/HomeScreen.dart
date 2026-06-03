@@ -392,8 +392,8 @@ class _HomescreenState extends State<Homescreen> with TickerProviderStateMixin {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final barColor = isDark ? AppColors.appBarDark : AppColors.lightContainer;
-    final titleColor = Colors.white;
-    final subtitleColor = Colors.white70;
+    final titleColor = isDark ? Colors.white : theme.colorScheme.onSurface;
+    final subtitleColor = isDark ? Colors.white70 : theme.colorScheme.onSurface.withValues(alpha: 0.7);
 
     return AppBar(
       backgroundColor: barColor,

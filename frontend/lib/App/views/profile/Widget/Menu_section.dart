@@ -111,14 +111,14 @@ class _MenuCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final cardColor = isDark
-        ? AppGradients.glassFill(theme)
-        : AppColors.lightContainerAlt;
+    final cardColor = AppGradients.glassFill(theme);
     final borderColor = AppGradients.glassBorder(theme);
     final iconBg = isDark
         ? Colors.white.withValues(alpha: 0.12)
-        : Colors.white.withValues(alpha: 0.16);
-    final shadowColor = Colors.black.withValues(alpha: isDark ? 0.3 : 0.22);
+        : theme.colorScheme.primary.withValues(alpha: 0.1);
+    final shadowColor = Colors.black.withValues(alpha: isDark ? 0.3 : 0.05);
+    final textColor = isDark ? Colors.white : theme.colorScheme.onSurface;
+    final iconColor = isDark ? Colors.white : theme.colorScheme.primary;
 
     return InkWell(
       borderRadius: BorderRadius.circular(18),
@@ -146,15 +146,8 @@ class _MenuCard extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: iconBg,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: isDark ? 0.26 : 0.2),
-                    blurRadius: 8,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
               ),
-              child: Icon(icon, size: 20, color: Colors.white),
+              child: Icon(icon, size: 20, color: iconColor),
             ),
 
             const SizedBox(width: 14),
@@ -166,16 +159,16 @@ class _MenuCard extends StatelessWidget {
                 style: GoogleFonts.dmSans(
                   fontSize: 15.5,
                   fontWeight: FontWeight.w600,
-                  color: Colors.white,
+                  color: textColor,
                   letterSpacing: 0.2,
                 ),
               ),
             ),
 
             /// ARROW
-            const Icon(
+            Icon(
               Icons.chevron_right_rounded,
-              color: Colors.white,
+              color: isDark ? Colors.white70 : theme.colorScheme.onSurface.withValues(alpha: 0.5),
               size: 22,
             ),
           ],

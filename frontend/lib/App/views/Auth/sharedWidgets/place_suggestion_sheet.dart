@@ -145,13 +145,17 @@ class _PlaceSuggestionSheetState extends State<_PlaceSuggestionSheet> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final colors = theme.colorScheme;
-    final sheetBg = isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FBFF);
-    final cardBg = isDark ? const Color(0xFF162035) : Colors.white;
     final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
     final mutedColor = isDark ? Colors.white70 : const Color(0xFF64748B);
     final borderColor = isDark
         ? Colors.white.withValues(alpha: 0.16)
         : const Color(0xFFD4E2F7);
+    final sheetBg = isDark
+        ? const Color(0xFF23243A) // matches navBarFill
+        : Colors.white;
+    final cardBg = isDark
+        ? Colors.white.withValues(alpha: 0.05)
+        : const Color(0xFFF1F5F9);
 
     return SafeArea(
       child: Padding(
@@ -204,45 +208,57 @@ class _PlaceSuggestionSheetState extends State<_PlaceSuggestionSheet> {
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: cardBg,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: borderColor),
+                child: TextField(
+                  controller: _searchController,
+                  autofocus: true,
+                  cursorColor: isDark ? const Color(0xFFD4AF37) : colors.primary,
+                  style: GoogleFonts.dmSans(
+                    color: const Color(0xFF0F172A), // Dark text always
+                    fontWeight: FontWeight.w500,
                   ),
-                  child: TextField(
-                    controller: _searchController,
-                    autofocus: true,
-                    cursorColor: colors.primary,
-                    style: GoogleFonts.dmSans(
-                      color: textColor,
+                  onChanged: _onQueryChanged,
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Colors.white,
+                    hintText: "Search city name",
+                    hintStyle: GoogleFonts.dmSans(
+                      color: const Color(0xFF64748B), // Dark hint always
                       fontWeight: FontWeight.w500,
                     ),
-                    onChanged: _onQueryChanged,
-                    decoration: InputDecoration(
-                      hintText: "Search city name",
-                      hintStyle: GoogleFonts.dmSans(color: mutedColor),
-                      prefixIcon: Icon(
-                        Icons.search_rounded,
-                        color: colors.primary,
+                    prefixIcon: Icon(
+                      Icons.search_rounded,
+                      color: isDark ? const Color(0xFFD4AF37) : colors.primary,
+                    ),
+                    suffixIcon: _searchController.text.trim().isNotEmpty
+                        ? IconButton(
+                            onPressed: () {
+                              _searchController.clear();
+                              _onQueryChanged("");
+                            },
+                            icon: const Icon(
+                              Icons.close_rounded,
+                              color: Color(0xFF64748B),
+                            ),
+                          )
+                        : null,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: BorderSide(color: isDark ? Colors.white24 : colors.outline),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: BorderSide(color: isDark ? Colors.white24 : colors.outline),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: BorderSide(
+                        color: isDark ? const Color(0xFFD4AF37) : colors.primary,
+                        width: 1.5,
                       ),
-                      suffixIcon: _searchController.text.trim().isNotEmpty
-                          ? IconButton(
-                              onPressed: () {
-                                _searchController.clear();
-                                _onQueryChanged("");
-                              },
-                              icon: Icon(
-                                Icons.close_rounded,
-                                color: mutedColor,
-                              ),
-                            )
-                          : null,
-                      border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 16,
-                      ),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 16,
                     ),
                   ),
                 ),

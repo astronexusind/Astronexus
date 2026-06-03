@@ -35,18 +35,37 @@ class ProfileHeaderCard extends StatelessWidget {
     final previewProvider = localAvatarPath.isNotEmpty
         ? FileImage(File(localAvatarPath)) as ImageProvider<Object>
         : (userAvatar.trim().isNotEmpty ? NetworkImage(userAvatar) : null);
-    final titleColor = Colors.white;
-    final mutedColor = Colors.white70;
+    final isDark = theme.brightness == Brightness.dark;
+    final titleColor = isDark ? Colors.white : colors.onSurface;
+    final mutedColor = isDark ? Colors.white70 : colors.onSurface.withValues(alpha: 0.7);
+
+    final cardGradient = isDark
+        ? const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFF2D2E49), // Slightly lighter dark for elevation
+              Color(0xFF23243A), // Base solid dark
+            ],
+          )
+        : const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Colors.white,
+              Color(0xFFF5F7FA), // Soft off-white
+            ],
+          );
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppGradients.glassFill(theme),
-        borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: Colors.white24),
+        gradient: cardGradient,
+        borderRadius: BorderRadius.circular(32),
+        border: Border.all(color: isDark ? Colors.white.withValues(alpha: 0.15) : colors.primary.withValues(alpha: 0.2), width: 1.5),
         boxShadow: <BoxShadow>[
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.32),
+            color: Colors.black.withValues(alpha: isDark ? 0.32 : 0.05),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),

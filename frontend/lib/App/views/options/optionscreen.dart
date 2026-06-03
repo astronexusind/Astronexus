@@ -49,7 +49,7 @@ class _ServiceScreenState extends State<ServiceScreen>
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      appBar: UnifiedDarkUi.appBar(context, title: context.l10n.tr("services")),
+      appBar: UnifiedDarkUi.appBar(context, title: context.l10n.tr("services"), automaticallyImplyLeading: false),
       body: AnimatedAppBackground(
         child: Stack(
           children: [

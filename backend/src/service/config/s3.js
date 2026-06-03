@@ -60,7 +60,6 @@ export const uploadBufferToS3 = async ({ key, buffer, mimetype, acl = "public-re
     Key: key,
     Body: buffer,
     ContentType: mimetype,
-    ACL: acl,
   }));
 
   return {

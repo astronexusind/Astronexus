@@ -76,6 +76,8 @@ class _AstrologySignupTimelineState extends State<AstrologySignupTimeline> {
   void previousStep() {
     if (step > 0) {
       setState(() => step--);
+    } else {
+      Navigator.pop(context);
     }
   }
 
@@ -119,7 +121,7 @@ class _AstrologySignupTimelineState extends State<AstrologySignupTimeline> {
         return;
       }
 
-      Navigator.pushReplacement(
+      Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
           builder: (_) => DashboardScreen(
@@ -129,6 +131,7 @@ class _AstrologySignupTimelineState extends State<AstrologySignupTimeline> {
             monthly: astrologyData['monthly'],
           ),
         ),
+        (route) => false,
       );
     } on TimeoutException {
       _showError('Server is busy. Please wait and try again.');

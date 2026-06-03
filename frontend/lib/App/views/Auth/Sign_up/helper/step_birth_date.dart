@@ -76,12 +76,21 @@ class _StepBirthDateState extends State<StepBirthDate> {
   ) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    
     return CupertinoPicker(
-      itemExtent: 40,
+      itemExtent: 44,
       scrollController: FixedExtentScrollController(initialItem: selectedIndex),
-      backgroundColor: isDark
-          ? const Color(0xFF0A1633)
-          : const Color(0xFFF2F5FF),
+      backgroundColor: Colors.transparent,
+      selectionOverlay: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 8),
+        decoration: BoxDecoration(
+          color: isDark ? Colors.white.withValues(alpha: 0.12) : theme.colorScheme.primary.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isDark ? Colors.white24 : theme.colorScheme.primary.withValues(alpha: 0.2),
+          ),
+        ),
+      ),
       onSelectedItemChanged: (i) {
         onSelected(i);
         _updateDate();
@@ -93,6 +102,8 @@ class _StepBirthDateState extends State<StepBirthDate> {
                 "$e",
                 style: GoogleFonts.dmSans(
                   color: isDark ? Colors.white : theme.colorScheme.onSurface,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ),
@@ -118,8 +129,24 @@ class _StepBirthDateState extends State<StepBirthDate> {
           ),
         ),
         const SizedBox(height: 24),
-        SizedBox(
-          height: 150,
+        Container(
+          height: 160,
+          margin: const EdgeInsets.symmetric(horizontal: 16),
+          decoration: BoxDecoration(
+            color: isDark ? Colors.white.withValues(alpha: 0.04) : theme.colorScheme.surface,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: isDark ? Colors.white.withValues(alpha: 0.12) : theme.colorScheme.outline.withValues(alpha: 0.3),
+              width: 1.2,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
           child: Row(
             children: [
               Expanded(

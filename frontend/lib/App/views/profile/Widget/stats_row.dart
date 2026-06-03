@@ -96,7 +96,7 @@ class _StatsRowState extends State<StatsRow> {
                   ),
                   child: Icon(
                     e["icon"] as IconData,
-                    color: Colors.white,
+                    color: isDark ? Colors.white : theme.colorScheme.primary,
                     size: 28,
                   ),
                 ),
@@ -104,7 +104,7 @@ class _StatsRowState extends State<StatsRow> {
                 Text(
                   e["value"] as String,
                   style: GoogleFonts.dmSans(
-                    color: Colors.white,
+                    color: isDark ? Colors.white : theme.colorScheme.onSurface,
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
@@ -113,7 +113,7 @@ class _StatsRowState extends State<StatsRow> {
                 Text(
                   e["label"] as String,
                   style: GoogleFonts.dmSans(
-                    color: Colors.white70,
+                    color: isDark ? Colors.white70 : theme.colorScheme.onSurface.withValues(alpha: 0.7),
                     fontSize: 13,
                     letterSpacing: 0.3,
                   ),
