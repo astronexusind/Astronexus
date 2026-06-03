@@ -7,18 +7,15 @@ import BirthChart from "../../models/features/birthChartModel.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const FONT_FAMILY = "ChartFont";
+const FONT_FAMILY = "DejaVu Sans";
 
-registerFont("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", {
-  family: FONT_FAMILY,
-});
-
-registerFont("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", {
-  family: FONT_FAMILY,
-  weight: "bold",
-});
-// Register custom font for consistent rendering across platforms (especially Linux)
+// Register custom font from node_modules for consistent rendering across platforms (especially Linux AWS)
 const fontPath = path.join(__dirname, "../../../node_modules/@vintproykt/dejavu-fonts-ttf/ttf/DejaVuSans.ttf");
+try {
+  registerFont(fontPath, { family: FONT_FAMILY });
+} catch (e) {
+  console.warn("Could not load DejaVu Sans font", e.message);
+}
 
 
 // 🌟 Planet colors
@@ -77,10 +74,10 @@ const normalizeBirthTime = (birthTime) => {
 // Helper: Generate chart image from chartData
 const generateChartImage = async (chartData) => {
   const H = {
-    1:{x:450,y:260}, 2:{x:240,y:120}, 3:{x:105,y:250},
-    4:{x:240,y:470}, 5:{x:130,y:650}, 6:{x:250,y:768},
-    7:{x:450,y:610}, 8:{x:660,y:780}, 9:{x:790,y:650},
-    10:{x:630,y:470}, 11:{x:770,y:260}, 12:{x:650,y:150}
+    1: { x: 450, y: 260 }, 2: { x: 240, y: 120 }, 3: { x: 105, y: 250 },
+    4: { x: 240, y: 470 }, 5: { x: 130, y: 650 }, 6: { x: 250, y: 768 },
+    7: { x: 450, y: 610 }, 8: { x: 660, y: 780 }, 9: { x: 790, y: 650 },
+    10: { x: 630, y: 470 }, 11: { x: 770, y: 260 }, 12: { x: 650, y: 150 }
   };
 
   const canvas = createCanvas(900, 900);
@@ -186,7 +183,7 @@ export const generateBirthChart = async (req, res) => {
       payload
     );
 
-    
+
     const chartData = apiRes?.data?.data || apiRes?.data;
 
     if (!chartData || !chartData.houses) {
