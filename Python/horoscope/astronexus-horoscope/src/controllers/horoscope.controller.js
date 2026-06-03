@@ -66,10 +66,11 @@ export const getHoroscope = async (req, res) => {
     // DAILY → OHMANDA (TEXT) + IST DATE
     // =========================
     if (type === "daily") {
-      const ohmandaUrl = `${OHMANDA_BASE_URL}/${sign}`;
-      console.log("🌐 Fetching DAILY (Ohmanda):", ohmandaUrl);
+      const url = `${SCRAPED_BASE_URL}/daily`;
+      console.log("Fetching DAILY (Scraped):", url);
 
-      const resp = await axios.get(ohmandaUrl, {
+      const resp = await axios.get(url, {
+        params: { sign, day },
         headers: {
           Accept: "application/json",
           "User-Agent": "AstroNexus/1.0",
@@ -77,13 +78,11 @@ export const getHoroscope = async (req, res) => {
         timeout: 15000,
       });
 
-      if (!resp.data || !resp.data.horoscope) {
-        throw new Error("Invalid response from Ohmanda");
+      if (!resp.data || !resp.data.data) {
+        throw new Error("Invalid response from horoscope provider");
       }
 
-      responseData = removeEmptyFields(
-        normalizeOhmandaDaily(resp.data)
-      );
+      responseData = resp.data.data;
     }
 
     // =========================

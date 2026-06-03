@@ -7,10 +7,19 @@ import BirthChart from "../../models/features/birthChartModel.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const FONT_FAMILY = "ChartFont";
 
+registerFont("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", {
+  family: FONT_FAMILY,
+});
+
+registerFont("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", {
+  family: FONT_FAMILY,
+  weight: "bold",
+});
 // Register custom font for consistent rendering across platforms (especially Linux)
 const fontPath = path.join(__dirname, "../../../node_modules/@vintproykt/dejavu-fonts-ttf/ttf/DejaVuSans.ttf");
-registerFont(fontPath, { family: "DejaVu Sans" });
+
 
 // 🌟 Planet colors
 const planetColors = {
