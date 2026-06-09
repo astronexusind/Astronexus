@@ -7,6 +7,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
+import '../../../../../../../core/widgets/animated_app_background.dart';
+import '../../../../../../../core/constants/app_colors.dart';
 import '../../../../../../../ui_componets/cosmic/cosmic_one.dart';
 import '../../../../../../../ui_componets/glass/glass_card.dart';
 
@@ -43,35 +45,46 @@ class MatchingScoreScreen extends StatelessWidget {
 
     final theme = Theme.of(context);
     return Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
-        backgroundColor: theme.colorScheme.surface,
-        elevation: 0,
+        backgroundColor: theme.brightness == Brightness.dark 
+            ? AppColors.appBarDark 
+            : AppColors.lightContainer,
+        surfaceTintColor: Colors.transparent,
+        scrolledUnderElevation: 0,
+        elevation: 0.8,
         title: Text(
           "Matching Result",
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.w600,
-            color: theme.colorScheme.onSurface,
+          style: GoogleFonts.dmSans(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: theme.brightness == Brightness.dark 
+                ? Colors.white 
+                : const Color(0xFF0F172A),
           ),
         ),
         centerTitle: true,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_new,
-            color: theme.colorScheme.onSurface,
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 12),
+          child: GestureDetector(
+            onTap: () => Navigator.pop(context),
+            child: SizedBox(
+              height: 38,
+              width: 38,
+              child: Icon(
+                Icons.arrow_back_ios_new_rounded,
+                size: 18,
+                color: theme.brightness == Brightness.dark 
+                    ? Colors.white 
+                    : const Color(0xFF0F172A),
+              ),
+            ),
           ),
-          onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: theme.brightness == Brightness.dark
-                ? [Color(0xFF050B1E), Color(0xFF393053), Color(0xFF050B1E)]
-                : [Colors.white, Color(0xFFEAEFEF), Colors.white],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
+      body: AnimatedAppBackground(
+        showStarsInDark: true,
+        showStarsInLight: true,
         child: SafeArea(
           child: LayoutBuilder(
             builder: (context, constraints) {
@@ -230,13 +243,14 @@ class MatchingScoreScreen extends StatelessWidget {
       child: Padding(
         padding: EdgeInsets.all(compact ? 18 : 22),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             _sectionLabel("Compatibility Snapshot"),
             const SizedBox(height: 16),
             Wrap(
               spacing: 18,
               runSpacing: 18,
+              alignment: WrapAlignment.center,
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
                 _scoreOrb(
@@ -249,10 +263,11 @@ class MatchingScoreScreen extends StatelessWidget {
                 ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 360),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
                         _verdict(ratio),
+                        textAlign: TextAlign.center,
                         style: GoogleFonts.poppins(
                           fontSize: compact ? 22 : 26,
                           fontWeight: FontWeight.w700,
@@ -262,6 +277,7 @@ class MatchingScoreScreen extends StatelessWidget {
                       const SizedBox(height: 8),
                       Text(
                         _verdictDescription(ratio),
+                        textAlign: TextAlign.center,
                         style: GoogleFonts.dmSans(
                           fontSize: 14,
                           height: 1.45,
@@ -272,6 +288,7 @@ class MatchingScoreScreen extends StatelessWidget {
                       Wrap(
                         spacing: 10,
                         runSpacing: 10,
+                        alignment: WrapAlignment.center,
                         children: [
                           _statusChip(
                             icon: Icons.auto_awesome,
@@ -374,6 +391,7 @@ class MatchingScoreScreen extends StatelessWidget {
             SizedBox(
               width: cardWidth,
               child: _personCard(
+                context,
                 role: "Groom",
                 name: maleName,
                 icon: Icons.male_rounded,
@@ -384,6 +402,7 @@ class MatchingScoreScreen extends StatelessWidget {
             SizedBox(
               width: cardWidth,
               child: _personCard(
+                context,
                 role: "Bride",
                 name: femaleName,
                 icon: Icons.favorite_rounded,
@@ -397,7 +416,8 @@ class MatchingScoreScreen extends StatelessWidget {
     );
   }
 
-  Widget _personCard({
+  Widget _personCard(
+    BuildContext context, {
     required String role,
     required String name,
     required IconData icon,
@@ -407,7 +427,7 @@ class MatchingScoreScreen extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(compact ? 14 : 16),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: Theme.of(context).brightness == Brightness.dark ? const Color(0x7A1F2340) : Colors.white,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: accentColor.withOpacity(0.25)),
       ),
@@ -465,7 +485,7 @@ class MatchingScoreScreen extends StatelessWidget {
     final theme = Theme.of(context);
     return Card(
       color: theme.brightness == Brightness.dark
-          ? Colors.white.withOpacity(0.03)
+          ? const Color(0x7A1F2340)
           : Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
       elevation: 0,
@@ -527,13 +547,13 @@ class MatchingScoreScreen extends StatelessWidget {
     );
   }
 
-  Widget _kootMetricCard(_KootMetric metric, {required bool compact}) {
+  Widget _kootMetricCard(BuildContext context, _KootMetric metric, {required bool compact}) {
     final Color tone = _verdictColor(metric.ratio);
 
     return Container(
       padding: EdgeInsets.all(compact ? 14 : 16),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: Theme.of(context).brightness == Brightness.dark ? const Color(0x7A1F2340) : Colors.white,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: tone.withOpacity(0.22)),
       ),

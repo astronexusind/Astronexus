@@ -1,76 +1,82 @@
 import "dart:io";
 import "dart:math" as math;
+import "dart:typed_data";
 
 import "package:astro_tale/services/api_services/chatbot/chat_bot_services.dart";
+import "package:flutter/services.dart";
 import "package:open_filex/open_filex.dart";
 import "package:path_provider/path_provider.dart";
 import "package:pdf/pdf.dart";
 import "package:pdf/widgets.dart" as pw;
 import "package:shared_preferences/shared_preferences.dart";
 
-// ─── Colours ─────────────────────────────────────────────────────────────────
+// ─── Colour Palette ──────────────────────────────────────────────────────────
 
 class _C {
-  static const brand = PdfColor(0.11, 0.31, 0.85);
-  static const ink = PdfColor(0.06, 0.09, 0.16);
-  static const body = PdfColor(0.20, 0.33, 0.45);
-  static const muted = PdfColor(0.39, 0.45, 0.55);
-  static const border = PdfColor(0.89, 0.91, 0.94);
-  static const surface = PdfColor(0.97, 0.98, 0.99);
-  static const white = PdfColors.white;
+  // Brand
+  static const ink     = PdfColor(0.08, 0.08, 0.12);       // near-black
+  static const heading = PdfColor(0.12, 0.10, 0.28);       // deep indigo
+  static const body    = PdfColor(0.25, 0.28, 0.38);       // dark slate
+  static const muted   = PdfColor(0.48, 0.50, 0.58);       // grey
 
-  static const success = PdfColor(0.09, 0.64, 0.29);
-  static const successBg = PdfColor(0.94, 0.99, 0.96);
-  static const warning = PdfColor(0.71, 0.33, 0.04);
-  static const warningBg = PdfColor(1.00, 0.99, 0.92);
-  static const danger = PdfColor(0.86, 0.15, 0.15);
-  static const dangerBg = PdfColor(1.00, 0.95, 0.95);
-  static const purple = PdfColor(0.49, 0.23, 0.93);
+  // Layout
+  static const rule    = PdfColor(0.87, 0.89, 0.94);       // light divider
+  static const surface = PdfColor(0.97, 0.97, 0.99);       // off-white card bg
+  static const white   = PdfColors.white;
+
+  // Semantic (used sparingly)
+  static const green   = PdfColor(0.10, 0.55, 0.28);
+  static const greenBg = PdfColor(0.93, 0.98, 0.95);
+  static const red     = PdfColor(0.80, 0.14, 0.14);
+  static const redBg   = PdfColor(0.99, 0.94, 0.94);
+  static const amber   = PdfColor(0.70, 0.42, 0.04);
+  static const amberBg = PdfColor(1.00, 0.97, 0.88);
 }
 
 // ─── Text Styles ─────────────────────────────────────────────────────────────
 
 class _T {
-  static pw.TextStyle title() => pw.TextStyle(
-    fontSize: 22,
-    fontWeight: pw.FontWeight.bold,
-    color: _C.ink,
-    lineSpacing: 1.5,
-  );
-
   static pw.TextStyle h1() => pw.TextStyle(
-    fontSize: 14,
-    fontWeight: pw.FontWeight.bold,
-    color: _C.ink,
-    lineSpacing: 1.4,
-  );
+        fontSize: 22,
+        fontWeight: pw.FontWeight.bold,
+        color: _C.heading,
+        lineSpacing: 1.5,
+      );
 
   static pw.TextStyle h2() => pw.TextStyle(
-    fontSize: 12,
-    fontWeight: pw.FontWeight.bold,
-    color: _C.ink,
-    lineSpacing: 1.3,
-  );
+        fontSize: 13,
+        fontWeight: pw.FontWeight.bold,
+        color: _C.heading,
+        lineSpacing: 1.4,
+      );
+
+  static pw.TextStyle h3() => pw.TextStyle(
+        fontSize: 11,
+        fontWeight: pw.FontWeight.bold,
+        color: _C.ink,
+        lineSpacing: 1.3,
+      );
 
   static pw.TextStyle body() =>
-      pw.TextStyle(fontSize: 10.5, color: _C.body, lineSpacing: 2.0);
+      pw.TextStyle(fontSize: 10, color: _C.body, lineSpacing: 1.8);
 
   static pw.TextStyle small() =>
-      pw.TextStyle(fontSize: 9.0, color: _C.muted, lineSpacing: 1.4);
+      pw.TextStyle(fontSize: 8.5, color: _C.muted, lineSpacing: 1.4);
 
-  static pw.TextStyle smallBold() => pw.TextStyle(
-    fontSize: 9.0,
-    fontWeight: pw.FontWeight.bold,
-    color: _C.muted,
-    lineSpacing: 1.4,
-  );
+  static pw.TextStyle label() => pw.TextStyle(
+        fontSize: 8,
+        fontWeight: pw.FontWeight.bold,
+        color: _C.muted,
+        letterSpacing: 0.8,
+        lineSpacing: 1.2,
+      );
 
   static pw.TextStyle colored(PdfColor c, {bool bold = false}) => pw.TextStyle(
-    fontSize: 10.5,
-    color: c,
-    lineSpacing: 1.6,
-    fontWeight: bold ? pw.FontWeight.bold : pw.FontWeight.normal,
-  );
+        fontSize: 10,
+        color: c,
+        fontWeight: bold ? pw.FontWeight.bold : pw.FontWeight.normal,
+        lineSpacing: 1.5,
+      );
 }
 
 // ─── Internal Models ──────────────────────────────────────────────────────────
@@ -94,21 +100,6 @@ class _Profile {
       birthPlace.isNotEmpty;
 
   String get displayName => userName.isEmpty ? "AstroNexus User" : userName;
-
-  String get initials {
-    final parts = displayName
-        .split(RegExp(r"\s+"))
-        .where((p) => p.isNotEmpty)
-        .take(2);
-    return parts.map((p) => p[0].toUpperCase()).join();
-  }
-
-  String get detailsLine => <String>[
-    if (zodiacSign.isNotEmpty) zodiacSign.toUpperCase(),
-    if (birthDate.isNotEmpty) birthDate,
-    if (birthTime.isNotEmpty) birthTime,
-    if (birthPlace.isNotEmpty) birthPlace,
-  ].join("   |   ");
 }
 
 class _StatItem {
@@ -131,20 +122,33 @@ class MatiReportPdfService {
     }
 
     final profile = await _loadProfile();
+    Uint8List? logoBytes;
+    try {
+      final data = await rootBundle.load("assets/images/logo.png");
+      logoBytes = data.buffer.asUint8List();
+    } catch (_) {
+      logoBytes = null;
+    }
+
     final pdf = pw.Document(
       title: report.title.isEmpty ? "Mati Report" : report.title,
-      author: "AstroNexus Mati AI",
+      author: "AstroNexus · Mati AI",
       creator: "AstroNexus",
     );
 
     pdf.addPage(
       pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
-        margin: const pw.EdgeInsets.symmetric(horizontal: 40, vertical: 36),
-        header: (ctx) => ctx.pageNumber == 1 ? pw.SizedBox() : _header(report),
+        margin: const pw.EdgeInsets.symmetric(horizontal: 50, vertical: 44),
+        header: (ctx) =>
+            ctx.pageNumber == 1 ? pw.SizedBox() : _header(report, logoBytes),
         footer: _footer,
-        build: (ctx) =>
-            _buildAll(report: report, response: response, profile: profile),
+        build: (ctx) => _buildAll(
+          report: report,
+          response: response,
+          profile: profile,
+          logoBytes: logoBytes,
+        ),
       ),
     );
 
@@ -167,192 +171,219 @@ class MatiReportPdfService {
     required MatiReportData report,
     required MatiChatResponse response,
     required _Profile profile,
+    required Uint8List? logoBytes,
   }) {
     final w = <pw.Widget>[];
 
-    // 1. Title block
-    w.add(_titleBlock(report, profile));
-    w.add(_gap(16));
-    w.add(_divider());
-    w.add(_gap(14));
+    // 1. Cover
+    w.add(_cover(report, profile, logoBytes));
+    w.add(_gap(24));
+    w.add(_rule());
+    w.add(_gap(20));
 
-    // 2. Stats row
-    w.add(_statsRow(report, response));
-    w.add(_gap(16));
-    w.add(_divider());
-    w.add(_gap(14));
+    // 2. Stats bar (only if analysis data)
+    if (response.analysis != null) {
+      w.add(_statsBar(response));
+      w.add(_gap(20));
+      w.add(_rule());
+      w.add(_gap(20));
+    }
 
     // 3. Summary
-    final summary = report.summary.isNotEmpty
-        ? report.summary
-        : response.answer;
+    final summary =
+        report.summary.isNotEmpty ? report.summary : response.answer;
     if (summary.isNotEmpty) {
-      w.add(_sectionLabel("Executive Summary"));
+      w.add(_sectionHead("Executive Summary"));
       w.add(_gap(8));
-      w.add(_bodyBlock(summary));
-      w.add(_gap(16));
-      w.add(_divider());
-      w.add(_gap(14));
+      w.add(_bodyText(summary));
+      w.add(_gap(22));
     }
 
     // 4. Analysis
     if (response.analysis != null) {
-      w.add(_sectionLabel("Astro Score Analysis"));
+      w.add(_sectionHead("Astro Score Analysis"));
       w.add(_gap(10));
       w.add(_analysisBlock(response.analysis!));
-      w.add(_gap(16));
-      w.add(_divider());
-      w.add(_gap(14));
+      w.add(_gap(22));
     }
 
     // 5. Timing
     if (response.timing != null && response.timing!.hasContent) {
-      w.add(_sectionLabel("Timing Snapshot"));
-      w.add(_gap(10));
+      w.add(_sectionHead("Timing Guidance"));
+      w.add(_gap(8));
       w.add(_timingBlock(response.timing!));
-      w.add(_gap(16));
-      w.add(_divider());
-      w.add(_gap(14));
+      w.add(_gap(22));
     }
 
     // 6. Detailed sections
     if (report.visibleSections.isNotEmpty) {
-      w.add(_sectionLabel("Detailed Reading"));
+      w.add(_sectionHead("Detailed Reading"));
       w.add(_gap(10));
       for (var i = 0; i < report.visibleSections.length; i++) {
         if (i > 0) w.add(_gap(10));
-        w.add(_sectionBlock(report.visibleSections[i], i));
+        w.add(_sectionCard(report.visibleSections[i], i + 1));
       }
     }
 
-    // 7. Closing note
-    w.add(_gap(20));
-    w.add(_closingNote());
+    // 7. Disclaimer
+    w.add(_gap(28));
+    w.add(_disclaimer());
 
     return w;
   }
 
-  // ── Title Block ────────────────────────────────────────────────────────────
+  // ── Cover ──────────────────────────────────────────────────────────────────
 
-  static pw.Widget _titleBlock(MatiReportData report, _Profile profile) {
-    return pw.Row(
+  static pw.Widget _cover(
+    MatiReportData report,
+    _Profile profile,
+    Uint8List? logoBytes,
+  ) {
+    return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
-        pw.Container(
-          width: 52,
-          height: 52,
-          decoration: pw.BoxDecoration(
-            color: _C.brand,
-            shape: pw.BoxShape.circle,
-          ),
-          alignment: pw.Alignment.center,
-          child: pw.Text(
-            profile.initials,
-            style: pw.TextStyle(
-              fontSize: 18,
-              fontWeight: pw.FontWeight.bold,
-              color: _C.white,
-            ),
-          ),
-        ),
-        pw.SizedBox(width: 14),
-        pw.Expanded(
-          child: pw.Column(
-            crossAxisAlignment: pw.CrossAxisAlignment.start,
-            children: [
-              pw.Text("AstroNexus · Mati AI Reading", style: _T.small()),
-              pw.SizedBox(height: 4),
-              pw.Text(
-                report.title.isEmpty ? "Mati Astrology Report" : report.title,
-                style: _T.title(),
-              ),
-              if (report.subtitle.isNotEmpty) ...[
-                pw.SizedBox(height: 4),
-                pw.Text(report.subtitle, style: _T.body()),
-              ],
-              pw.SizedBox(height: 6),
-              if (profile.hasContent)
-                pw.Text(
-                  "Prepared for: ${profile.displayName}",
-                  style: _T.colored(_C.brand, bold: true),
+        // Top row: logo + brand label
+        pw.Row(
+          crossAxisAlignment: pw.CrossAxisAlignment.center,
+          children: [
+            if (logoBytes != null)
+              pw.Image(
+                pw.MemoryImage(logoBytes),
+                width: 40,
+                height: 40,
+              )
+            else
+              pw.Container(
+                width: 40,
+                height: 40,
+                decoration: const pw.BoxDecoration(
+                  color: _C.heading,
+                  shape: pw.BoxShape.circle,
                 ),
-              if (profile.detailsLine.isNotEmpty)
-                pw.Text(profile.detailsLine, style: _T.small()),
-              if (report.generatedOn.isNotEmpty) ...[
-                pw.SizedBox(height: 2),
-                pw.Text("Generated: ${report.generatedOn}", style: _T.small()),
+                alignment: pw.Alignment.center,
+                child: pw.Text(
+                  "A",
+                  style: pw.TextStyle(
+                    fontSize: 18,
+                    fontWeight: pw.FontWeight.bold,
+                    color: _C.white,
+                  ),
+                ),
+              ),
+            pw.SizedBox(width: 12),
+            pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Text(
+                  "AstroNexus",
+                  style: pw.TextStyle(
+                    fontSize: 14,
+                    fontWeight: pw.FontWeight.bold,
+                    color: _C.heading,
+                  ),
+                ),
+                pw.Text("Mati AI · Vedic Astrology Reading", style: _T.small()),
               ],
+            ),
+          ],
+        ),
+        pw.SizedBox(height: 20),
+        pw.Container(height: 0.8, color: _C.rule),
+        pw.SizedBox(height: 20),
+
+        // Title
+        pw.Text(
+          report.title.isEmpty ? "Astrology Report" : report.title,
+          style: _T.h1(),
+        ),
+        if (report.subtitle.isNotEmpty) ...[
+          pw.SizedBox(height: 6),
+          pw.Text(report.subtitle, style: _T.body()),
+        ],
+        pw.SizedBox(height: 16),
+
+        // Meta info row
+        pw.Row(
+          children: [
+            if (profile.displayName.isNotEmpty)
+              _metaCell("Prepared for", profile.displayName),
+            if (profile.birthDate.isNotEmpty) ...[
+              pw.SizedBox(width: 24),
+              _metaCell("Date of Birth", profile.birthDate),
             ],
-          ),
+            if (profile.birthPlace.isNotEmpty) ...[
+              pw.SizedBox(width: 24),
+              _metaCell("Place", profile.birthPlace),
+            ],
+            if (report.generatedOn.isNotEmpty) ...[
+              pw.SizedBox(width: 24),
+              _metaCell("Generated", report.generatedOn),
+            ],
+          ],
         ),
       ],
     );
   }
 
-  // ── Stats Row ──────────────────────────────────────────────────────────────
+  static pw.Widget _metaCell(String label, String value) {
+    return pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
+      children: [
+        pw.Text(label.toUpperCase(), style: _T.label()),
+        pw.SizedBox(height: 3),
+        pw.Text(value, style: _T.colored(_C.heading, bold: true)),
+      ],
+    );
+  }
 
-  static pw.Widget _statsRow(MatiReportData report, MatiChatResponse response) {
+  // ── Stats Bar ──────────────────────────────────────────────────────────────
+
+  static pw.Widget _statsBar(MatiChatResponse response) {
+    final a = response.analysis!;
+    final s = a.decisionScore;
     final items = <_StatItem>[
-      _StatItem("Sections", report.sectionCount.toString(), _C.brand),
+      _StatItem(
+        "COSMIC SCORE",
+        "${s.toStringAsFixed(0)}%",
+        s >= 70 ? _C.green : s >= 50 ? _C.amber : _C.red,
+      ),
+      _StatItem(
+        "POSITIVE",
+        "${a.positivePercentage.toStringAsFixed(0)}%",
+        _C.green,
+      ),
+      _StatItem(
+        "CHALLENGING",
+        "${a.negativePercentage.toStringAsFixed(0)}%",
+        _C.red,
+      ),
     ];
-
-    if (response.analysis != null) {
-      final s = response.analysis!.decisionScore;
-      items.add(
-        _StatItem(
-          "Decision Score",
-          "${s.toStringAsFixed(0)}%",
-          s >= 70
-              ? _C.success
-              : s >= 50
-              ? _C.warning
-              : _C.danger,
-        ),
-      );
-      items.add(
-        _StatItem(
-          "Positive",
-          "${response.analysis!.positivePercentage.toStringAsFixed(0)}%",
-          _C.success,
-        ),
-      );
-      items.add(
-        _StatItem(
-          "Challenging",
-          "${response.analysis!.negativePercentage.toStringAsFixed(0)}%",
-          _C.danger,
-        ),
-      );
-    }
-
-    final favorable = response.timing?.favorableDates.length ?? 0;
-    if (favorable > 0) {
-      items.add(_StatItem("Good Dates", "$favorable", _C.success));
-    }
 
     return pw.Row(
       children: List.generate(items.length, (i) {
         final item = items[i];
+        final isLast = i == items.length - 1;
         return pw.Expanded(
           child: pw.Container(
-            margin: pw.EdgeInsets.only(left: i == 0 ? 0 : 8),
+            margin: pw.EdgeInsets.only(right: isLast ? 0 : 12),
             padding: const pw.EdgeInsets.symmetric(
-              vertical: 10,
-              horizontal: 10,
+              vertical: 12,
+              horizontal: 14,
             ),
             decoration: pw.BoxDecoration(
-              border: pw.Border.all(color: _C.border),
+              color: _C.surface,
               borderRadius: pw.BorderRadius.circular(6),
+              border: pw.Border.all(color: _C.rule),
             ),
             child: pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
-                pw.Text(item.label, style: _T.small()),
-                pw.SizedBox(height: 4),
+                pw.Text(item.label, style: _T.label()),
+                pw.SizedBox(height: 6),
                 pw.Text(
                   item.value,
                   style: pw.TextStyle(
-                    fontSize: 15,
+                    fontSize: 20,
                     fontWeight: pw.FontWeight.bold,
                     color: item.color,
                   ),
@@ -368,29 +399,25 @@ class MatiReportPdfService {
   // ── Analysis Block ─────────────────────────────────────────────────────────
 
   static pw.Widget _analysisBlock(MatiAnalysis analysis) {
-    final score = analysis.decisionScore;
-    final positive = analysis.positivePercentage;
-    final negative = analysis.negativePercentage;
-
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
-        _scoreRow(
+        _progressRow(
           "Decision Confidence",
-          score,
-          score >= 70
-              ? _C.success
-              : score >= 50
-              ? _C.warning
-              : _C.danger,
+          analysis.decisionScore,
+          analysis.decisionScore >= 70
+              ? _C.green
+              : analysis.decisionScore >= 50
+                  ? _C.amber
+                  : _C.red,
         ),
-        pw.SizedBox(height: 7),
-        _scoreRow("Positive Influences", positive, _C.success),
-        pw.SizedBox(height: 7),
-        _scoreRow("Challenging Aspects", negative, _C.danger),
+        pw.SizedBox(height: 10),
+        _progressRow("Positive Influences", analysis.positivePercentage, _C.green),
+        pw.SizedBox(height: 10),
+        _progressRow("Challenging Aspects", analysis.negativePercentage, _C.red),
         if (analysis.planetBreakdown.isNotEmpty) ...[
-          pw.SizedBox(height: 14),
-          pw.Text("Planetary Highlights", style: _T.h2()),
+          pw.SizedBox(height: 18),
+          pw.Text("Planetary Highlights", style: _T.h3()),
           pw.SizedBox(height: 8),
           ...analysis.planetBreakdown.take(5).map(_planetRow),
         ],
@@ -398,10 +425,13 @@ class MatiReportPdfService {
     );
   }
 
-  static pw.Widget _scoreRow(String label, double value, PdfColor color) {
+  static pw.Widget _progressRow(
+    String label,
+    double value,
+    PdfColor color,
+  ) {
     final pct = value.clamp(0.0, 100.0);
-    // Usable bar width ≈ A4 width minus margins (515 - 80 = 435pt)
-    const barMax = 435.0;
+    const barMax = 415.0;
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
@@ -415,15 +445,15 @@ class MatiReportPdfService {
             ),
           ],
         ),
-        pw.SizedBox(height: 4),
+        pw.SizedBox(height: 5),
         pw.Stack(
           children: [
             pw.Container(
               height: 6,
               width: double.infinity,
               decoration: pw.BoxDecoration(
-                color: _C.border,
-                borderRadius: pw.BorderRadius.circular(4),
+                color: _C.rule,
+                borderRadius: pw.BorderRadius.circular(3),
               ),
             ),
             pw.Container(
@@ -431,7 +461,7 @@ class MatiReportPdfService {
               width: barMax * (pct / 100),
               decoration: pw.BoxDecoration(
                 color: color,
-                borderRadius: pw.BorderRadius.circular(4),
+                borderRadius: pw.BorderRadius.circular(3),
               ),
             ),
           ],
@@ -442,17 +472,15 @@ class MatiReportPdfService {
 
   static pw.Widget _planetRow(MatiPlanetInsight planet) {
     final isPos = planet.isPositive;
-    final color = isPos ? _C.success : _C.danger;
-    final bgColor = isPos ? _C.successBg : _C.dangerBg;
-    final sign = isPos ? "+" : "−";
+    final color = isPos ? _C.green : _C.red;
+    final bg = isPos ? _C.greenBg : _C.redBg;
 
     return pw.Container(
       margin: const pw.EdgeInsets.only(top: 6),
-      padding: const pw.EdgeInsets.all(10),
+      padding: const pw.EdgeInsets.symmetric(horizontal: 12, vertical: 9),
       decoration: pw.BoxDecoration(
-        color: bgColor,
-        borderRadius: pw.BorderRadius.circular(6),
-        border: pw.Border.all(color: _C.border),
+        color: bg,
+        borderRadius: pw.BorderRadius.circular(5),
       ),
       child: pw.Row(
         crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -461,7 +489,7 @@ class MatiReportPdfService {
             child: pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
-                pw.Text(planet.planet, style: _T.h2()),
+                pw.Text(planet.planet, style: _T.h3()),
                 if (planet.reason.isNotEmpty) ...[
                   pw.SizedBox(height: 3),
                   pw.Text(_clean(planet.reason), style: _T.body()),
@@ -469,9 +497,9 @@ class MatiReportPdfService {
               ],
             ),
           ),
-          pw.SizedBox(width: 8),
+          pw.SizedBox(width: 10),
           pw.Text(
-            "$sign ${planet.strength.toStringAsFixed(0)}/10",
+            "${isPos ? '+' : '−'}${planet.strength.toStringAsFixed(0)}/10",
             style: _T.colored(color, bold: true),
           ),
         ],
@@ -482,51 +510,34 @@ class MatiReportPdfService {
   // ── Timing Block ───────────────────────────────────────────────────────────
 
   static pw.Widget _timingBlock(MatiTimingInfo timing) {
-    final needsBirth = timing.requiresBirthData;
-
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
-        if (needsBirth)
-          pw.Container(
-            padding: const pw.EdgeInsets.all(10),
-            decoration: pw.BoxDecoration(
-              color: _C.warningBg,
-              borderRadius: pw.BorderRadius.circular(6),
-              border: pw.Border.all(color: _C.warning),
-            ),
-            child: pw.Text(
-              "Note: Provide birth details for a more personalised timing reading.",
-              style: _T.colored(_C.warning),
-            ),
-          ),
-        if (timing.note.isNotEmpty) ...[
-          if (needsBirth) pw.SizedBox(height: 10),
-          ..._paragraphWidgets(_paragraphs(timing.note)),
-        ],
+        if (timing.note.isNotEmpty)
+          pw.Text(_clean(timing.note), style: _T.body()),
         if (timing.favorableDates.isNotEmpty) ...[
           pw.SizedBox(height: 12),
-          pw.Text("Favorable Dates", style: _T.h2()),
+          pw.Text("Favorable Dates", style: _T.h3()),
           pw.SizedBox(height: 6),
           pw.Wrap(
             spacing: 6,
             runSpacing: 6,
             children: timing.favorableDates
                 .take(6)
-                .map((d) => _chip(d, _C.success, _C.successBg))
+                .map((d) => _dateChip(d, isGood: true))
                 .toList(),
           ),
         ],
         if (timing.avoidDates.isNotEmpty) ...[
           pw.SizedBox(height: 12),
-          pw.Text("Use Extra Care On", style: _T.h2()),
+          pw.Text("Dates to Watch", style: _T.h3()),
           pw.SizedBox(height: 6),
           pw.Wrap(
             spacing: 6,
             runSpacing: 6,
             children: timing.avoidDates
                 .take(6)
-                .map((d) => _chip(d, _C.danger, _C.dangerBg))
+                .map((d) => _dateChip(d, isGood: false))
                 .toList(),
           ),
         ],
@@ -534,37 +545,41 @@ class MatiReportPdfService {
     );
   }
 
-  static pw.Widget _chip(MatiDateSuggestion d, PdfColor fg, PdfColor bg) {
-    final parts = <String>[
+  static pw.Widget _dateChip(MatiDateSuggestion d, {required bool isGood}) {
+    final color = isGood ? _C.green : _C.red;
+    final bg = isGood ? _C.greenBg : _C.redBg;
+    final border = isGood
+        ? const PdfColor(0.55, 0.85, 0.65)
+        : const PdfColor(0.88, 0.55, 0.55);
+    final text = [
       d.date,
       if (d.label.isNotEmpty) d.label,
-      if (d.confidence.isNotEmpty) d.confidence,
-    ];
+    ].join(" · ");
+
     return pw.Container(
       padding: const pw.EdgeInsets.symmetric(horizontal: 9, vertical: 5),
       decoration: pw.BoxDecoration(
         color: bg,
-        border: pw.Border.all(color: fg),
+        border: pw.Border.all(color: border),
         borderRadius: pw.BorderRadius.circular(4),
       ),
-      child: pw.Text(parts.join(" · "), style: _T.colored(fg, bold: true)),
+      child: pw.Text(text, style: _T.colored(color, bold: true)),
     );
   }
 
-  // ── Section Block ──────────────────────────────────────────────────────────
+  // ── Section Card ───────────────────────────────────────────────────────────
 
-  static pw.Widget _sectionBlock(MatiReportSection section, int index) {
-    final accent = index.isEven ? _C.brand : _C.purple;
-
+  static pw.Widget _sectionCard(MatiReportSection section, int number) {
     return pw.Container(
       width: double.infinity,
       decoration: pw.BoxDecoration(
-        border: pw.Border.all(color: _C.border),
+        border: pw.Border.all(color: _C.rule),
         borderRadius: pw.BorderRadius.circular(6),
       ),
       child: pw.Column(
         crossAxisAlignment: pw.CrossAxisAlignment.start,
         children: [
+          // Header row
           pw.Container(
             width: double.infinity,
             padding: const pw.EdgeInsets.symmetric(
@@ -573,23 +588,33 @@ class MatiReportPdfService {
             ),
             decoration: pw.BoxDecoration(
               color: _C.surface,
-              border: pw.Border(bottom: pw.BorderSide(color: _C.border)),
-              // Remove borderRadius here, only bottom border is used
+              border: pw.Border(
+                bottom: pw.BorderSide(color: _C.rule),
+              ),
             ),
             child: pw.Row(
               children: [
-                pw.Container(width: 3, height: 16, color: accent),
-                pw.SizedBox(width: 8),
-                pw.Expanded(child: pw.Text(section.heading, style: _T.h1())),
-                pw.Text("${index + 1}", style: _T.colored(accent, bold: true)),
+                pw.Text(
+                  number.toString().padLeft(2, "0"),
+                  style: pw.TextStyle(
+                    fontSize: 11,
+                    fontWeight: pw.FontWeight.bold,
+                    color: _C.muted,
+                  ),
+                ),
+                pw.SizedBox(width: 10),
+                pw.Expanded(
+                  child: pw.Text(section.heading, style: _T.h3()),
+                ),
               ],
             ),
           ),
+          // Content
           pw.Padding(
             padding: const pw.EdgeInsets.all(14),
             child: pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
-              children: _paragraphWidgets(_paragraphs(section.content)),
+              children: _paraWidgets(_paragraphs(section.content)),
             ),
           ),
         ],
@@ -597,45 +622,64 @@ class MatiReportPdfService {
     );
   }
 
-  // ── Section Label ──────────────────────────────────────────────────────────
+  // ── Shared Section Utilities ────────────────────────────────────────────────
 
-  static pw.Widget _sectionLabel(String text) {
+  static pw.Widget _sectionHead(String text) {
     return pw.Row(
+      crossAxisAlignment: pw.CrossAxisAlignment.center,
       children: [
-        pw.Container(width: 3, height: 16, color: _C.brand),
+        pw.Container(
+          width: 3,
+          height: 16,
+          decoration: pw.BoxDecoration(
+            color: _C.heading,
+            borderRadius: pw.BorderRadius.circular(2),
+          ),
+        ),
         pw.SizedBox(width: 8),
-        pw.Text(text, style: _T.h1()),
+        pw.Text(text, style: _T.h2()),
       ],
     );
   }
 
-  // ── Body Block ─────────────────────────────────────────────────────────────
-
-  static pw.Widget _bodyBlock(String text) {
+  static pw.Widget _bodyText(String text) {
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
-      children: _paragraphWidgets(_paragraphs(text)),
+      children: _paraWidgets(_paragraphs(text)),
     );
   }
 
+  static pw.Widget _rule() =>
+      pw.Container(height: 0.8, color: _C.rule);
+
+  static pw.Widget _gap(double h) => pw.SizedBox(height: h);
+
   // ── Header / Footer ────────────────────────────────────────────────────────
 
-  static pw.Widget _header(MatiReportData report) {
+  static pw.Widget _header(MatiReportData report, Uint8List? logoBytes) {
     return pw.Container(
-      padding: const pw.EdgeInsets.only(bottom: 8),
+      padding: const pw.EdgeInsets.only(bottom: 10),
       decoration: pw.BoxDecoration(
-        border: pw.Border(bottom: pw.BorderSide(color: _C.border)),
+        border: pw.Border(bottom: pw.BorderSide(color: _C.rule)),
       ),
       child: pw.Row(
         mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: pw.CrossAxisAlignment.center,
         children: [
           pw.Text(
-            report.title.isEmpty ? "Mati Astrology Report" : report.title,
+            report.title.isEmpty ? "Astrology Report" : report.title,
             style: _T.small(),
           ),
-          pw.Text(
-            "AstroNexus · Mati AI",
-            style: _T.colored(_C.brand, bold: true),
+          pw.Row(
+            children: [
+              if (logoBytes != null)
+                pw.Image(pw.MemoryImage(logoBytes), width: 16, height: 16),
+              pw.SizedBox(width: 5),
+              pw.Text(
+                "AstroNexus",
+                style: _T.colored(_C.heading, bold: true),
+              ),
+            ],
           ),
         ],
       ),
@@ -644,53 +688,49 @@ class MatiReportPdfService {
 
   static pw.Widget _footer(pw.Context ctx) {
     return pw.Container(
-      padding: const pw.EdgeInsets.only(top: 8),
+      padding: const pw.EdgeInsets.only(top: 10),
       decoration: pw.BoxDecoration(
-        border: pw.Border(top: pw.BorderSide(color: _C.border)),
+        border: pw.Border(top: pw.BorderSide(color: _C.rule)),
       ),
       child: pw.Row(
         mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
         children: [
           pw.Text(
-            "AstroNexus Mati AI · For personal guidance only",
+            "AstroNexus · For personal guidance only",
             style: _T.small(),
           ),
           pw.Text(
             "Page ${ctx.pageNumber} of ${ctx.pagesCount}",
-            style: _T.smallBold(),
+            style: _T.small(),
           ),
         ],
       ),
     );
   }
 
-  // ── Closing Note ───────────────────────────────────────────────────────────
+  // ── Disclaimer ─────────────────────────────────────────────────────────────
 
-  static pw.Widget _closingNote() {
+  static pw.Widget _disclaimer() {
     return pw.Container(
       width: double.infinity,
       padding: const pw.EdgeInsets.all(12),
       decoration: pw.BoxDecoration(
         color: _C.surface,
-        border: pw.Border.all(color: _C.border),
-        borderRadius: pw.BorderRadius.circular(6),
+        border: pw.Border.all(color: _C.rule),
+        borderRadius: pw.BorderRadius.circular(5),
       ),
       child: pw.Text(
-        "This report was generated by AstroNexus Mati AI. "
-        "It is intended for personal reflection and guidance only.",
+        "This report is generated by AstroNexus Mati AI for personal reflection "
+        "and spiritual guidance only. It does not constitute professional or medical advice.",
         style: _T.small(),
         textAlign: pw.TextAlign.center,
       ),
     );
   }
 
-  // ── Shared Helpers ─────────────────────────────────────────────────────────
+  // ── Text Helpers ───────────────────────────────────────────────────────────
 
-  static pw.Widget _divider() => pw.Container(height: 0.8, color: _C.border);
-
-  static pw.Widget _gap(double h) => pw.SizedBox(height: h);
-
-  static List<pw.Widget> _paragraphWidgets(List<String> paragraphs) {
+  static List<pw.Widget> _paraWidgets(List<String> paragraphs) {
     if (paragraphs.isEmpty) return [pw.Text("", style: _T.body())];
     final out = <pw.Widget>[];
     for (var i = 0; i < paragraphs.length; i++) {
@@ -701,25 +741,16 @@ class MatiReportPdfService {
           textAlign: pw.TextAlign.justify,
         ),
       );
-      if (i != paragraphs.length - 1) out.add(pw.SizedBox(height: 6));
+      if (i != paragraphs.length - 1) out.add(pw.SizedBox(height: 7));
     }
     return out;
   }
-
-  // ── Text Processing ────────────────────────────────────────────────────────
 
   static List<String> _paragraphs(String raw) {
     final normalized = _clean(raw);
     if (normalized.isEmpty) return const [];
 
-    final withHints = normalized.replaceAllMapped(
-      RegExp(
-        r"\s+(BirthDate:|BirthTime:|BirthPlace:|ZodiacSign:|Focus:|Timing tip:)",
-      ),
-      (m) => "\n${m.group(1)}",
-    );
-
-    final blocks = withHints
+    final blocks = normalized
         .split(RegExp(r"\n+"))
         .map((s) => s.trim())
         .where((s) => s.isNotEmpty)
@@ -765,9 +796,8 @@ class MatiReportPdfService {
   }
 
   static String _safeFileName(String rawName) {
-    final candidate = rawName.trim().isEmpty
-        ? "mati_report.pdf"
-        : rawName.trim();
+    final candidate =
+        rawName.trim().isEmpty ? "mati_report.pdf" : rawName.trim();
     final sanitized = candidate.replaceAll(RegExp(r'[<>:"/\\|?*]+'), "-");
     return sanitized.toLowerCase().endsWith(".pdf")
         ? sanitized

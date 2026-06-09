@@ -93,16 +93,16 @@ class _CosmicProfileScreenState extends State<CosmicProfileScreen> {
         return;
       }
 
-      // Keep upload working even if cropper fails on some devices.
+    // Keep upload working even if cropper fails on some devices.
       var uploadPath = picked.path;
       try {
-        // Temporarily hide the status bar so the cropper toolbar isn't covered by it (Android edge-to-edge issue)
-        SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
 
         final cropped = await ImageCropper().cropImage(
           sourcePath: picked.path,
           compressFormat: ImageCompressFormat.jpg,
-          compressQuality: 90,
+          compressQuality: 80,
+          maxWidth: 800,
+          maxHeight: 800,
           uiSettings: <PlatformUiSettings>[
             AndroidUiSettings(
               toolbarTitle: "Crop profile photo",
@@ -123,17 +123,12 @@ class _CosmicProfileScreenState extends State<CosmicProfileScreen> {
             ),
           ],
         );
-        
-        // Restore edge-to-edge UI
-        SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 
         if (cropped == null || !mounted) {
           return;
         }
         uploadPath = cropped.path;
       } catch (cropError) {
-        // Restore on error too
-        SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
         debugPrint("Cropper failed, using original image: $cropError");
       }
 
@@ -176,11 +171,16 @@ class _CosmicProfileScreenState extends State<CosmicProfileScreen> {
     } catch (e) {
       debugPrint("Image selection/upload failed: $e");
       if (mounted) {
+        String msg = "Could not upload photo. Check internet/login and retry.";
+        final errorStr = e.toString();
+        if (errorStr.contains("Exception: ")) {
+          msg = errorStr.replaceAll("Exception: ", "");
+        } else if (errorStr.isNotEmpty) {
+          msg = errorStr;
+        }
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              "Could not upload photo. Check internet/login and retry.",
-            ),
+          SnackBar(
+            content: Text(msg),
           ),
         );
       }

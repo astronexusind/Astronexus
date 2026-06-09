@@ -1,3 +1,4 @@
+import "package:astro_tale/core/constants/app_colors.dart";
 import "package:astro_tale/core/theme/app_gradients.dart";
 import "package:astro_tale/core/widgets/animated_app_background.dart";
 import "package:flutter/material.dart";
@@ -19,7 +20,7 @@ class _HoroscopeScreenState extends State<HoroscopeScreen> {
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
     final surfaceColor = isDark
-        ? AppGradients.glassFill(theme).withValues(alpha: 0.86)
+        ? AppGradients.navBarFill(theme) // Premium dark background
         : Colors.white.withValues(alpha: 0.92);
     final borderColor = isDark ? Colors.white24 : const Color(0xFFD7E4F8);
     final titleColor = isDark ? Colors.white : const Color(0xFF0F172A);
@@ -29,12 +30,14 @@ class _HoroscopeScreenState extends State<HoroscopeScreen> {
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: isDark
-            ? AppGradients.glassFill(theme)
-            : Colors.white.withValues(alpha: 0.94),
+            ? AppColors.appBarDark
+            : AppColors.lightContainer,
         foregroundColor: titleColor,
         iconTheme: IconThemeData(color: titleColor),
         actionsIconTheme: IconThemeData(color: titleColor),
         surfaceTintColor: Colors.transparent,
+        scrolledUnderElevation: 0,
+        elevation: 0.8,
         centerTitle: true,
         title: Text(
           "Daily Horoscope",

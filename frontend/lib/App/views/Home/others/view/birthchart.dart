@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:convert';
-import 'package:astro_tale/App/views/Auth/sharedWidgets/place_suggestion_sheet.dart';
+import 'package:astro_tale/App/Model/place/place_suggestion.dart';
+import 'package:astro_tale/App/views/Auth/Sign_up/services/city_services.dart';
 import 'package:astro_tale/App/views/Home/others/output/birthchart/birthchart_result.dart';
 import 'package:astro_tale/core/constants/api_constants.dart';
 import 'package:astro_tale/core/constants/app_colors.dart';
@@ -30,6 +32,167 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
   String astrologyType = 'vedic';
   String ayanamsa = 'lahiri';
   bool isLoading = false;
+  Timer? _debounce;
+  Iterable<PlaceSuggestion> _lastOptions = const Iterable<PlaceSuggestion>.empty();
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    nameController.dispose();
+    dateController.dispose();
+    timeController.dispose();
+    placeController.dispose();
+    super.dispose();
+  }
+
+  /// ================= PICKER THEME =================
+  ThemeData _buildPickerTheme(ThemeData theme) {
+    final isDark = theme.brightness == Brightness.dark;
+    final colors = theme.colorScheme;
+    final pickerSurface = isDark
+        ? const Color(0xFF171B33)
+        : theme.colorScheme.surface;
+    final headerBackground = isDark ? const Color(0xFF23264A) : colors.primary;
+    final headerForeground = isDark ? Colors.white : colors.onPrimary;
+    final selectedFill = isDark ? const Color(0xFFF6C65A) : colors.primary;
+    final selectedForeground = isDark
+        ? const Color(0xFF1B1535)
+        : colors.onPrimary;
+    final dayTextColor = isDark ? Colors.white : colors.onSurface;
+    final mutedTextColor = isDark ? Colors.white70 : const Color(0xFF475569);
+    final outlineColor = isDark
+        ? Colors.white.withValues(alpha: 0.16)
+        : const Color(0xFFD6E3F6);
+
+    return theme.copyWith(
+      colorScheme: colors.copyWith(
+        primary: selectedFill,
+        onPrimary: selectedForeground,
+        surface: pickerSurface,
+        onSurface: dayTextColor,
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: pickerSurface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+      ),
+      datePickerTheme: DatePickerThemeData(
+        backgroundColor: pickerSurface,
+        surfaceTintColor: Colors.transparent,
+        headerBackgroundColor: headerBackground,
+        headerForegroundColor: headerForeground,
+        weekdayStyle: GoogleFonts.dmSans(
+          color: mutedTextColor,
+          fontWeight: FontWeight.w700,
+        ),
+        dayStyle: GoogleFonts.dmSans(
+          color: dayTextColor,
+          fontWeight: FontWeight.w500,
+        ),
+        yearStyle: GoogleFonts.dmSans(
+          color: dayTextColor,
+          fontWeight: FontWeight.w600,
+        ),
+        dividerColor: outlineColor,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        dayForegroundColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return selectedForeground;
+          }
+          if (states.contains(WidgetState.disabled)) {
+            return mutedTextColor.withValues(alpha: 0.45);
+          }
+          return dayTextColor;
+        }),
+        dayBackgroundColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return selectedFill;
+          }
+          return Colors.transparent;
+        }),
+        todayForegroundColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return selectedForeground;
+          }
+          return dayTextColor;
+        }),
+        todayBackgroundColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return selectedFill;
+          }
+          return isDark
+              ? const Color(0xFFF6C65A).withValues(alpha: 0.18)
+              : colors.primary.withValues(alpha: 0.12);
+        }),
+        todayBorder: BorderSide(
+          color: isDark ? const Color(0xFFF6C65A) : colors.primary,
+        ),
+        yearForegroundColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return selectedForeground;
+          }
+          return dayTextColor;
+        }),
+        yearBackgroundColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return selectedFill;
+          }
+          return Colors.transparent;
+        }),
+        cancelButtonStyle: TextButton.styleFrom(
+          foregroundColor: mutedTextColor,
+          textStyle: GoogleFonts.dmSans(fontWeight: FontWeight.w700),
+        ),
+        confirmButtonStyle: TextButton.styleFrom(
+          foregroundColor: isDark ? const Color(0xFFF6C65A) : colors.primary,
+          textStyle: GoogleFonts.dmSans(fontWeight: FontWeight.w700),
+        ),
+      ),
+      timePickerTheme: TimePickerThemeData(
+        backgroundColor: pickerSurface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        hourMinuteColor: isDark
+            ? const Color(0xFF23264A)
+            : colors.surfaceContainerHighest,
+        hourMinuteTextColor: dayTextColor,
+        dayPeriodColor: isDark
+            ? const Color(0xFF23264A)
+            : colors.surfaceContainerHighest,
+        dayPeriodTextColor: dayTextColor,
+        dialBackgroundColor: isDark
+            ? const Color(0xFF23264A)
+            : colors.surfaceContainerHighest,
+        dialHandColor: selectedFill,
+        dialTextColor: dayTextColor,
+        entryModeIconColor: selectedFill,
+        helpTextStyle: GoogleFonts.dmSans(
+          color: mutedTextColor,
+          fontWeight: FontWeight.w700,
+        ),
+        hourMinuteTextStyle: GoogleFonts.dmSans(
+          color: dayTextColor,
+          fontWeight: FontWeight.w700,
+        ),
+        dayPeriodTextStyle: GoogleFonts.dmSans(
+          color: dayTextColor,
+          fontWeight: FontWeight.w700,
+        ),
+        cancelButtonStyle: TextButton.styleFrom(
+          foregroundColor: mutedTextColor,
+          textStyle: GoogleFonts.dmSans(fontWeight: FontWeight.w700),
+        ),
+        confirmButtonStyle: TextButton.styleFrom(
+          foregroundColor: isDark ? const Color(0xFFF6C65A) : colors.primary,
+          textStyle: GoogleFonts.dmSans(fontWeight: FontWeight.w700),
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: isDark ? const Color(0xFFF6C65A) : colors.primary,
+          textStyle: GoogleFonts.dmSans(fontWeight: FontWeight.w700),
+        ),
+      ),
+    );
+  }
 
   /// ================= DATE PICKER =================
   Future<void> _pickDate() async {
@@ -43,41 +206,7 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
       confirmText: "OK",
       builder: (context, child) {
         final theme = Theme.of(context);
-        final isDark = theme.brightness == Brightness.dark;
-        Widget themedChild = child!;
-        if (isDark) {
-          themedChild = Material(color: AppColors.background, child: child);
-        }
-        return Theme(
-          data: theme.copyWith(
-            colorScheme: isDark
-                ? theme.colorScheme.copyWith(
-                    primary: AppColors.accentStrong,
-                    onPrimary: Colors.white,
-                    surface: AppColors.background,
-                    onSurface: AppColors.textPrimary,
-                    background: AppColors.background,
-                  )
-                : theme.colorScheme,
-            dialogTheme: DialogThemeData(
-              backgroundColor: isDark
-                  ? AppColors.background
-                  : AppColors.lightContainer,
-              surfaceTintColor: isDark ? AppColors.surface : null,
-            ),
-            textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(
-                foregroundColor: isDark
-                    ? AppColors.accent
-                    : theme.colorScheme.primary,
-                textStyle: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ),
-            dialogBackgroundColor: isDark ? AppColors.background : null,
-            scaffoldBackgroundColor: isDark ? AppColors.background : null,
-          ),
-          child: themedChild,
-        );
+        return Theme(data: _buildPickerTheme(theme), child: child!);
       },
     );
 
@@ -97,32 +226,7 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
       confirmText: "OK",
       builder: (context, child) {
         final theme = Theme.of(context);
-        final colors = theme.colorScheme;
-        return Theme(
-          data: theme.copyWith(
-            timePickerTheme: TimePickerThemeData(
-              backgroundColor: AppColors.lightContainer,
-              hourMinuteTextColor: colors.onSurface,
-              hourMinuteColor: colors.surfaceContainerHighest,
-              dialHandColor: colors.primary,
-              dialBackgroundColor: colors.surfaceContainerHighest,
-              entryModeIconColor: colors.primary,
-            ),
-            colorScheme: colors.copyWith(
-              primary: colors.primary,
-              onPrimary: colors.onPrimary,
-              surface: colors.surface,
-              onSurface: colors.onSurface,
-            ),
-            textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(
-                foregroundColor: colors.primary,
-                textStyle: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ),
-          ),
-          child: child!,
-        );
+        return Theme(data: _buildPickerTheme(theme), child: child!);
       },
     );
 
@@ -135,17 +239,7 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
     }
   }
 
-  Future<void> _pickPlaceOfBirth() async {
-    final selected = await showPlaceSuggestionSheet(
-      context: context,
-      title: "Select Place of Birth",
-      initialValue: placeController.text,
-    );
-    if (selected == null || selected.trim().isEmpty) {
-      return;
-    }
-    placeController.text = selected;
-  }
+
 
   /// ================= PARSE DATE & TIME =================
   Map<String, dynamic> _parseBirthDate() {
@@ -311,12 +405,8 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
                                 end: Alignment.bottomRight,
                                 colors: isDark
                                     ? <Color>[
-                                        const Color(
-                                          0xFF3A4570,
-                                        ).withValues(alpha: 0.95),
-                                        const Color(
-                                          0xFF2D365E,
-                                        ).withValues(alpha: 0.95),
+                                        const Color(0xFF2D2E49),
+                                        const Color(0xFF23243A),
                                       ]
                                     : <Color>[
                                         Colors.white.withValues(alpha: 0.98),
@@ -386,14 +476,7 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
                                     readOnly: true,
                                     onTap: _pickTime,
                                   ),
-                                  _glassInput(
-                                    "Place of Birth",
-                                    Icons.location_on,
-                                    placeController,
-                                    readOnly: true,
-                                    onTap: _pickPlaceOfBirth,
-                                    showDropdownIndicator: true,
-                                  ),
+                                  _buildPlaceAutocomplete(),
                                   const SizedBox(height: 16),
                                   Row(
                                     children: [
@@ -510,6 +593,139 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
     );
   }
 
+  Widget _buildPlaceAutocomplete() {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final fillColor = Colors.white; // ALWAYS solid white
+    final borderColor = isDark ? Colors.transparent : const Color(0xFFD4E2F7);
+    final textColor = const Color(0xFF0F172A); // ALWAYS dark
+    final hintColor = const Color(0xFF64748B); // ALWAYS dark
+    final iconBg = const Color(0xFFEAF2FF); // ALWAYS light blue
+    final iconColor = const Color(0xFF2563EB); // ALWAYS dark blue
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 600, minWidth: 300),
+          child: Autocomplete<PlaceSuggestion>(
+            initialValue: TextEditingValue(text: placeController.text),
+            displayStringForOption: (option) => option.name.isNotEmpty ? option.name : option.country,
+            optionsBuilder: (TextEditingValue textEditingValue) async {
+              final query = textEditingValue.text.trim();
+              if (query.length < 2) {
+                return const Iterable<PlaceSuggestion>.empty();
+              }
+              
+              final completer = Completer<Iterable<PlaceSuggestion>>();
+              _debounce?.cancel();
+              _debounce = Timer(const Duration(milliseconds: 300), () async {
+                try {
+                  final results = await PlaceApiService.searchPlaces(query);
+                  completer.complete(results);
+                } catch (_) {
+                  completer.complete(const Iterable<PlaceSuggestion>.empty());
+                }
+              });
+              
+              _lastOptions = await completer.future;
+              return _lastOptions;
+            },
+            onSelected: (PlaceSuggestion selection) {
+              final label = selection.name.isNotEmpty ? selection.name : selection.country;
+              placeController.text = label;
+            },
+            fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) {
+              return Container(
+                decoration: BoxDecoration(
+                  color: fillColor,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: borderColor),
+                ),
+                child: TextField(
+                  controller: textEditingController,
+                  focusNode: focusNode,
+                  cursorColor: iconColor,
+                  onChanged: (val) {
+                    placeController.text = val;
+                  },
+                  style: GoogleFonts.dmSans(color: textColor),
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Colors.transparent, // Let Container's white background show through, or just set to Colors.white
+                    prefixIconConstraints: const BoxConstraints(
+                      minHeight: 48,
+                      minWidth: 52,
+                    ),
+                    prefixIcon: Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: iconBg,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Icon(Icons.location_on, color: iconColor, size: 18),
+                      ),
+                    ),
+                    hintText: "Place of Birth",
+                    hintStyle: GoogleFonts.dmSans(color: hintColor),
+                    suffixIcon: Icon(Icons.keyboard_arrow_down_rounded, color: hintColor),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 20,
+                    ),
+                  ),
+                ),
+              );
+            },
+            optionsViewBuilder: (context, onSelected, options) {
+              return Align(
+                alignment: Alignment.topLeft,
+                child: Material(
+                  elevation: 8,
+                  color: Colors.white, // Always white
+                  borderRadius: BorderRadius.circular(14),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxHeight: 250, maxWidth: 350),
+                    child: ListView.builder(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      shrinkWrap: true,
+                      itemCount: options.length,
+                      itemBuilder: (context, index) {
+                        final option = options.elementAt(index);
+                        final label = option.name.isNotEmpty ? option.name : option.country;
+                        return ListTile(
+                          leading: Icon(Icons.location_on_rounded, color: iconColor, size: 20),
+                          title: Text(
+                            label,
+                            style: GoogleFonts.dmSans(
+                              color: const Color(0xFF0F172A),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          subtitle: option.country.isNotEmpty && option.name.isNotEmpty
+                              ? Text(
+                                  option.country,
+                                  style: GoogleFonts.dmSans(
+                                    color: const Color(0xFF64748B),
+                                  ),
+                                )
+                              : null,
+                          onTap: () => onSelected(option),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
   /// ================= GLASS INPUT =================
   Widget _glassInput(
     String label,
@@ -521,20 +737,14 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
   }) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final fillColor = isDark
-        ? Colors.white.withValues(alpha: 0.5)
-        : Colors.white.withValues(alpha: 0.99);
+    final fillColor = Colors.white; // Field is ALWAYS solid white
     final borderColor = isDark
-        ? Colors.white.withValues(alpha: 0.22)
+        ? Colors.transparent
         : const Color(0xFFD4E2F7);
-    final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
-    final hintColor = isDark ? Colors.white70 : const Color(0xFF64748B);
-    final iconBg = isDark
-        ? Colors.white.withValues(alpha: 0.14)
-        : const Color(0xFFEAF2FF);
-    final iconColor = isDark
-        ? const Color(0xFFF2F5FF)
-        : const Color(0xFF2563EB);
+    final textColor = const Color(0xFF0F172A); // Text is ALWAYS dark
+    final hintColor = const Color(0xFF64748B); // Hint is ALWAYS dark
+    final iconBg = const Color(0xFFEAF2FF); // Icon bg is ALWAYS light blue
+    final iconColor = const Color(0xFF2563EB); // Icon is ALWAYS dark blue
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
@@ -556,6 +766,8 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
                   : const Color(0xFF2563EB),
               style: GoogleFonts.dmSans(color: textColor),
               decoration: InputDecoration(
+                filled: true,
+                fillColor: Colors.transparent, // Fix: Override global theme so Container's white background is visible
                 prefixIconConstraints: const BoxConstraints(
                   minHeight: 48,
                   minWidth: 52,
@@ -597,18 +809,16 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
   ) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final fillColor = isDark
-        ? Colors.white.withValues(alpha: 0.08)
-        : Colors.white.withValues(alpha: 0.99);
+    final fillColor = Colors.white; // Field is ALWAYS solid white
     final borderColor = isDark
-        ? Colors.white.withValues(alpha: 0.22)
+        ? Colors.transparent
         : const Color(0xFFD4E2F7);
-    final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
-    final labelColor = isDark ? Colors.white70 : const Color(0xFF64748B);
+    final textColor = const Color(0xFF0F172A); // Text is ALWAYS dark
+    final labelColor = const Color(0xFF64748B); // Label is ALWAYS dark
 
     return DropdownButtonFormField<String>(
       initialValue: value,
-      dropdownColor: isDark ? const Color(0xFF2C3559) : Colors.white,
+      dropdownColor: Colors.white, // Always white so the dark text is readable!
       iconEnabledColor: textColor,
       items: items
           .map(
@@ -657,9 +867,11 @@ PreferredSizeWidget _birthchartTopBar(BuildContext context) {
   final isDark = theme.brightness == Brightness.dark;
   return AppBar(
     backgroundColor: isDark
-        ? AppGradients.glassFill(theme)
-        : Colors.white.withValues(alpha: 0.94),
-    elevation: 0,
+        ? AppColors.appBarDark
+        : AppColors.lightContainer,
+    surfaceTintColor: Colors.transparent,
+    scrolledUnderElevation: 0,
+    elevation: 0.8,
     centerTitle: true,
     leading: Padding(
       padding: const EdgeInsets.only(left: 12),

@@ -697,171 +697,155 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                       if (!context.mounted) return;
 
                                       if (order != null) {
-                                        if (paymentMethod == "UPI") {
-                                          // Online payment: go to payment screen
-                                          final payment = await PaymentApi()
-                                              .createPayment(order.totalAmount);
-                                          if (!context.mounted) return;
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (_) => PaymentScreen(
-                                                order: order,
-                                                payment: payment,
-                                                userToken: widget.userToken,
+                                        // Both Payment Methods: show success dialog
+                                        await showDialog(
+                                          context: context,
+                                          barrierDismissible: false,
+                                          builder: (_) => Dialog(
+                                            backgroundColor:
+                                                Colors.transparent,
+                                            child: Container(
+                                              padding: const EdgeInsets.all(
+                                                24,
                                               ),
-                                            ),
-                                          );
-                                        } else {
-                                          // Cash on Delivery: show success dialog
-                                          await showDialog(
-                                            context: context,
-                                            barrierDismissible: false,
-                                            builder: (_) => Dialog(
-                                              backgroundColor:
-                                                  Colors.transparent,
-                                              child: Container(
-                                                padding: const EdgeInsets.all(
-                                                  24,
+                                              decoration: BoxDecoration(
+                                                color: theme.brightness == Brightness.dark
+                                                    ? const Color(0xFF1B2744) // Solid dark blue
+                                                    : Colors.white,
+                                                borderRadius:
+                                                    BorderRadius.circular(24),
+                                                border: Border.all(
+                                                  color: theme.brightness == Brightness.dark
+                                                      ? UnifiedDarkUi.cardBorder(theme)
+                                                      : Colors.grey.shade300,
                                                 ),
-                                                decoration: BoxDecoration(
-                                                  color: Colors
-                                                      .white, // Light background
-                                                  borderRadius:
-                                                      BorderRadius.circular(24),
-                                                  border: Border.all(
-                                                    color: Colors.grey.shade300,
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color: Colors.black
+                                                        .withValues(
+                                                          alpha: theme.brightness == Brightness.dark ? 0.3 : 0.15,
+                                                        ),
+                                                    blurRadius: 12,
+                                                    offset: const Offset(0, 6),
                                                   ),
-                                                  boxShadow: [
-                                                    BoxShadow(
-                                                      color: Colors.black
+                                                ],
+                                              ),
+                                              child: Column(
+                                                mainAxisSize:
+                                                    MainAxisSize.min,
+                                                children: [
+                                                  /// Success Icon
+                                                  Container(
+                                                    decoration: BoxDecoration(
+                                                      color: Colors
+                                                          .greenAccent
                                                           .withValues(
-                                                            alpha: 0.15,
+                                                            alpha: 0.2,
                                                           ),
-                                                      blurRadius: 12,
-                                                      offset: const Offset(
-                                                        0,
-                                                        6,
-                                                      ),
+                                                      shape: BoxShape.circle,
                                                     ),
-                                                  ],
-                                                ),
-                                                child: Column(
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  children: [
-                                                    /// Success Icon
-                                                    Container(
-                                                      decoration: BoxDecoration(
-                                                        color: Colors
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                          20,
+                                                        ),
+                                                    child: const Icon(
+                                                      Icons
+                                                          .check_circle_outline,
+                                                      color:
+                                                          Colors.greenAccent,
+                                                      size: 64,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(height: 20),
+
+                                                  /// Title
+                                                  Text(
+                                                    paymentMethod == "UPI"
+                                                        ? "Payment Successful!"
+                                                        : "Order Placed Successfully!",
+                                                    style:
+                                                        GoogleFonts.poppins(
+                                                          color:
+                                                              Colors.black87,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontSize: 20,
+                                                        ),
+                                                    textAlign:
+                                                        TextAlign.center,
+                                                  ),
+                                                  const SizedBox(height: 12),
+
+                                                  /// Subtitle
+                                                  Text(
+                                                    paymentMethod == "UPI"
+                                                        ? "Your online payment was successful. Thank you for shopping with us!"
+                                                        : "You can pay on delivery. Thank you for shopping with us!",
+                                                    style:
+                                                        GoogleFonts.poppins(
+                                                          color: theme.brightness == Brightness.dark
+                                                              ? Colors.white70
+                                                              : Colors.black54,
+                                                          fontSize: 15,
+                                                        ),
+                                                    textAlign:
+                                                        TextAlign.center,
+                                                  ),
+                                                  const SizedBox(height: 28),
+
+                                                  /// Go to Shop Button
+                                                  SizedBox(
+                                                    width: double.infinity,
+                                                    child: ElevatedButton(
+                                                      onPressed: () {
+                                                        Navigator.of(context).popUntil((route) => route.isFirst);
+                                                      },
+                                                      style: ElevatedButton.styleFrom(
+                                                        backgroundColor:
+                                                            theme.brightness == Brightness.dark
+                                                                ? Colors.amberAccent
+                                                                : Colors.green,
+                                                        foregroundColor:
+                                                            theme.brightness == Brightness.dark
+                                                                ? Colors.black
+                                                                : Colors.white,
+                                                        padding:
+                                                            const EdgeInsets.symmetric(
+                                                              vertical: 16,
+                                                            ),
+                                                        shape: RoundedRectangleBorder(
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                16,
+                                                              ),
+                                                        ),
+                                                        elevation: 6,
+                                                        shadowColor: Colors
                                                             .greenAccent
                                                             .withValues(
-                                                              alpha: 0.2,
+                                                              alpha: 0.5,
                                                             ),
-                                                        shape: BoxShape.circle,
                                                       ),
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                            20,
-                                                          ),
-                                                      child: const Icon(
-                                                        Icons
-                                                            .check_circle_outline,
-                                                        color:
-                                                            Colors.greenAccent,
-                                                        size: 64,
-                                                      ),
-                                                    ),
-                                                    const SizedBox(height: 20),
-
-                                                    /// Title
-                                                    Text(
-                                                      "Order Placed Successfully!",
-                                                      style:
-                                                          GoogleFonts.poppins(
-                                                            color:
-                                                                Colors.black87,
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                            fontSize: 20,
-                                                          ),
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                    ),
-                                                    const SizedBox(height: 12),
-
-                                                    /// Subtitle
-                                                    Text(
-                                                      "You can pay on delivery. Thank you for shopping with us!",
-                                                      style:
-                                                          GoogleFonts.poppins(
-                                                            color:
-                                                                Colors.black54,
-                                                            fontSize: 15,
-                                                          ),
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                    ),
-                                                    const SizedBox(height: 28),
-
-                                                    /// Go to Shop Button
-                                                    SizedBox(
-                                                      width: double.infinity,
-                                                      child: ElevatedButton(
-                                                        onPressed: () {
-                                                          Navigator.pop(
-                                                            context,
-                                                          ); // close dialog
-                                                          Navigator.pop(
-                                                            context,
-                                                          );
-                                                          Navigator.pop(
-                                                            context,
-                                                          );
-                                                          Navigator.pop(
-                                                            context,
-                                                          ); // optional extra pops
-                                                        },
-                                                        style: ElevatedButton.styleFrom(
-                                                          backgroundColor:
-                                                              Colors.green,
-                                                          padding:
-                                                              const EdgeInsets.symmetric(
-                                                                vertical: 16,
-                                                              ),
-                                                          shape: RoundedRectangleBorder(
-                                                            borderRadius:
-                                                                BorderRadius.circular(
-                                                                  16,
-                                                                ),
-                                                          ),
-                                                          elevation: 6,
-                                                          shadowColor: Colors
-                                                              .greenAccent
-                                                              .withValues(
-                                                                alpha: 0.5,
-                                                              ),
-                                                        ),
-                                                        child: Text(
-                                                          "Go to Shop",
-                                                          style:
-                                                              GoogleFonts.poppins(
-                                                                color: Colors
-                                                                    .black87,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold,
-                                                                fontSize: 16,
-                                                              ),
-                                                        ),
+                                                      child: Text(
+                                                        "Go to Shop",
+                                                        style:
+                                                            GoogleFonts.poppins(
+                                                              color: theme.brightness == Brightness.dark
+                                                                  ? Colors.black
+                                                                  : Colors.white,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              fontSize: 16,
+                                                            ),
                                                       ),
                                                     ),
-                                                  ],
-                                                ),
+                                                  ),
+                                                ],
                                               ),
                                             ),
-                                          );
-                                        }
+                                          ),
+                                        );
                                       } else {
                                         if (!context.mounted) return;
                                         ScaffoldMessenger.of(

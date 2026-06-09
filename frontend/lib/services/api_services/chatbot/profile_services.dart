@@ -5,6 +5,7 @@ import "package:astro_tale/helper/chart_cache_helper.dart";
 import "package:astro_tale/services/API/APIservice.dart";
 import "package:flutter/foundation.dart";
 import "package:http/http.dart" as http;
+import "package:http_parser/http_parser.dart";
 import "package:shared_preferences/shared_preferences.dart";
 
 class ProfileService {
@@ -194,10 +195,31 @@ class ProfileService {
       lastResponse = response;
 
       if (response.statusCode != 200 && response.statusCode != 201) {
+        String serverErrorMsg = "";
+        try {
+          final errPayload = jsonDecode(response.body);
+          if (errPayload["message"] != null) {
+            serverErrorMsg = errPayload["message"].toString();
+          } else if (errPayload["error"] != null) {
+            serverErrorMsg = errPayload["error"].toString();
+          }
+        } catch (_) {}
+
         if (response.statusCode == 401 || response.statusCode == 403) {
-          break;
+          throw Exception(serverErrorMsg.isNotEmpty ? serverErrorMsg : "Authentication error");
         }
-        continue;
+        
+        // If it's a Multer unexpected field error, we can try the next field name
+        if (response.statusCode == 400 && serverErrorMsg.toLowerCase().contains("unexpected field")) {
+          continue;
+        }
+        
+        // For any other error (rate limit, file size, server error), throw it immediately
+        if (serverErrorMsg.isNotEmpty) {
+           throw Exception(serverErrorMsg);
+        } else {
+           throw Exception("Server returned ${response.statusCode}");
+        }
       }
 
       try {
@@ -244,7 +266,22 @@ class ProfileService {
       Uri.parse("$baseurl/user/profile-image"),
     );
     request.headers["Authorization"] = "Bearer $token";
-    request.files.add(await http.MultipartFile.fromPath(fieldName, image.path));
+
+    String extension = image.path.split('.').last.toLowerCase();
+    MediaType contentType;
+    if (extension == 'png') {
+      contentType = MediaType('image', 'png');
+    } else if (extension == 'webp') {
+      contentType = MediaType('image', 'webp');
+    } else {
+      contentType = MediaType('image', 'jpeg');
+    }
+
+    request.files.add(await http.MultipartFile.fromPath(
+      fieldName, 
+      image.path,
+      contentType: contentType,
+    ));
     final streamed = await request.send();
     return http.Response.fromStream(streamed);
   }

@@ -5,6 +5,7 @@ import "package:google_fonts/google_fonts.dart";
 import "package:astro_tale/App/Model/notification_model.dart";
 import "../../../../services/api_services/notification_service.dart";
 import "../widgets/notification_card.dart";
+import "../../../../core/widgets/unified_dark_ui.dart";
 
 class NotificationScreen extends StatefulWidget {
   final String token;
@@ -132,30 +133,11 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        surfaceTintColor: Colors.transparent,
-        title: Text(
-          "Notifications",
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.w600,
-            fontSize: 20,
-            color: titleColor,
-          ),
-        ),
-        iconTheme: IconThemeData(color: titleColor),
-      ),
+      appBar: UnifiedDarkUi.appBar(context, title: "Notifications"),
       body: Stack(
         children: <Widget>[
           Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: bgGradient,
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
-            ),
+            decoration: UnifiedDarkUi.screenBackground(theme),
           ),
           FutureBuilder<List<NotificationModel>>(
             future: _notificationsFuture,

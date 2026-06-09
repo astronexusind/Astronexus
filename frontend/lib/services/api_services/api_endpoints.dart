@@ -24,7 +24,7 @@ class ApiEndpoints {
   static const String cart = "/cart";
   static const String addToCart = "/cart/add";
   // Backend currently uses the same route for add/update quantity.
-  static const String updateCart = "/cart/add";
+  static const String updateCart = "/cart/update";
   static const String removeCart = "/cart/remove";
 
   static const String orders = "/orders";

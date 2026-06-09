@@ -17,6 +17,7 @@ import 'package:shimmer/shimmer.dart';
 import '../../../services/api_services/cart_api.dart';
 import '../../../services/api_services/store_api.dart';
 import '../../../services/api_services/wishlist_service.dart';
+import '../../../services/api_services/order_api.dart';
 import 'package:astro_tale/App/Model/category_model.dart';
 import 'package:astro_tale/App/Model/product_model.dart';
 
@@ -39,6 +40,7 @@ class _StoreScreenState extends State<StoreScreen> {
   bool loading = true;
   int cartCount = 0;
   int wishlistCount = 0;
+  int ordersCount = 0;
 
   List<ProductModel> products = [];
   List<ProductModel> filteredProducts = [];
@@ -175,6 +177,7 @@ class _StoreScreenState extends State<StoreScreen> {
 
     int resolvedCart = cartCount;
     int resolvedWishlist = wishlistCount;
+    int resolvedOrders = ordersCount;
 
     try {
       final cart = await _cartApi.getCart();
@@ -195,6 +198,13 @@ class _StoreScreenState extends State<StoreScreen> {
       debugPrint("Badge wishlist sync error: $e");
     }
 
+    try {
+      final orders = await OrderApi().getMyOrders();
+      resolvedOrders = orders.length;
+    } catch (e) {
+      debugPrint("Badge orders sync error: $e");
+    }
+
     if (!mounted) {
       return;
     }
@@ -202,6 +212,7 @@ class _StoreScreenState extends State<StoreScreen> {
     setState(() {
       cartCount = resolvedCart;
       wishlistCount = resolvedWishlist;
+      ordersCount = resolvedOrders;
     });
   }
 
@@ -260,9 +271,11 @@ class _StoreScreenState extends State<StoreScreen> {
               _syncBadges();
             },
           ),
-          IconButton(
-            icon: const Icon(Icons.list_alt_outlined),
-            onPressed: () async {
+          _iconWithBadge(
+            icon: Icons.list_alt_outlined,
+            count: ordersCount,
+            showDotOnly: true,
+            onTap: () async {
               await Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => MyOrdersScreen()),
@@ -313,6 +326,7 @@ class _StoreScreenState extends State<StoreScreen> {
     required IconData icon,
     required int count,
     required VoidCallback onTap,
+    bool showDotOnly = false,
   }) {
     return Stack(
       clipBehavior: Clip.none,
@@ -323,27 +337,37 @@ class _StoreScreenState extends State<StoreScreen> {
         ),
         if (count > 0)
           Positioned(
-            right: 4,
-            top: 4,
-            child: Container(
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                color: Colors.redAccent,
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.white, width: 1),
-              ),
-              constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
-              child: Center(
-                child: Text(
-                  "$count",
-                  style: GoogleFonts.dmSans(
-                    color: Colors.white,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
+            right: 8,
+            top: 8,
+            child: showDotOnly
+                ? Container(
+                    width: 10,
+                    height: 10,
+                    decoration: BoxDecoration(
+                      color: Colors.greenAccent,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 1.5),
+                    ),
+                  )
+                : Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: Colors.redAccent,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 1),
+                    ),
+                    constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
+                    child: Center(
+                      child: Text(
+                        "$count",
+                        style: GoogleFonts.dmSans(
+                          color: Colors.white,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-              ),
-            ),
           ),
       ],
     );

@@ -220,12 +220,9 @@ class SubscriptionPage extends StatelessWidget {
       height: bannerHeight,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: isDark
-              ? <Color>[const Color(0xFF2E3F8D), const Color(0xFF8654B0)]
-              : <Color>[colors.primary, colors.secondary],
+        color: isDark ? const Color(0x7A1F2340) : colors.primary,
+        border: Border.all(
+          color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.transparent,
         ),
         boxShadow: <BoxShadow>[
           BoxShadow(
@@ -303,10 +300,10 @@ class ModernPlanCard extends StatelessWidget {
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
     
-    final cardColor = isDark ? AppGradients.glassFill(theme) : AppColors.lightContainerAlt;
+    final cardColor = isDark ? const Color(0x7A1F2340) : Colors.white;
     final borderColor = plan.highlight 
-        ? colors.primary.withValues(alpha: 0.8) 
-        : (isDark ? AppGradients.glassBorder(theme) : colors.outline.withValues(alpha: 0.2));
+        ? (isDark ? const Color(0xFFF6C65A) : colors.primary.withValues(alpha: 0.8))
+        : (isDark ? Colors.white.withValues(alpha: 0.10) : const Color(0xFFE2E8F0));
         
     final shadowColor = plan.highlight
         ? colors.primary.withValues(alpha: isDark ? 0.25 : 0.15)
@@ -317,7 +314,7 @@ class ModernPlanCard extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(26),
         color: cardColor,
-        border: Border.all(color: borderColor, width: plan.highlight ? 2 : 1),
+        border: Border.all(color: borderColor, width: 1.5),
         boxShadow: <BoxShadow>[
           BoxShadow(
             color: shadowColor,
@@ -361,11 +358,13 @@ class ModernPlanCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                   decoration: BoxDecoration(
-                    color: colors.primary,
+                    color: isDark ? const Color(0xFFF6C65A) : colors.primary,
                     borderRadius: BorderRadius.circular(50),
                     boxShadow: [
                       BoxShadow(
-                        color: colors.primary.withValues(alpha: 0.4),
+                        color: isDark 
+                            ? const Color(0xFFF6C65A).withValues(alpha: 0.3)
+                            : colors.primary.withValues(alpha: 0.4),
                         blurRadius: 8,
                         offset: const Offset(0, 3),
                       )
@@ -374,7 +373,7 @@ class ModernPlanCard extends StatelessWidget {
                   child: Text(
                     context.l10n.tr("new"),
                     style: GoogleFonts.dmSans(
-                      color: colors.onPrimary,
+                      color: isDark ? const Color(0xFF1E1538) : colors.onPrimary,
                       fontWeight: FontWeight.w800,
                       fontSize: 12,
                       letterSpacing: 0.5,
@@ -434,12 +433,18 @@ class ModernPlanCard extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 elevation: plan.highlight ? 6 : 0,
                 shadowColor: plan.highlight ? colors.primary.withValues(alpha: 0.5) : Colors.transparent,
-                backgroundColor: plan.highlight ? colors.primary : (isDark ? Colors.white.withValues(alpha: 0.08) : colors.primary.withValues(alpha: 0.08)),
-                foregroundColor: plan.highlight ? colors.onPrimary : (isDark ? Colors.white : colors.primary),
+                backgroundColor: plan.highlight 
+                    ? (isDark ? const Color(0xFFF6C65A) : colors.primary) 
+                    : (isDark ? Colors.white.withValues(alpha: 0.08) : colors.primary.withValues(alpha: 0.08)),
+                foregroundColor: plan.highlight 
+                    ? (isDark ? const Color(0xFF1E1538) : colors.onPrimary) 
+                    : (isDark ? Colors.white : colors.primary),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                   side: BorderSide(
-                    color: plan.highlight ? Colors.transparent : (isDark ? Colors.white12 : colors.primary.withValues(alpha: 0.2)),
+                    color: plan.highlight 
+                        ? Colors.transparent 
+                        : (isDark ? Colors.white12 : colors.primary.withValues(alpha: 0.2)),
                   ),
                 ),
               ),

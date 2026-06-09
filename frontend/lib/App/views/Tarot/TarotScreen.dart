@@ -1,4 +1,5 @@
 import 'package:astro_tale/App/views/Tarot/result/Tarot_result.dart';
+import 'package:astro_tale/core/constants/app_colors.dart';
 import 'package:astro_tale/core/widgets/animated_app_background.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -321,9 +322,11 @@ PreferredSizeWidget _tarotTopBar(BuildContext context) {
   final isDark = Theme.of(context).brightness == Brightness.dark;
   return AppBar(
     backgroundColor: isDark
-        ? const Color(0xff050B1E)
-        : Colors.white.withValues(alpha: 0.94),
-    elevation: 0,
+        ? AppColors.appBarDark
+        : AppColors.lightContainer,
+    surfaceTintColor: Colors.transparent,
+    scrolledUnderElevation: 0,
+    elevation: 0.8,
     centerTitle: true,
     leading: Padding(
       padding: const EdgeInsets.only(left: 12),

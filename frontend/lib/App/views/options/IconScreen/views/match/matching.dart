@@ -8,7 +8,8 @@ import 'package:geocoding/geocoding.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 import 'package:astro_tale/App/views/options/IconScreen/views/match/result/matchingScore.dart';
-import '../../../../../../core/widgets/animated_app_background.dart';
+import "package:astro_tale/core/constants/app_colors.dart";
+import "package:astro_tale/core/widgets/animated_app_background.dart";
 import '../../../../../../services/API/APIservice.dart';
 
 class MatchingScreen extends StatefulWidget {
@@ -425,10 +426,15 @@ class _MatchingScreenState extends State<MatchingScreen>
       final data = jsonDecode(res.body);
 
       if (res.statusCode == 200 && data["success"] == true) {
+        final out = data["data"]["output"];
+        if (out != null) {
+          out["male"] = {"name": mName.text.isNotEmpty ? mName.text : "Groom"};
+          out["female"] = {"name": fName.text.isNotEmpty ? fName.text : "Bride"};
+        }
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => MatchingScoreScreen(output: data["data"]["output"]),
+            builder: (_) => MatchingScoreScreen(output: out ?? {}),
           ),
         );
       } else {
@@ -749,10 +755,15 @@ class _MatchingScreenState extends State<MatchingScreen>
 
   /// Modern glassy app bar for MatchingScreen
   PreferredSizeWidget _modernMatchAppBar(BuildContext context) {
-    // Always use a dark app bar with white text/icons for consistency
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     return AppBar(
-      backgroundColor: const Color(0xFF23264A),
-      elevation: 0,
+      backgroundColor: isDark
+          ? AppColors.appBarDark
+          : AppColors.lightContainer,
+      surfaceTintColor: Colors.transparent,
+      scrolledUnderElevation: 0,
+      elevation: 0.8,
       centerTitle: true,
       leading: Padding(
         padding: const EdgeInsets.only(left: 12),
@@ -764,7 +775,7 @@ class _MatchingScreenState extends State<MatchingScreen>
             child: Icon(
               Icons.arrow_back_ios_new_rounded,
               size: 18,
-              color: Colors.white,
+              color: isDark ? Colors.white : const Color(0xFF0F172A),
             ),
           ),
         ),
@@ -774,7 +785,7 @@ class _MatchingScreenState extends State<MatchingScreen>
         style: GoogleFonts.dmSans(
           fontSize: 20,
           fontWeight: FontWeight.bold,
-          color: Colors.white,
+          color: isDark ? Colors.white : const Color(0xFF0F172A),
         ),
       ),
     );

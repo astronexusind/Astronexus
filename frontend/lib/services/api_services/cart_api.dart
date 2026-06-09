@@ -28,7 +28,7 @@ class CartApi {
   }
 
   Future<void> updateCartItem(String productId, int quantity) async {
-    final response = await _client.post(
+    final response = await _client.put(
       ApiEndpoints.updateCart,
       <String, dynamic>{"productId": productId, "quantity": quantity},
     );

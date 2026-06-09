@@ -538,10 +538,10 @@ class _MatiInsightBubble extends StatelessWidget {
             Colors.white.withValues(alpha: 0.98),
             const Color(0xFFF5FAFF).withValues(alpha: 0.98),
           ];
-    final borderColor = isDark ? Colors.white24 : const Color(0xFFDCE5F7);
+    final borderColor = isDark ? Colors.white.withValues(alpha: 0.12) : const Color(0xFFDCE5F7);
     final titleColor = isDark ? Colors.white : const Color(0xFF0F172A);
     final bodyColor = isDark ? Colors.white70 : const Color(0xFF475569);
-    final accent = isDark ? const Color(0xFF22C55E) : const Color(0xFF16A34A);
+    final accent = isDark ? const Color(0xFFF6C65A) : const Color(0xFF16A34A);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 6),
@@ -551,7 +551,7 @@ class _MatiInsightBubble extends StatelessWidget {
           CircleAvatar(
             radius: 19,
             backgroundColor: isDark
-                ? const Color(0xFF24314E)
+                ? const Color(0xFF2E2057)
                 : const Color(0xFFEEF2FF),
             backgroundImage: const AssetImage("assets/images/mati.png"),
           ),
@@ -560,19 +560,15 @@ class _MatiInsightBubble extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: cardGradient,
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
+                color: isDark ? const Color(0xFF1E1538) : Colors.white,
                 borderRadius: BorderRadius.circular(18),
-                border: Border.all(color: borderColor),
+                border: Border.all(color: borderColor, width: 1.2),
                 boxShadow: <BoxShadow>[
                   BoxShadow(
                     color: isDark
-                        ? Colors.black.withValues(alpha: 0.24)
-                        : const Color(0xFF94A3B8).withValues(alpha: 0.2),
-                    blurRadius: 12,
+                        ? Colors.black.withValues(alpha: 0.3)
+                        : const Color(0xFF94A3B8).withValues(alpha: 0.15),
+                    blurRadius: 16,
                     offset: const Offset(0, 6),
                   ),
                 ],
@@ -707,7 +703,7 @@ class _InsightMetricStrip extends StatelessWidget {
     final negative = _percent(analysis.negativePercentage);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bg = isDark
-        ? Colors.white.withValues(alpha: 0.06)
+        ? const Color(0xFF1E1538).withValues(alpha: 0.8)
         : const Color(0xFFF1F7FF);
 
     return Container(
@@ -717,7 +713,7 @@ class _InsightMetricStrip extends StatelessWidget {
         color: bg,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: isDark ? Colors.white12 : const Color(0xFFDDE7F8),
+          color: isDark ? Colors.white.withValues(alpha: 0.1) : const Color(0xFFDDE7F8),
         ),
       ),
       child: Wrap(
@@ -759,17 +755,17 @@ class _TimingCard extends StatelessWidget {
     final titleColor = isDark ? Colors.white : const Color(0xFF0F172A);
     final bodyColor = isDark ? Colors.white70 : const Color(0xFF475569);
     final surfaceColor = isDark
-        ? const Color(0xFF152243).withValues(alpha: 0.86)
+        ? const Color(0xFF1E1538)
         : const Color(0xFFF8FBFF);
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: surfaceColor,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: isDark ? Colors.white12 : const Color(0xFFDDE7F7),
+          color: isDark ? Colors.white.withValues(alpha: 0.1) : const Color(0xFFDDE7F7),
         ),
       ),
       child: Column(
@@ -990,11 +986,18 @@ class _ReportDownloadCardState extends State<_ReportDownloadCard> {
       width: double.infinity,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: bgColor,
+        color: isDark ? const Color(0xFF1E1538) : const Color(0xFFF5FAFF),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isDark ? Colors.white12 : const Color(0xFFDCE7F8),
+          color: isDark ? Colors.white.withValues(alpha: 0.12) : const Color(0xFFDCE7F8),
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1112,58 +1115,78 @@ class _ReportDownloadCardState extends State<_ReportDownloadCard> {
               ),
             ),
           ],
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 10,
-            runSpacing: 10,
+          const SizedBox(height: 14),
+          Row(
             children: <Widget>[
-              FilledButton.icon(
-                onPressed: _isOpeningPdf ? null : _openPdf,
-                style: FilledButton.styleFrom(
-                  backgroundColor: const Color(0xFF0F766E),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
+              Expanded(
+                child: FilledButton.icon(
+                  onPressed: _isOpeningPdf ? null : _openPdf,
+                  style: FilledButton.styleFrom(
+                    backgroundColor: isDark
+                        ? const Color(0xFFF6C65A)   // gold in dark
+                        : const Color(0xFF18122B),   // deep indigo in light
+                    foregroundColor: isDark
+                        ? const Color(0xFF18122B)    // dark text on gold
+                        : Colors.white,
+                    disabledBackgroundColor:
+                        isDark ? Colors.white24 : Colors.black12,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 13,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                  icon: _isOpeningPdf
+                      ? SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: isDark ? const Color(0xFF18122B) : Colors.white,
+                          ),
+                        )
+                      : const Icon(Icons.picture_as_pdf_rounded, size: 18),
+                  label: Text(
+                    _isOpeningPdf ? "Opening..." : "Open PDF",
+                    style: GoogleFonts.dmSans(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13.5,
+                    ),
                   ),
-                ),
-                icon: _isOpeningPdf
-                    ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
-                    : const Icon(Icons.open_in_new_rounded),
-                label: Text(
-                  _isOpeningPdf ? "Opening PDF..." : "Open PDF",
-                  style: GoogleFonts.dmSans(fontWeight: FontWeight.w700),
                 ),
               ),
-              OutlinedButton.icon(
-                onPressed: _showPreview,
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: titleColor,
-                  side: BorderSide(
-                    color: isDark ? Colors.white24 : const Color(0xFFD1DDF3),
+              const SizedBox(width: 10),
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: _showPreview,
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: isDark
+                        ? Colors.white
+                        : const Color(0xFF18122B),
+                    side: BorderSide(
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.25)
+                          : const Color(0xFF18122B).withValues(alpha: 0.3),
+                      width: 1.5,
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 13,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
+                  icon: const Icon(Icons.preview_rounded, size: 18),
+                  label: Text(
+                    "Preview",
+                    style: GoogleFonts.dmSans(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13.5,
+                    ),
                   ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                icon: const Icon(Icons.visibility_outlined),
-                label: Text(
-                  "Preview",
-                  style: GoogleFonts.dmSans(fontWeight: FontWeight.w700),
                 ),
               ),
             ],
@@ -1194,8 +1217,8 @@ class _ReportPreviewSheet extends StatelessWidget {
       builder: (context, scrollController) {
         return Container(
           decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF10172B) : Colors.white,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            color: isDark ? const Color(0xFF18122B) : Colors.white,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
           ),
           child: SafeArea(
             top: false,
@@ -1265,17 +1288,16 @@ class _ReportPreviewSheet extends StatelessWidget {
                       const SizedBox(height: 18),
                       ...report.visibleSections.map(
                         (section) => Container(
-                          margin: const EdgeInsets.only(bottom: 12),
-                          padding: const EdgeInsets.all(14),
+                          margin: const EdgeInsets.only(bottom: 14),
+                          padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: isDark
-                                ? Colors.white10
-                                : const Color(0xFFF8FAFF),
-                            borderRadius: BorderRadius.circular(16),
+                            color: isDark ? const Color(0xFF1E1538) : const Color(0xFFF8FAFF),
+                            borderRadius: BorderRadius.circular(14),
                             border: Border.all(
                               color: isDark
-                                  ? Colors.white12
-                                  : const Color(0xFFDCE4F5),
+                                  ? Colors.white.withValues(alpha: 0.1)
+                                  : const Color(0xFFE2E8F0),
+                              width: 1.0,
                             ),
                           ),
                           child: Column(
@@ -1324,15 +1346,15 @@ class _DetailChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textColor = isDark ? Colors.white70 : const Color(0xFF475569);
+    final textColor = isDark ? const Color(0xFFF6C65A) : const Color(0xFF475569);
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: isDark ? Colors.white10 : const Color(0xFFEFF5FF),
+        color: isDark ? const Color(0xFFF6C65A).withValues(alpha: 0.15) : const Color(0xFFEFF5FF),
         borderRadius: BorderRadius.circular(999),
         border: Border.all(
-          color: isDark ? Colors.white12 : const Color(0xFFDCE4F5),
+          color: isDark ? const Color(0xFFF6C65A).withValues(alpha: 0.4) : const Color(0xFFDCE4F5),
         ),
       ),
       child: Row(
@@ -1453,155 +1475,185 @@ class _AnalysisChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final bgColor = isDark ? Colors.white10 : const Color(0xFFF8FAFF);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final score = _percent(analysis.decisionScore);
+    final positive = _percent(analysis.positivePercentage);
+    final negative = _percent(analysis.negativePercentage);
+
+    final cardBg = isDark ? const Color(0xFF1E1538) : Colors.white;
+    final cardBorder = isDark
+        ? Colors.white.withValues(alpha: 0.09)
+        : const Color(0xFFE2E8F0);
     final titleColor = isDark ? Colors.white : const Color(0xFF0F172A);
-    final bodyColor = isDark ? Colors.white70 : const Color(0xFF64748B);
+    final subColor = isDark ? Colors.white60 : const Color(0xFF64748B);
+    final trackBg = isDark ? Colors.white.withValues(alpha: 0.08) : const Color(0xFFF1F5F9);
+
+    // Score colour
+    final scoreColor = score >= 70
+        ? const Color(0xFF22C55E)
+        : score >= 45
+            ? const Color(0xFFF59E0B)
+            : const Color(0xFFEF4444);
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: bgColor,
+        color: cardBg,
         borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: cardBorder, width: 1.2),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.18 : 0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text(
-            "Cosmic Score",
-            style: GoogleFonts.dmSans(
-              fontSize: 13.5,
-              fontWeight: FontWeight.w700,
-              color: titleColor,
-            ),
+          // ── Title row ──────────────────────────────────────────
+          Row(
+            children: <Widget>[
+              Icon(
+                Icons.insights_rounded,
+                size: 16,
+                color: scoreColor,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                "Cosmic Score",
+                style: GoogleFonts.dmSans(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: titleColor,
+                ),
+              ),
+              const Spacer(),
+              // Big score badge
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: scoreColor.withValues(alpha: isDark ? 0.18 : 0.12),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  "${score.toStringAsFixed(0)}%",
+                  style: GoogleFonts.dmSans(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                    color: scoreColor,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+
+          // ── Bar chart rows ──────────────────────────────────────
+          _BarRow(
+            label: "Decision Score",
+            value: score,
+            color: scoreColor,
+            trackBg: trackBg,
+            subColor: subColor,
           ),
           const SizedBox(height: 10),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final compact = constraints.maxWidth < 300;
-              if (compact) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Center(child: _ScoreRing(score: score)),
-                    const SizedBox(height: 12),
-                    _PercentTrack(
-                      label: "Positive",
-                      value: _percent(analysis.positivePercentage),
-                      color: const Color(0xFF22C55E),
-                    ),
-                    const SizedBox(height: 8),
-                    _PercentTrack(
-                      label: "Negative",
-                      value: _percent(analysis.negativePercentage),
-                      color: const Color(0xFFEF4444),
-                    ),
-                  ],
-                );
-              }
-
-              return Row(
-                children: <Widget>[
-                  _ScoreRing(score: score),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      children: <Widget>[
-                        _PercentTrack(
-                          label: "Positive",
-                          value: _percent(analysis.positivePercentage),
-                          color: const Color(0xFF22C55E),
-                        ),
-                        const SizedBox(height: 8),
-                        _PercentTrack(
-                          label: "Negative",
-                          value: _percent(analysis.negativePercentage),
-                          color: const Color(0xFFEF4444),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              );
-            },
+          _BarRow(
+            label: "Positive",
+            value: positive,
+            color: const Color(0xFF22C55E),
+            trackBg: trackBg,
+            subColor: subColor,
           ),
+          const SizedBox(height: 10),
+          _BarRow(
+            label: "Challenging",
+            value: negative,
+            color: const Color(0xFFEF4444),
+            trackBg: trackBg,
+            subColor: subColor,
+          ),
+
+          // ── Planet breakdown ────────────────────────────────────
           if (analysis.planetBreakdown.isNotEmpty) ...<Widget>[
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             Text(
               "Planet Impact",
               style: GoogleFonts.dmSans(
-                fontSize: 12.5,
+                fontSize: 12,
                 fontWeight: FontWeight.w700,
                 color: titleColor,
               ),
             ),
-            const SizedBox(height: 6),
-            ...analysis.planetBreakdown
-                .take(4)
-                .map(
-                  (planet) => Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+            const SizedBox(height: 8),
+            ...analysis.planetBreakdown.take(4).map((planet) {
+              final pColor = planet.isPositive
+                  ? const Color(0xFF22C55E)
+                  : const Color(0xFFEF4444);
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Row(
                       children: <Widget>[
-                        Row(
-                          children: <Widget>[
-                            Expanded(
-                              child: Text(
-                                planet.planet,
-                                style: GoogleFonts.dmSans(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w700,
-                                  color: titleColor,
-                                ),
-                              ),
-                            ),
-                            Text(
-                              "${planet.strength.toStringAsFixed(0)}/10",
-                              style: GoogleFonts.dmSans(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                                color: bodyColor,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(999),
-                          child: LinearProgressIndicator(
-                            value: (planet.strength / 10)
-                                .clamp(0, 1)
-                                .toDouble(),
-                            minHeight: 6,
-                            backgroundColor: isDark
-                                ? Colors.white12
-                                : const Color(0xFFE5EAF8),
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              planet.isPositive
-                                  ? const Color(0xFF22C55E)
-                                  : const Color(0xFFEF4444),
-                            ),
+                        Container(
+                          width: 6,
+                          height: 6,
+                          decoration: BoxDecoration(
+                            color: pColor,
+                            shape: BoxShape.circle,
                           ),
                         ),
-                        if (planet.reason.isNotEmpty) ...<Widget>[
-                          const SizedBox(height: 2),
-                          Text(
-                            planet.reason,
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            planet.planet,
                             style: GoogleFonts.dmSans(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w500,
-                              color: bodyColor,
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w700,
+                              color: titleColor,
                             ),
                           ),
-                        ],
+                        ),
+                        Text(
+                          "${planet.strength.toStringAsFixed(0)}/10",
+                          style: GoogleFonts.dmSans(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: pColor,
+                          ),
+                        ),
                       ],
                     ),
-                  ),
+                    const SizedBox(height: 5),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: LinearProgressIndicator(
+                        value: (planet.strength / 10).clamp(0, 1).toDouble(),
+                        minHeight: 5,
+                        backgroundColor: trackBg,
+                        valueColor: AlwaysStoppedAnimation<Color>(pColor),
+                      ),
+                    ),
+                    if (planet.reason.isNotEmpty) ...<Widget>[
+                      const SizedBox(height: 3),
+                      Text(
+                        planet.reason,
+                        style: GoogleFonts.dmSans(
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w400,
+                          color: subColor,
+                          height: 1.4,
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
+              );
+            }),
           ],
         ],
       ),
@@ -1609,65 +1661,24 @@ class _AnalysisChart extends StatelessWidget {
   }
 }
 
-class _ScoreRing extends StatelessWidget {
-  const _ScoreRing({required this.score});
-
-  final double score;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final color = score >= 70
-        ? const Color(0xFF22C55E)
-        : (score >= 45 ? const Color(0xFFEAB308) : const Color(0xFFEF4444));
-
-    return SizedBox(
-      width: 76,
-      height: 76,
-      child: Stack(
-        fit: StackFit.expand,
-        alignment: Alignment.center,
-        children: <Widget>[
-          CircularProgressIndicator(
-            value: score / 100,
-            strokeWidth: 7,
-            backgroundColor: isDark ? Colors.white12 : const Color(0xFFE2E8F0),
-            valueColor: AlwaysStoppedAnimation<Color>(color),
-          ),
-          Center(
-            child: Text(
-              "${score.toStringAsFixed(0)}%",
-              style: GoogleFonts.dmSans(
-                fontSize: 13,
-                fontWeight: FontWeight.w800,
-                color: isDark ? Colors.white : const Color(0xFF0F172A),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _PercentTrack extends StatelessWidget {
-  const _PercentTrack({
+// Full-width bar chart row
+class _BarRow extends StatelessWidget {
+  const _BarRow({
     required this.label,
     required this.value,
     required this.color,
+    required this.trackBg,
+    required this.subColor,
   });
 
   final String label;
   final double value;
   final Color color;
+  final Color trackBg;
+  final Color subColor;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final textColor = isDark ? Colors.white70 : const Color(0xFF475569);
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -1676,9 +1687,9 @@ class _PercentTrack extends StatelessWidget {
             Text(
               label,
               style: GoogleFonts.dmSans(
-                fontSize: 11.5,
-                fontWeight: FontWeight.w700,
-                color: textColor,
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: subColor,
               ),
             ),
             const Spacer(),
@@ -1686,19 +1697,19 @@ class _PercentTrack extends StatelessWidget {
               "${value.toStringAsFixed(0)}%",
               style: GoogleFonts.dmSans(
                 fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: textColor,
+                fontWeight: FontWeight.w700,
+                color: color,
               ),
             ),
           ],
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 5),
         ClipRRect(
-          borderRadius: BorderRadius.circular(999),
+          borderRadius: BorderRadius.circular(4),
           child: LinearProgressIndicator(
             value: value / 100,
-            minHeight: 6,
-            backgroundColor: isDark ? Colors.white12 : const Color(0xFFE5EAF8),
+            minHeight: 7,
+            backgroundColor: trackBg,
             valueColor: AlwaysStoppedAnimation<Color>(color),
           ),
         ),
@@ -1706,6 +1717,8 @@ class _PercentTrack extends StatelessWidget {
     );
   }
 }
+
+
 
 class _VerdictCard extends StatelessWidget {
   const _VerdictCard({required this.uiMetadata});
@@ -1806,28 +1819,50 @@ class _NutritionGuidanceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final cardColor = isDark ? Colors.white10 : const Color(0xFFF7FBF2);
     final titleColor = isDark ? Colors.white : const Color(0xFF0F172A);
-    final bodyColor = isDark ? Colors.white70 : const Color(0xFF475569);
-    final accent = const Color(0xFF16A34A);
+    final bodyColor = isDark ? Colors.white.withValues(alpha: 0.85) : const Color(0xFF475569);
+    final accent = isDark ? const Color(0xFFF6C65A) : const Color(0xFF16A34A);
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: cardColor,
+        color: isDark ? const Color(0xFF1E1538) : Colors.white,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: accent.withValues(alpha: isDark ? 0.28 : 0.18),
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.09)
+              : const Color(0xFFE2E8F0),
+          width: 1.2,
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.18 : 0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Row(
             children: <Widget>[
-              Icon(Icons.restaurant_menu_rounded, size: 18, color: accent),
-              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? const Color(0xFF22C55E).withValues(alpha: 0.15)
+                      : const Color(0xFFDCFCE7),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  Icons.restaurant_menu_rounded,
+                  size: 16,
+                  color: const Color(0xFF16A34A),
+                ),
+              ),
+              const SizedBox(width: 10),
               Text(
                 "Astro Nutrition",
                 style: GoogleFonts.dmSans(
@@ -1857,20 +1892,21 @@ class _NutritionGuidanceCard extends StatelessWidget {
               runSpacing: 6,
               children: guidance.dominantPlanets.map((planet) {
                 return Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
                   decoration: BoxDecoration(
-                    color: accent.withValues(alpha: isDark ? 0.18 : 0.12),
-                    borderRadius: BorderRadius.circular(999),
+                    color: isDark
+                        ? const Color(0xFF7C3AED).withValues(alpha: 0.18)
+                        : const Color(0xFFEDE9FE),
+                    borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
                     planet,
                     style: GoogleFonts.dmSans(
-                      fontSize: 10.5,
+                      fontSize: 11,
                       fontWeight: FontWeight.w700,
-                      color: titleColor,
+                      color: isDark
+                          ? const Color(0xFFC4B5FD)
+                          : const Color(0xFF5B21B6),
                     ),
                   ),
                 );
@@ -1878,19 +1914,25 @@ class _NutritionGuidanceCard extends StatelessWidget {
             ),
           ],
           if (guidance.foodsToFavor.isNotEmpty) ...<Widget>[
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
             _FoodTagSection(
-              title: "Favor",
-              tags: guidance.foodsToFavor.take(4).toList(),
-              color: const Color(0xFF22C55E),
+              title: "✓  Favor",
+              tags: guidance.foodsToFavor.take(5).toList(),
+              color: const Color(0xFF16A34A),
+              bgColor: isDark
+                  ? const Color(0xFF16A34A).withValues(alpha: 0.12)
+                  : const Color(0xFFDCFCE7),
             ),
           ],
           if (guidance.foodsToLimit.isNotEmpty) ...<Widget>[
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
             _FoodTagSection(
-              title: "Go Easy",
-              tags: guidance.foodsToLimit.take(4).toList(),
-              color: const Color(0xFFEAB308),
+              title: "⚠  Go Easy",
+              tags: guidance.foodsToLimit.take(5).toList(),
+              color: const Color(0xFFD97706),
+              bgColor: isDark
+                  ? const Color(0xFFD97706).withValues(alpha: 0.12)
+                  : const Color(0xFFFEF3C7),
             ),
           ],
           if (guidance.mealSuggestion.isNotEmpty) ...<Widget>[
@@ -1939,17 +1981,18 @@ class _FoodTagSection extends StatelessWidget {
     required this.title,
     required this.tags,
     required this.color,
+    required this.bgColor,
   });
 
   final String title;
   final List<String> tags;
   final Color color;
+  final Color bgColor;
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final titleColor = isDark ? Colors.white : const Color(0xFF0F172A);
-    final bodyColor = isDark ? Colors.white70 : const Color(0xFF475569);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1957,28 +2000,29 @@ class _FoodTagSection extends StatelessWidget {
         Text(
           title,
           style: GoogleFonts.dmSans(
-            fontSize: 11.8,
+            fontSize: 11.5,
             fontWeight: FontWeight.w700,
             color: titleColor,
+            letterSpacing: 0.1,
           ),
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 7),
         Wrap(
-          spacing: 6,
-          runSpacing: 6,
+          spacing: 7,
+          runSpacing: 7,
           children: tags.map((tag) {
             return Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
-                color: color.withValues(alpha: isDark ? 0.18 : 0.12),
-                borderRadius: BorderRadius.circular(999),
+                color: bgColor,
+                borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
                 tag,
                 style: GoogleFonts.dmSans(
-                  fontSize: 10.6,
-                  fontWeight: FontWeight.w600,
-                  color: bodyColor,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: color,
                 ),
               ),
             );
