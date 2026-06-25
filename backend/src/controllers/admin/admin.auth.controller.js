@@ -3,6 +3,8 @@ import bcrypt from "bcrypt";
 import Admin from "../../models/shop/admin.js";
 import { asyncHandler } from "../../utils/asyncHandler.js";
 import { ApiError } from "../../utils/ApiError.js";
+import crypto from "crypto";
+import { blacklistToken } from "../../service/auth.js";
 
 // ==========================
 // 🔑 ADMIN LOGIN
@@ -21,10 +23,10 @@ export const login = asyncHandler(async (req, res) => {
   }
 
   const token = jwt.sign(
-    { id: admin._id, role: "admin" },
-    process.env.JWT_SECRET,
-    { expiresIn: "1d" }
-  );
+  { id: admin._id, role: "admin", jti: crypto.randomUUID() },
+  process.env.JWT_SECRET,
+  { expiresIn: "1d" }
+);
 
   res.status(200).json({
     success: true,
@@ -103,10 +105,14 @@ export const getAllAdmins = asyncHandler(async (req, res) => {
 // 🚪 LOGOUT
 // ==========================
 export const logout = asyncHandler(async (req, res) => {
+  const accessToken = req.token || req.headers.authorization?.split(" ")[1];
+  if (accessToken) {
+    await blacklistToken(accessToken, "admin");
+  }
+
   res.status(200).json({
     success: true,
     message: "Logout successful",
   });
 });
-
 

@@ -9,6 +9,8 @@ import { asyncHandler } from "../../utils/asyncHandler.js";
 import { ApiError } from "../../utils/ApiError.js";
 import { ApiResponse } from "../../utils/ApiResponse.js";
 import { createS3Key, deleteS3Object, uploadBufferToS3 } from "../../service/config/s3.js";
+import { blacklistToken } from "../../service/auth.js"
+
 
 const normalizeChartId = (value) => {
   if (!value) return null;
@@ -595,7 +597,21 @@ export const uploadProfileImage = async (req, res) => {
 /* ======================================================
    USER LOGOUT
 ====================================================== */
+
+
 export async function handleUserLogout(req, res) {
+  // Blacklist the access token that was used to authenticate this request
+  const accessToken = req.token || req.cookies?.token || req.headers.authorization?.split(" ")[1];
+  if (accessToken) {
+    await blacklistToken(accessToken, "access");
+  }
+
+  // Also blacklist the refresh token if the client sent one (cookie or body)
+  const refreshToken = req.cookies?.refreshToken || req.body?.refreshToken;
+  if (refreshToken) {
+    await blacklistToken(refreshToken, "refresh");
+  }
+
   res.clearCookie("token");
   res.clearCookie("refreshToken");
   return res.json({ success: true, message: "Logged out successfully" });

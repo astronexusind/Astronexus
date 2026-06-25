@@ -15,9 +15,11 @@ export const authorizeAdmin = (req, res, next) => {
 
 /**
  * Middleware: Authenticate API token (for Flutter / mobile / API requests)
+ * NOTE: verifyToken is now async (it checks the blacklist), so this
+ * middleware must be async too.
  */
 
-export function authenticateToken(req, res, next) {
+export async function authenticateToken(req, res, next) {
   try {
     // Get token from Authorization header or cookies
     const token = req.cookies?.token || req.headers.authorization?.split(" ")[1];
@@ -26,15 +28,16 @@ export function authenticateToken(req, res, next) {
       return next(new ApiError(401, "Access denied. No token provided.", ["Access denied. No token provided."]));
     }
 
-    const decoded = verifyToken(token);
+    const decoded = await verifyToken(token);
 
     if (!decoded) {
-      return next(new ApiError(401, "Invalid or expired token.", ["Invalid or expired token."]));
+      return next(new ApiError(401, "Invalid, expired, or logged-out token.", ["Invalid, expired, or logged-out token."]));
     }
 
     // Use `id` if available, else fallback to email
     req.userId = decoded.id || decoded._id;
     req.user = decoded;
+    req.token = token; // stashed so logout can blacklist it later
 
     next();
   } catch (err) {
@@ -46,18 +49,19 @@ export function authenticateToken(req, res, next) {
 /**
  * Middleware: Authenticate token for web routes (cookie-based)
  */
-export function authenticateTokenForWeb(req, res, next) {
+export async function authenticateTokenForWeb(req, res, next) {
   try {
     const token = req.cookies?.token;
 
     if (!token) return res.redirect("/login");
 
-    const decoded = verifyToken(token);
+    const decoded = await verifyToken(token);
 
     if (!decoded) return res.redirect("/login");
 
     req.userId = decoded.id || decoded.email;
     req.user = decoded;
+    req.token = token;
 
     next();
   } catch (err) {
@@ -70,15 +74,16 @@ export function authenticateTokenForWeb(req, res, next) {
  * Middleware: Optional authentication
  * If a token exists, attaches user info; otherwise proceeds without error
  */
-export function optionalAuth(req, res, next) {
+export async function optionalAuth(req, res, next) {
   try {
     const token = req.cookies?.token || req.headers.authorization?.split(" ")[1];
 
     if (token) {
-      const decoded = verifyToken(token);
+      const decoded = await verifyToken(token);
       if (decoded) {
         req.userId = decoded.id || decoded.email;
         req.user = decoded;
+        req.token = token;
       }
     }
 

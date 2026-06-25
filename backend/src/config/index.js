@@ -13,7 +13,15 @@ const config = {
   port: process.env.PORT || 8001,
   mongodbUri: process.env.MONGODB_URI,
   groqApiKey: process.env.GROQ_API_KEY,
-  jwtSecret: process.env.JWT_SECRET || "your_secret_key",
+  jwtSecret: (() => {
+  if (!process.env.JWT_SECRET) {
+    throw new Error(
+      "FATAL: JWT_SECRET is not set in environment variables. " +
+      "Refusing to start with an insecure default. Set JWT_SECRET in your .env file."
+    );
+  }
+  return process.env.JWT_SECRET;
+})(),
   baseUrl: process.env.BASE_URL || `http://localhost:${process.env.PORT || 8001}`,
   // Add other env vars here
 };

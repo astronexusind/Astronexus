@@ -41,10 +41,18 @@ function getServiceAccount() {
   );
 }
 
-const serviceAccount = getServiceAccount();
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-});
+let firebaseAdmin = null;
 
-export default admin;
+try {
+  const serviceAccount = getServiceAccount();
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+  });
+  firebaseAdmin = admin;
+  console.log("✅ Firebase initialized successfully");
+} catch (err) {
+  console.warn("⚠️  Firebase not configured — push notifications disabled:", err.message);
+}
+
+export default firebaseAdmin;
