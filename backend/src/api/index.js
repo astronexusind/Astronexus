@@ -1,3 +1,4 @@
+import subscriptionRoutes from "../routes/subscription/subscription.routes.js";
 import { Router } from "express";
 import { authenticateToken, optionalAuth } from "../middlewares/auth.js";
 import URL from "../models/url.js";
@@ -44,6 +45,7 @@ router.use("/feedback", feedbackRoutes);
 router.use("/tarot", tarotRoutes);
 router.use("/shipping", shippingRoutes);
 router.use("/notifications", notificationRoutes);
+router.use("/subscription", subscriptionRoutes);
 
 // ================= ADMIN APIs =================
 const adminRouter = Router();
