@@ -107,13 +107,10 @@ router.post("/payment/create", authenticateToken, paymentController.createPaymen
 router.post("/payment/verify", authenticateToken, paymentController.verifyPayment);
 
 
-router.get('/:userId', walletController.getWallet);
-
-// deposit money
-router.post('/:userId/deposit', walletController.deposit);
-
-// withdraw money
-router.post('/:userId/withdraw', walletController.withdraw);
+// ================== WALLET ROUTES ==================
+router.get('/wallet/balance', authenticateToken, walletController.getWallet);
+router.post('/wallet/deposit', authenticateToken, walletController.deposit);
+router.post('/wallet/withdraw', authenticateToken, walletController.withdraw);
 
 
 

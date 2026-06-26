@@ -3,7 +3,7 @@ import Wallet from '../../models/wallet/wallet.js';
 // Get wallet for a user
 export const getWallet = async (req, res) => {
     try {
-        const userId = req.params.userId;
+        const userId = req.user.id;
         let wallet = await Wallet.findOne({ userId });
         if (!wallet) {
             // create wallet if not exists
@@ -19,7 +19,7 @@ export const getWallet = async (req, res) => {
 // Deposit money
 export const deposit = async (req, res) => {
     try {
-        const userId = req.params.userId;
+        const userId = req.user.id;
         const { amount } = req.body;
 
         let wallet = await Wallet.findOne({ userId });
@@ -38,7 +38,7 @@ export const deposit = async (req, res) => {
 // Withdraw money
 export const withdraw = async (req, res) => {
     try {
-        const userId = req.params.userId;
+        const userId = req.user.id;
         const { amount } = req.body;
 
         const wallet = await Wallet.findOne({ userId });
