@@ -6,7 +6,7 @@ import morgan from "morgan";
 import { fileURLToPath } from "url";
 import { ApiError } from "./utils/ApiError.js";
 import { globalLimiter } from "./middlewares/rateLimiters.js";
-
+import webhookRoutes from "./routes/payment/webhook.routes.js";
 // Load routes
 import apiRoutes, { staticRoute, userRoute, optionalAuth, URL } from "./api/index.js";
 
@@ -27,6 +27,8 @@ app.set("views", path.join(__dirname, "./views"));
 // ================= GLOBAL MIDDLEWARE =================
 app.use(cors({ origin: true, credentials: true }));
 app.use(morgan("dev"));
+// ================= WEBHOOK (must be before express.json) =================
+app.use("/api/payment", webhookRoutes);
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());

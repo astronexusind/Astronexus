@@ -3,6 +3,7 @@ import { Router } from "express";
 import { authenticateToken, optionalAuth } from "../middlewares/auth.js";
 import URL from "../models/url.js";
 
+
 // Import all route modules
 import tarotRoutes from '../routes/Astrology_service/tarotRoutes.js';
 import predictionsRoute from "../routes/predictions.js";
@@ -30,6 +31,7 @@ import unifiedRoutes from "../routes/unified/unified.routes.js";
 import shippingRoutes from "../routes/shipping/shipping.js";
 import couponRoutes from "../routes/admin/coupons.js";
 import notificationRoutes from "../routes/notification/notificationRoutes.js";
+
 
 const router = Router();
 
