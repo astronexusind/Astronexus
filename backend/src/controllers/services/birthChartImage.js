@@ -178,10 +178,11 @@ export const generateBirthChart = async (req, res) => {
     };
 
     // Call Astro Nexus API
-    const apiRes = await axios.post(
-      "https://backend.astronexus.in/api/unified/birth-chart",
-      payload
-    );
+   const birthChartUrl = process.env.BIRTH_CHART_SERVICE_URL
+  ? `${process.env.BIRTH_CHART_SERVICE_URL}/api/v1/chart`
+  : "http://127.0.0.1:8010/api/v1/chart";
+
+    const apiRes = await axios.post(birthChartUrl, payload);
 
 
     const chartData = apiRes?.data?.data || apiRes?.data;
