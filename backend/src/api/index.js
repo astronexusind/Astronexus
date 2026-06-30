@@ -2,6 +2,7 @@ import subscriptionRoutes from "../routes/subscription/subscription.routes.js";
 import { Router } from "express";
 import { authenticateToken, optionalAuth } from "../middlewares/auth.js";
 import URL from "../models/url.js";
+import astrologerRoutes from "../routes/astrologer/astrologer.routes.js";
 
 
 // Import all route modules
@@ -48,7 +49,7 @@ router.use("/tarot", tarotRoutes);
 router.use("/shipping", shippingRoutes);
 router.use("/notifications", notificationRoutes);
 router.use("/subscription", subscriptionRoutes);
-
+router.use("/astrologer", astrologerRoutes);
 // ================= ADMIN APIs =================
 const adminRouter = Router();
 adminRouter.use("/auth", adminAuthRoutes);
