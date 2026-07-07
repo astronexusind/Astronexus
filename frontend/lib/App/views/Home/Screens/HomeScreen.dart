@@ -39,6 +39,7 @@ import '../../feedback/screen/feedback_screen.dart';
 import '../widgets/panchangcard.dart';
 import '../widgets/service_card.dart';
 import '../widgets/suggestion_card.dart';
+import 'package:astro_tale/App/views/videocall/screen/videoScreen.dart';
 
 class Homescreen extends StatefulWidget {
   final String zodiacSign;
@@ -575,10 +576,16 @@ class _HomescreenState extends State<Homescreen> with TickerProviderStateMixin {
         Row(
           children: [
             _supportCard(
-              title: "Talk to Astrologer",
-              subtitle: "Instant expert guidance",
-              asset: "assets/support/astrologer.jpg",
-            ),
+  title: "Talk to Astrologer",
+  subtitle: "Instant expert guidance",
+  asset: "assets/support/astrologer.jpg",
+  onTap: () => Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (_) => const AstrologerListVideoScreen(),
+    ),
+  ),
+),
             const SizedBox(width: 16),
             _supportCard(
               title: "Help Center",
@@ -606,8 +613,11 @@ class _HomescreenState extends State<Homescreen> with TickerProviderStateMixin {
     required String title,
     required String subtitle,
     required String asset,
+    VoidCallback? onTap,
   }) {
     return Expanded(
+      child: GestureDetector(
+      onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
@@ -636,6 +646,7 @@ class _HomescreenState extends State<Homescreen> with TickerProviderStateMixin {
           ],
         ),
       ),
+    )
     );
   }
 

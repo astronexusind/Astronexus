@@ -25,7 +25,10 @@ app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "./views"));
 
 // ================= GLOBAL MIDDLEWARE =================
-app.use(cors({ origin: true, credentials: true }));
+app.use(cors({
+  origin: ["http://localhost:3000", "http://localhost:8080", "http://localhost:52000", /^http:\/\/localhost:\d+$/],
+  credentials: true,
+}));
 app.use(morgan("dev"));
 // ================= WEBHOOK (must be before express.json) =================
 app.use("/api/payment", webhookRoutes);
