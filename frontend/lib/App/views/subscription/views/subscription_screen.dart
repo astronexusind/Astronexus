@@ -3,7 +3,7 @@
 // CHANGES from original:
 //   - Plans fetched from GET /api/subscription/plans (not hardcoded)
 //   - User's current subscription status fetched and displayed
-//   - Subscribe button triggers payment flow (Razorpay ready — see TODO)
+//   - Subscribe button triggers payment flow (Razorpay ready)
 //   - Loading state, error state, retry added
 //   - Active plan shown with a green "Your Plan" badge
 //   - Cancel subscription option shown if user is subscribed
@@ -15,6 +15,8 @@ import 'package:astro_tale/core/widgets/animated_app_background.dart';
 import 'package:astro_tale/services/api_services/subscription_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:razorpay_flutter/razorpay_flutter.dart';
+import 'package:astro_tale/services/api_services/api_client.dart';
 
 class SubscriptionPage extends StatefulWidget {
   const SubscriptionPage({super.key});
@@ -24,20 +26,41 @@ class SubscriptionPage extends StatefulWidget {
 }
 
 class _SubscriptionPageState extends State<SubscriptionPage> {
+  // ── State Variables ────────────────────────────────────────────────────────
   final SubscriptionService _service = SubscriptionService();
-
-  List<SubscriptionPlan> _plans     = [];
-  SubscriptionStatus?    _status;
-  bool   _loading       = true;
-  bool   _subscribing   = false;
+  late Razorpay _razorpay;
+  
+  List<SubscriptionPlan> _plans = [];
+  SubscriptionStatus? _status;
+  SubscriptionPlan? _processingPlan; 
+  int? _processingAmount; 
+  
+  bool _loading = true;
+  bool _subscribing = false;
   String? _error;
 
   @override
   void initState() {
     super.initState();
+    // Initialize Razorpay
+    _razorpay = Razorpay();
+
+    // Attach Event Listeners
+    _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
+    _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
+    _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
+    
+    // Load subscription data
     _load();
   }
 
+  @override
+  void dispose() {
+    _razorpay.clear(); // Clean up when screen closes
+    super.dispose();
+  }
+
+  // ─── Data Loading ────────────────────────────────────────────────────────────
   Future<void> _load() async {
     setState(() { _loading = true; _error = null; });
     try {
@@ -58,64 +81,120 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
     }
   }
 
+  // ── EVENT HANDLERS ──────────────────────────────────────────────────────────
+  Future<void> _handlePaymentSuccess(PaymentSuccessResponse response) async {
+    print("SUCCESS: ${response.paymentId} | Signature: ${response.signature}");
+    
+    if (_processingPlan == null || _processingAmount == null) return;
+
+    try {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Verifying payment... Please wait.")),
+      );
+
+      // Call the backend to activate the subscription
+      await _service.activate(
+        planKey: _processingPlan!.key,
+        paymentId: response.paymentId!,
+        orderId: response.orderId!, // Razorpay sends the orderId back on success
+        amountPaid: _processingAmount!, 
+      );
+
+      // Refresh the UI to show the active plan
+      await _load();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Payment Successful! Your plan is now active."),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      print("Activation Error: $e");
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Payment successful, but activation failed. Contact support."),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+    } finally {
+      _processingPlan = null;
+      _processingAmount = null;
+    }
+  }
+
+  void _handlePaymentError(PaymentFailureResponse response) {
+    print("ERROR: ${response.code} - ${response.message}");
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("Payment Failed: ${response.message ?? 'Unknown error'}"),
+        backgroundColor: Colors.redAccent,
+      ),
+    );
+    _processingPlan = null;
+    _processingAmount = null;
+  }
+
+  void _handleExternalWallet(ExternalWalletResponse response) {
+    print("WALLET: ${response.walletName}");
+  }
+
   // ── Subscribe button handler ──────────────────────────────────────────────
   Future<void> _onSubscribe(SubscriptionPlan plan) async {
     if (_subscribing) return;
+    setState(() => _subscribing = true);
 
-    // TODO: Integrate Razorpay Flutter SDK here
-    // Steps when Razorpay SDK is installed (razorpay_flutter package):
-    //
-    // 1. Call POST /user/payment/create to get razorpay orderId:
-    //    final order = await PaymentApi().createOrder(
-    //      amount: plan.priceInRupees,
-    //      purpose: 'subscription',
-    //      metadata: {'planKey': plan.key},
-    //    );
-    //
-    // 2. Open Razorpay checkout:
-    //    final razorpay = Razorpay();
-    //    razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, (response) async {
-    //      await _service.activate(
-    //        planKey:    plan.key,
-    //        paymentId:  response.paymentId,
-    //        orderId:    order.razorpayOrderId,
-    //        amountPaid: plan.amountPaise,
-    //      );
-    //      await _load(); // refresh status
-    //    });
-    //    razorpay.open({...order details...});
+    try {
+      // 1. Extract the number from the display price (e.g., "₹199" -> 199)
+      final priceString = plan.displayPrice.replaceAll(RegExp(r'[^0-9]'), '');
+      final amountInRupees = int.parse(priceString);
 
-    // For now: show a dialog explaining payment is being set up
-    await showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        backgroundColor: const Color(0xff1F2340),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text(
-          'Subscribe to ${plan.name}',
-          style: GoogleFonts.dmSans(
-            color: Colors.white,
-            fontWeight: FontWeight.w700,
+      // Save for the success handler
+      _processingPlan = plan;
+      _processingAmount = amountInRupees;
+
+      // 2. Call POST /payment/create to get Razorpay orderId
+      final response = await ApiClient().post('/payment/create', {
+        'amount': amountInRupees,
+        'purpose': 'subscription',
+        'planKey': plan.key,
+      });
+
+      final orderId = response['order']['id'];
+      final keyId = response['order']['keyId'];
+
+      // 3. Open Razorpay checkout
+      var options = {
+        'key': keyId,
+        'amount': amountInRupees * 100, // Razorpay UI requires paise
+        'name': 'AstroNexus',
+        'description': '${plan.name} Subscription',
+        'order_id': orderId,
+        'prefill': {
+          'contact': '9876543210', // Can be dynamically filled later
+          'email': 'user@astronexus.com'
+        },
+      };
+
+      _razorpay.open(options);
+
+    } catch (e) {
+      print('Error launching Razorpay: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Failed to initialize payment. Please try again."),
+            backgroundColor: Colors.redAccent,
           ),
-        ),
-        content: Text(
-          'Payment integration is being set up.\n\n'
-          'Plan: ${plan.name}\n'
-          'Price: ${plan.displayPrice}${plan.durationLabel}\n\n'
-          'This will be powered by Razorpay.',
-          style: GoogleFonts.dmSans(color: Colors.white70, height: 1.5),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              'Got it',
-              style: GoogleFonts.dmSans(color: const Color(0xFFF6C65A)),
-            ),
-          ),
-        ],
-      ),
-    );
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _subscribing = false);
+    }
   }
 
   // ── Cancel subscription handler ───────────────────────────────────────────
@@ -129,6 +208,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
           'Cancel subscription?',
           style: GoogleFonts.dmSans(
             color: Colors.white,
+
             fontWeight: FontWeight.w700,
           ),
         ),
@@ -693,7 +773,7 @@ class ModernPlanCard extends StatelessWidget {
               ],
             ),
           )),
-          const Spacer(),
+          const SizedBox(height: 16),
           const SizedBox(height: 20),
           SizedBox(
             width: double.infinity,
