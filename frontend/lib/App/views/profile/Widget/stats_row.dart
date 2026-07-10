@@ -1,7 +1,7 @@
 import 'package:astro_tale/core/theme/app_gradients.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class StatsRow extends StatefulWidget {
@@ -53,7 +53,7 @@ class _StatsRowState extends State<StatsRow> {
       {
         "label": "Houses",
         "value": houseCount > 0 ? houseCount.toString() : "-",
-        "icon": LucideIcons.layoutDashboard,
+        "icon": LucideIcons.layout_dashboard,
       },
       {
         "label": "Reports",
@@ -63,7 +63,7 @@ class _StatsRowState extends State<StatsRow> {
       {
         "label": "Chats",
         "value": chatsCount > 0 ? chatsCount.toString() : "-",
-        "icon": LucideIcons.messageCircle,
+        "icon": LucideIcons.message_circle,
       },
     ];
 

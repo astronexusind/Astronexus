@@ -11,7 +11,7 @@ import "package:astro_tale/core/responsive/responsive.dart";
 import "package:astro_tale/core/theme/app_gradients.dart";
 import "package:flutter/material.dart";
 import "package:google_fonts/google_fonts.dart";
-import "package:lucide_icons_flutter/lucide_icons.dart";
+import "package:flutter_lucide/flutter_lucide.dart";
 
 class DashboardScreen extends StatefulWidget {
   final String zodiacSign;
@@ -42,7 +42,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     <String, dynamic>{"icon": LucideIcons.house, "label": "home"},
     <String, dynamic>{"icon": Icons.shopping_bag_outlined, "label": "shop"},
     <String, dynamic>{"icon": LucideIcons.bot, "label": "mati"},
-    <String, dynamic>{"icon": LucideIcons.layoutDashboard, "label": "services"},
+    <String, dynamic>{"icon": LucideIcons.layout_dashboard, "label": "services"},
     <String, dynamic>{"icon": Icons.person_outline, "label": "profile"},
   ];
 

@@ -3,7 +3,7 @@ import 'package:astro_tale/core/constants/app_colors.dart';
 import 'package:astro_tale/core/theme/app_gradients.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 
 import 'package:astro_tale/App/views/subscription/views/subscription_screen.dart';
 import 'package:astro_tale/App/views/wallet/screen/wallet_screen.dart';

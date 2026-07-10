@@ -3,7 +3,7 @@ import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 
 import '../../../../ui_componets/cosmic/cosmic_one.dart';
 
@@ -382,7 +382,7 @@ class _AstrologerListScreenState extends State<AstrologerListScreen>
                                           astro["experience"],
                                         ),
                                         _infoItem(
-                                          LucideIcons.indianRupee,
+                                          LucideIcons.indian_rupee,
                                           astro["price"],
                                         ),
                                         Container(

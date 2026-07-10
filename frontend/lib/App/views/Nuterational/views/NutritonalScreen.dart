@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 
 import '../parts/features/features.dart';
 
@@ -34,7 +34,7 @@ class NutritionalAstrologyScreen extends StatelessWidget {
     final features = [
       FeatureItem(title: "Foods for Your Zodiac", icon: LucideIcons.apple),
       FeatureItem(title: "Moon Sign Diet", icon: LucideIcons.moon),
-      FeatureItem(title: "Body & Nutrition", icon: LucideIcons.heartPulse),
+      FeatureItem(title: "Body & Nutrition", icon: LucideIcons.heart_pulse),
       FeatureItem(title: "Element Diet", icon: LucideIcons.flame),
       FeatureItem(title: "Planet Influence", icon: LucideIcons.orbit),
       FeatureItem(title: "Healing Herbs", icon: LucideIcons.leaf),

@@ -3,7 +3,7 @@ import 'package:astro_tale/core/widgets/unified_dark_ui.dart';
 import 'package:astro_tale/services/api_services/wallet_api.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:shimmer/shimmer.dart';
 
 class WalletScreen extends StatefulWidget {
@@ -174,7 +174,7 @@ class _WalletScreenState extends State<WalletScreen> {
         ),
         decoration: InputDecoration(
           icon: const Icon(
-            LucideIcons.indianRupee,
+            LucideIcons.indian_rupee,
             size: 18,
             color: Colors.white70,
           ),
@@ -259,9 +259,9 @@ class _WalletScreenState extends State<WalletScreen> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         _method("GPay", LucideIcons.smartphone),
-        _method("UPI", LucideIcons.qrCode),
-        _method("Card", LucideIcons.creditCard),
-        _method("Bank", LucideIcons.building2),
+        _method("UPI", LucideIcons.qr_code),
+        _method("Card", LucideIcons.credit_card),
+        _method("Bank", LucideIcons.building_2),
       ],
     );
   }

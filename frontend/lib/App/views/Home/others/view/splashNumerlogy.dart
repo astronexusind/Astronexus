@@ -3,7 +3,7 @@ import 'package:astro_tale/App/views/Home/others/numerlogyScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 
 class SplashNumerology extends StatefulWidget {
   const SplashNumerology({super.key});

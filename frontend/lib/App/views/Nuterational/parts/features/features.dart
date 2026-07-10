@@ -1,7 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:video_player/video_player.dart';
 
 class AriesDietProfileScreen extends StatefulWidget {
@@ -150,7 +150,7 @@ class _DietProfileCard extends StatelessWidget {
                 children: [
                   _FoodAvoid(icon: LucideIcons.flame, label: "Excess Spice"),
                   SizedBox(width: 12),
-                  _FoodAvoid(icon: LucideIcons.trash2, label: "Processed Food"),
+                  _FoodAvoid(icon: LucideIcons.trash_2, label: "Processed Food"),
                 ],
               ),
 

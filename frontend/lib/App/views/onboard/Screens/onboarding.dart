@@ -78,13 +78,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     final double imageHeight = isTablet
         ? 320
         : isSmallPhone
-        ? size.height * 0.26
-        : size.height * 0.32;
+            ? size.height * 0.26
+            : size.height * 0.32;
     final double cardHeight = isTablet
         ? 340
         : isSmallPhone
-        ? 280
-        : 320;
+            ? 280
+            : 320;
     final double titleSize = isTablet ? 24 : 22;
     final double descSize = isTablet ? 15 : 14;
 
@@ -123,129 +123,134 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       return Center(
                         child: ConstrainedBox(
                           constraints: const BoxConstraints(maxWidth: 540),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 20,
-                            ),
-                            child: Column(
-                              children: [
-                                const SizedBox(height: 24),
-                                // 🖼 IMAGE CARD
-                                Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(24),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.4),
-                                        blurRadius: 30,
-                                        offset: const Offset(0, 12),
-                                      ),
-                                    ],
-                                  ),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(24),
-                                    child: Image.asset(
-                                      data['image']!,
-                                      height: imageHeight,
-                                      width: double.infinity,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 28),
-                                // 🪟 GLASS CONTENT CARD
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(24),
-                                  child: BackdropFilter(
-                                    filter: ImageFilter.blur(
-                                      sigmaX: 18,
-                                      sigmaY: 18,
-                                    ),
-                                    child: Container(
-                                      width: double.infinity,
-                                      height: cardHeight,
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 22,
-                                        vertical: 24,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: const Color(
-                                          0xff050B1E,
-                                        ).withOpacity(0.3),
-                                        borderRadius: BorderRadius.circular(24),
-                                        border: Border.all(
-                                          color: Colors.white.withOpacity(0.12),
+                          //  FIXED HERE: Added SingleChildScrollView to prevent overflow
+                          child: SingleChildScrollView(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 20,
+                              ),
+                              child: Column(
+                                children: [
+                                  const SizedBox(height: 24),
+                                  // 🖼 IMAGE CARD
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(24),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.4),
+                                          blurRadius: 30,
+                                          offset: const Offset(0, 12),
                                         ),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.black.withOpacity(
-                                              0.35,
-                                            ),
-                                            blurRadius: 30,
-                                            offset: const Offset(0, 14),
-                                          ),
-                                        ],
+                                      ],
+                                    ),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(24),
+                                      child: Image.asset(
+                                        data['image']!,
+                                        height: imageHeight,
+                                        width: double.infinity,
+                                        fit: BoxFit.cover,
                                       ),
-                                      child: Column(
-                                        children: [
-                                          const SizedBox(height: 12),
-                                          Text(
-                                            data['title']!,
-                                            textAlign: TextAlign.center,
-                                            style: GoogleFonts.dmSans(
-                                              fontSize: titleSize,
-                                              fontWeight: FontWeight.w700,
-                                              color: Colors.white,
-                                            ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 28),
+                                  // 🪟 GLASS CONTENT CARD
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(24),
+                                    child: BackdropFilter(
+                                      filter: ImageFilter.blur(
+                                        sigmaX: 18,
+                                        sigmaY: 18,
+                                      ),
+                                      child: Container(
+                                        width: double.infinity,
+                                        height: cardHeight,
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 22,
+                                          vertical: 24,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: const Color(
+                                            0xff050B1E,
+                                          ).withOpacity(0.3),
+                                          borderRadius:
+                                              BorderRadius.circular(24),
+                                          border: Border.all(
+                                            color: Colors.white
+                                                .withOpacity(0.12),
                                           ),
-                                          const SizedBox(height: 14),
-                                          Text(
-                                            data['desc']!,
-                                            textAlign: TextAlign.center,
-                                            style: GoogleFonts.dmSans(
-                                              fontSize: descSize,
-                                              height: 1.6,
-                                              color: Colors.white60,
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black
+                                                  .withOpacity(0.35),
+                                              blurRadius: 30,
+                                              offset: const Offset(0, 14),
                                             ),
-                                          ),
-                                          if (index ==
-                                              _onboardData.length - 1) ...[
-                                            const Spacer(),
-                                            SizedBox(
-                                              width: double.infinity,
-                                              height: 48,
-                                              child: ElevatedButton(
-                                                onPressed: _finishOnboarding,
-                                                style: ElevatedButton.styleFrom(
-                                                  backgroundColor: const Color(
-                                                    0xFFFFC700,
+                                          ],
+                                        ),
+                                        child: Column(
+                                          children: [
+                                            const SizedBox(height: 12),
+                                            Text(
+                                              data['title']!,
+                                              textAlign: TextAlign.center,
+                                              style: GoogleFonts.dmSans(
+                                                fontSize: titleSize,
+                                                fontWeight: FontWeight.w700,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 14),
+                                            Text(
+                                              data['desc']!,
+                                              textAlign: TextAlign.center,
+                                              style: GoogleFonts.dmSans(
+                                                fontSize: descSize,
+                                                height: 1.6,
+                                                color: Colors.white60,
+                                              ),
+                                            ),
+                                            if (index ==
+                                                _onboardData.length - 1) ...[
+                                              const Spacer(),
+                                              SizedBox(
+                                                width: double.infinity,
+                                                height: 48,
+                                                child: ElevatedButton(
+                                                  onPressed: _finishOnboarding,
+                                                  style: ElevatedButton
+                                                      .styleFrom(
+                                                    backgroundColor:
+                                                        const Color(0xFFFFC700),
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              14),
+                                                    ),
+                                                    elevation: 0,
                                                   ),
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          14,
-                                                        ),
-                                                  ),
-                                                  elevation: 0,
-                                                ),
-                                                child: Text(
-                                                  "Get Started",
-                                                  style: GoogleFonts.dmSans(
-                                                    fontSize: 16,
-                                                    fontWeight: FontWeight.w700,
-                                                    color: Colors.black,
+                                                  child: Text(
+                                                    "Get Started",
+                                                    style: GoogleFonts.dmSans(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.w700,
+                                                      color: Colors.black,
+                                                    ),
                                                   ),
                                                 ),
                                               ),
-                                            ),
+                                            ],
                                           ],
-                                        ],
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         ),

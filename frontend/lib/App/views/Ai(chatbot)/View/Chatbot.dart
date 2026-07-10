@@ -8,7 +8,7 @@ import "package:astro_tale/services/api_services/chatbot/chat_bot_services.dart"
 import "package:astro_tale/services/api_services/chatbot/profile_services.dart";
 import "package:flutter/material.dart";
 import "package:google_fonts/google_fonts.dart";
-import "package:lucide_icons_flutter/lucide_icons.dart";
+import "package:flutter_lucide/flutter_lucide.dart";
 import "package:shimmer/shimmer.dart";
 
 import "../helper/chat_suggestion.dart";

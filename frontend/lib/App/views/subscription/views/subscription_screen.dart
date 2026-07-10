@@ -15,7 +15,7 @@ import 'package:astro_tale/core/widgets/animated_app_background.dart';
 import 'package:astro_tale/services/api_services/subscription_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:razorpay_flutter/razorpay_flutter.dart';
+import 'package:razorpay_web/razorpay_web.dart';
 import 'package:astro_tale/services/api_services/api_client.dart';
 
 class SubscriptionPage extends StatefulWidget {
@@ -180,7 +180,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
         },
       };
 
-      _razorpay.open(options);
+      _razorpay.open(options, context: context);
 
     } catch (e) {
       print('Error launching Razorpay: $e');
