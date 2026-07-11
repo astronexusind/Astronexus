@@ -19,6 +19,7 @@ import 'package:flutter_lucide/flutter_lucide.dart';
 
 import '../../../../services/api_services/astrologer_service.dart';
 import '../../../../ui_componets/cosmic/cosmic_one.dart';
+import 'CallScreen.dart';
 
 class AstrologerListVideoScreen extends StatefulWidget {
   const AstrologerListVideoScreen({super.key});
@@ -697,25 +698,28 @@ class _AstrologerListVideoScreenState extends State<AstrologerListVideoScreen>
     int duration,
   ) async {
     try {
-      await _service.bookSession(
+      final bookResult = await _service.bookSession(
         astrologerId:    astrologer.id,
         sessionType:     sessionType,
         durationMinutes: duration,
       );
 
+      final bookingId = (bookResult['booking']
+              as Map<String, dynamic>?)?['id']
+          ?.toString();
+
+      if (bookingId == null || bookingId.isEmpty) {
+        throw Exception('Booking succeeded but no booking id was returned.');
+      }
+
+      // Start the session right away and jump straight into the live call —
+      // this app books "now" sessions, not scheduled ones, so there's no
+      // separate "my bookings" waiting room to build for this flow yet.
+      final session = await _service.startSession(bookingId);
+
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Session booked with ${astrologer.name}!',
-              style: GoogleFonts.dmSans(),
-            ),
-            backgroundColor: Colors.green,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => CallScreen(session: session)),
         );
       }
     } catch (e) {

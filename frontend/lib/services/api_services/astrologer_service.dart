@@ -142,4 +142,60 @@ class AstrologerService {
     final response = await _client.get(path);
     return response['bookings'] as List? ?? [];
   }
+
+  /// Start a confirmed session — gets back the Agora channel/token/uid
+  /// needed to join the live video call. Call this right after
+  /// [bookSession] succeeds, then navigate to the call screen with the
+  /// returned [AgoraSession].
+  Future<AgoraSession> startSession(String bookingId) async {
+    final response = await _client.post(
+      '/api/astrologer/session/start/$bookingId',
+      {},
+    );
+    return AgoraSession.fromJson(
+      response['session'] as Map<String, dynamic>,
+    );
+  }
+
+  /// End an in-progress session (user or astrologer hangs up).
+  /// Best-effort — the call screen should still let the user leave locally
+  /// even if this fails (e.g. flaky network on the way out).
+  Future<void> endSession(String bookingId) async {
+    await _client.post('/api/astrologer/session/end/$bookingId', {});
+  }
+}
+
+/// Everything the Flutter call screen needs to join the Agora channel.
+/// [agoraUid] MUST be used exactly as given — the token was signed for this
+/// specific uid and will be rejected if you join with a different one.
+class AgoraSession {
+  final String bookingId;
+  final String agoraChannel;
+  final String agoraToken;
+  final int agoraUid;
+  final String astrologerName;
+  final String sessionType;
+  final int ratePerMinute;
+
+  AgoraSession({
+    required this.bookingId,
+    required this.agoraChannel,
+    required this.agoraToken,
+    required this.agoraUid,
+    required this.astrologerName,
+    required this.sessionType,
+    required this.ratePerMinute,
+  });
+
+  factory AgoraSession.fromJson(Map<String, dynamic> json) {
+    return AgoraSession(
+      bookingId:      json['bookingId'] as String? ?? '',
+      agoraChannel:   json['agoraChannel'] as String? ?? '',
+      agoraToken:     json['agoraToken'] as String? ?? '',
+      agoraUid:       (json['agoraUid'] as num?)?.toInt() ?? 0,
+      astrologerName: json['astrologerName'] as String? ?? 'Astrologer',
+      sessionType:    json['sessionType'] as String? ?? 'video',
+      ratePerMinute:  (json['ratePerMinute'] as num?)?.toInt() ?? 0,
+    );
+  }
 }

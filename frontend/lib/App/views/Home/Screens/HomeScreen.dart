@@ -365,8 +365,8 @@ class _HomescreenState extends State<Homescreen> with TickerProviderStateMixin {
                           SizedBox(height: 20),
 
                           _nutritionalAstrology(),
-                          // SizedBox(height: 40),
-                          // _supportSection(),
+                          SizedBox(height: 40),
+                          _supportSection(),
                           // SizedBox(height: 34),
                           // _feedbackForm(),
                           // SizedBox(height: 34),

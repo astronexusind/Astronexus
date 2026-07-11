@@ -29,3 +29,14 @@ build/
 src/service/config/firebaseServiceAccount.json
 service/config/firebase.js
 service/config/cloudinary.js
+
+
+# Environment Variables
+.env
+*.env
+
+# Node Dependencies
+node_modules/
+
+# Generated Assets
+backend/src/charts/*.png

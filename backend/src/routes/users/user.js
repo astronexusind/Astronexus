@@ -103,7 +103,7 @@ router.delete("/addresses/:addressId", authenticateToken, addressController.dele
 
 
 // ================== PAYMENT ROUTES ==================
-router.post("/payment/create", authenticateToken, paymentController.createPayment);
+router.post("/payment/create", authenticateToken, paymentController.createOrder);
 router.post("/payment/verify", authenticateToken, paymentController.verifyPayment);
 
 

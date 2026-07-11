@@ -4,6 +4,7 @@ import Astrologer from "../../models/astrologer/Astrologer.model.js";
 import Booking from "../../models/astrologer/Booking.model.js";
 import Payment from "../../models/shop/Payment.model.js";
 import User from "../../models/user/user.js";
+import { generateAgoraRtcToken, mongoIdToAgoraUid } from "../../config/agora.js";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // HELPER: generate a unique Agora channel name for a booking
@@ -228,10 +229,12 @@ export const startSession = async (req, res) => {
     // Generate Agora channel
     const agoraChannel = generateAgoraChannel(bookingId);
 
-    // TODO: Generate real Agora token when Agora SDK is integrated
-    // For now returns a placeholder — replace with:
-    // const agoraToken = await generateAgoraToken(agoraChannel, userId);
-    const agoraToken = `agora_placeholder_${crypto.randomBytes(16).toString("hex")}`;
+    // The user always joins as the "publisher" role (they send + receive
+    // audio/video). uid is derived deterministically from their own userId
+    // so we don't need to persist it — the client is told the same uid here
+    // and must join with it exactly, or the token will be rejected.
+    const agoraUid = mongoIdToAgoraUid(userId);
+    const agoraToken = generateAgoraRtcToken(agoraChannel, agoraUid, "publisher");
 
     // Update booking
     await Booking.findByIdAndUpdate(bookingId, {
@@ -247,6 +250,7 @@ export const startSession = async (req, res) => {
         bookingId,
         agoraChannel,
         agoraToken,
+        agoraUid,
         astrologerName: booking.astrologerId.name,
         sessionType:    booking.sessionType,
         ratePerMinute:  booking.ratePerMinute,

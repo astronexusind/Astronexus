@@ -46,3 +46,13 @@ lib/firebase_options.dart
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Environment Variables
+.env
+*.env
+
+# Node Dependencies
+node_modules/
+
+# Generated Assets
+backend/src/charts/*.png

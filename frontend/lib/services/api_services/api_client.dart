@@ -1,6 +1,7 @@
 import "dart:convert";
 
 import "package:astro_tale/App/controller/Auth_Controller.dart";
+import "package:astro_tale/core/constants/api_constants.dart";
 import "package:astro_tale/core/constants/app_constants.dart";
 import "package:flutter/foundation.dart";
 import "package:http/http.dart" as http;
@@ -42,6 +43,18 @@ class ApiClient {
 
   Uri _buildUri(String path) {
     final normalizedPath = path.startsWith("/") ? path : "/$path";
+
+    // Paths that already target a top-level /api/* backend route (e.g.
+    // astrologer, subscription) must NOT be nested under /user. Route them
+    // against the root baseUrl instead of ApiEndpoints.baseUrl (= /user).
+    // Note: string-prefixing "/../" onto a path does NOT work here — Dart's
+    // Uri.parse does not resolve ".." dot-segments during parsing (only
+    // Uri.resolve()/normalizePath() do), and Express won't normalize them
+    // either, so that approach silently still 404s.
+    if (normalizedPath.startsWith("/api/")) {
+      return Uri.parse("${ApiConstants.baseUrl}$normalizedPath");
+    }
+
     return Uri.parse("${ApiEndpoints.baseUrl}$normalizedPath");
   }
 

@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
 from typing import Literal, Dict, List, Optional
+from typing import Union
 
 # -------- INPUT SCHEMAS --------
 
@@ -14,8 +15,8 @@ class BirthDate(BaseModel):
 
 
 class BirthTime(BaseModel):
-    hour: int | str = Field(..., example=7)
-    minute: int | str = Field(..., example="05")
+    hour: Union[int, str] = Field(..., example=7)
+    minute: Union[int, str] = Field(..., example="05")
     ampm: str
 
     @field_validator("hour", mode="before")
