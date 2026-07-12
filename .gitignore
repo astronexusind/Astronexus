@@ -6,4 +6,20 @@
 node_modules/
 
 # Generated Assets
-backend/src/charts/*.png
+backend/src/controllers/charts/*.png
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~

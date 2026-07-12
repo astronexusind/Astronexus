@@ -3,3 +3,7 @@ venv/
 __pycache__/
 *.pyc
 .env
+
+# Swiss Ephemeris data files — large binaries, downloaded per-machine from
+# astro.com/ftp/swisseph/ephe/, not meant to be tracked in git.
+*.se1
