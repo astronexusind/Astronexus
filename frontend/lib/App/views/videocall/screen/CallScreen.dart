@@ -5,10 +5,10 @@
 // ends the session via AstrologerService.endSession() when the user hangs up.
 
 import 'dart:async';
-import 'dart:io' show Platform;
 
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart'
+    show kIsWeb, defaultTargetPlatform, TargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -50,11 +50,15 @@ class _CallScreenState extends State<CallScreen> {
   }
 
   Future<void> _initAgora() async {
+    // ignore: avoid_print
+    print('AGORA CHANNEL (for manual 2-way test): ${widget.session.agoraChannel}');
     try {
       // Camera/mic permissions — Android/iOS only. On web the browser
       // shows its own native permission prompt when the SDK requests the
       // media stream, so permission_handler has nothing to do there.
-      if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+      if (!kIsWeb &&
+          (defaultTargetPlatform == TargetPlatform.android ||
+              defaultTargetPlatform == TargetPlatform.iOS)) {
         final statuses = await [
           Permission.microphone,
           Permission.camera,
@@ -82,15 +86,23 @@ class _CallScreenState extends State<CallScreen> {
       _engine!.registerEventHandler(
         RtcEngineEventHandler(
           onJoinChannelSuccess: (connection, elapsed) {
+            // ignore: avoid_print
+            print('AGORA: local user joined channel, elapsed=$elapsed');
             if (mounted) setState(() => _localUserJoined = true);
           },
           onUserJoined: (connection, remoteUid, elapsed) {
+            // ignore: avoid_print
+            print('AGORA: onUserJoined fired, remoteUid=$remoteUid');
             if (mounted) setState(() => _remoteUid = remoteUid);
           },
           onUserOffline: (connection, remoteUid, reason) {
+            // ignore: avoid_print
+            print('AGORA: onUserOffline fired, remoteUid=$remoteUid, reason=$reason');
             if (mounted) setState(() => _remoteUid = null);
           },
           onError: (err, msg) {
+            // ignore: avoid_print
+            print('AGORA: onError fired, err=$err, msg=$msg');
             if (mounted) {
               setState(() => _error = 'Connection error: $msg');
             }

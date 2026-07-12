@@ -1,7 +1,13 @@
 class ApiConstants {
   const ApiConstants._();
 
-  static const String baseUrl = "http://192.168.29.184:8001";
+  // NOTE: use "localhost" when backend + Flutter web/Chrome run on the same
+  // machine (the normal dev setup). Only switch this to your machine's LAN
+  // IP (e.g. via `ipconfig getifaddr en0` on Mac) if you specifically need
+  // to test from a physical phone over the same Wi-Fi network — and even
+  // then, that IP will change whenever you switch networks or machines, so
+  // don't leave it hardcoded long-term.
+  static const String baseUrl = "http://localhost:8001";
   static const String userBaseUrl = "$baseUrl/user";
   static const String authBaseUrl = baseUrl;
 
