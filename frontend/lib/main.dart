@@ -13,7 +13,10 @@ import "package:flutter_localizations/flutter_localizations.dart";
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  await AuthController.loadFromPrefs();
+  
+  // This will now successfully load your token into memory on the new Mac!
+  await AuthController.loadFromPrefs(); 
+  
   await AppSettingsController.instance.load();
   runApp(const AstroNexusApp());
 }

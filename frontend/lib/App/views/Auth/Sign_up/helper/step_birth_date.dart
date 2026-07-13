@@ -41,12 +41,21 @@ class _StepBirthDateState extends State<StepBirthDate> {
   int selectedDay = 1;
   int selectedYear = 1970;
 
+  /// Days actually in a given month/year — uses Dart's own DateTime
+  /// normalization (day 0 of the *next* month = last day of *this* month)
+  /// so leap years are handled correctly for free, same idea as the
+  /// backend's schemas.py fix.
+  int _daysInMonth(int year, int monthIndex) {
+    return DateTime(year, monthIndex + 2, 0).day;
+  }
+
   @override
   void initState() {
     super.initState();
-    final now = DateTime.now();
-    days = List.generate(31, (i) => i + 1);
-    years = List.generate(50, (i) => 1970 + i);
+    final currentYear = DateTime.now().year;
+    // Matches the backend's MIN_BIRTH_YEAR in schemas.py — keep these two
+    // in sync if that ever changes.
+    years = List.generate(currentYear - 1900 + 1, (i) => 1900 + i);
 
     // If a value exists, parse it
     if (widget.controller.text.isNotEmpty) {
@@ -57,6 +66,17 @@ class _StepBirthDateState extends State<StepBirthDate> {
         selectedYear = dt.year;
       } catch (_) {}
     }
+
+    days = List.generate(_daysInMonth(selectedYear, selectedMonth), (i) => i + 1);
+  }
+
+  /// Recompute the day list for the currently selected month/year, and
+  /// clamp selectedDay down if it's no longer valid (e.g. was on day 31,
+  /// switched to Feb). Call this any time month or year changes.
+  void _refreshDaysForSelection() {
+    final maxDay = _daysInMonth(selectedYear, selectedMonth);
+    if (selectedDay > maxDay) selectedDay = maxDay;
+    days = List.generate(maxDay, (i) => i + 1);
   }
 
   void _updateDate() {
@@ -154,7 +174,10 @@ class _StepBirthDateState extends State<StepBirthDate> {
                   context,
                   months,
                   selectedMonth,
-                  (i) => setState(() => selectedMonth = i),
+                  (i) => setState(() {
+                    selectedMonth = i;
+                    _refreshDaysForSelection();
+                  }),
                 ),
               ),
               Expanded(
@@ -169,8 +192,11 @@ class _StepBirthDateState extends State<StepBirthDate> {
                 child: picker(
                   context,
                   years,
-                  selectedYear - 1970,
-                  (i) => setState(() => selectedYear = 1970 + i),
+                  selectedYear - 1900,
+                  (i) => setState(() {
+                    selectedYear = 1900 + i;
+                    _refreshDaysForSelection();
+                  }),
                 ),
               ),
             ],

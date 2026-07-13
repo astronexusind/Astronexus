@@ -122,19 +122,22 @@ class ModernTarotCard extends StatelessWidget {
 
             const SizedBox(height: 10),
 
-            Text(
-              description,
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.center,
-              style: GoogleFonts.dmSans(
-                color: bodyColor,
-                fontSize: 13.5,
-                height: 1.5,
+            /// FIXED: Expanded ensures the text dynamically fits any screen
+            Expanded(
+              child: Text(
+                description,
+                maxLines: 4,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: GoogleFonts.dmSans(
+                  color: bodyColor,
+                  fontSize: 13.5,
+                  height: 1.5,
+                ),
               ),
             ),
 
-            const Spacer(),
+            const SizedBox(height: 8),
 
             Text(
               "Tap to reveal",
