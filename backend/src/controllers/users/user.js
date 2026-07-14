@@ -8,6 +8,44 @@ import BirthChart from "../../models/features/birthChartModel.js";
 import { asyncHandler } from "../../utils/asyncHandler.js";
 import { ApiError } from "../../utils/ApiError.js";
 import { ApiResponse } from "../../utils/ApiResponse.js";
+
+const MIN_BIRTH_YEAR = 1900; // keep in sync with schemas.py's MIN_BIRTH_YEAR
+
+/**
+ * Validates a "YYYY-MM-DD" date-of-birth string. Rejects malformed strings,
+ * out-of-range years, and future dates.
+ *
+ * Crucially, this also catches dates that are wrong-but-valid-looking —
+ * e.g. "2026-02-31" gets silently normalized by JS's Date constructor into
+ * March 3rd with zero error. We catch that by reconstructing the date from
+ * its own components and checking the result actually matches what came
+ * in; if the day/month/year got silently rolled over, they won't match,
+ * and we reject it. Same principle as the schemas.py and step_birth_date.dart
+ * fixes — just implemented natively here since JS doesn't give us a
+ * throws-on-invalid-date constructor the way Python's date() does.
+ */
+export function isValidDateOfBirth(dobString) {
+  if (typeof dobString !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(dobString)) {
+    return false;
+  }
+
+  const [year, month, day] = dobString.split("-").map(Number);
+
+  if (year < MIN_BIRTH_YEAR || year > new Date().getUTCFullYear()) {
+    return false;
+  }
+
+  const reconstructed = new Date(Date.UTC(year, month - 1, day));
+  const roundTripMatches =
+    reconstructed.getUTCFullYear() === year &&
+    reconstructed.getUTCMonth() === month - 1 &&
+    reconstructed.getUTCDate() === day;
+
+  if (!roundTripMatches) return false;
+  if (reconstructed.getTime() > Date.now()) return false; // no future births
+
+  return true;
+}
 import { createS3Key, deleteS3Object, uploadBufferToS3 } from "../../service/config/s3.js";
 import { blacklistToken } from "../../service/auth.js"
 
@@ -85,6 +123,11 @@ export async function handleAstrologySignup(req, res) {
     // 1️⃣ Basic validations
     if (!dateOfBirth || !timeOfBirth || !placeOfBirth) {
       return res.status(400).json({ error: "Astrology birth details are required" });
+    }
+    if (!isValidDateOfBirth(dateOfBirth)) {
+      return res.status(400).json({
+        error: "Invalid date of birth. Expected a real calendar date (YYYY-MM-DD), not in the future.",
+      });
     }
     if (!validator.isMobilePhone(phone, "any")) {
       return res.status(400).json({ error: "Invalid phone number" });
@@ -616,4 +659,3 @@ export async function handleUserLogout(req, res) {
   res.clearCookie("refreshToken");
   return res.json({ success: true, message: "Logged out successfully" });
 }
-

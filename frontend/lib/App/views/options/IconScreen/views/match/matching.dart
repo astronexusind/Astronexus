@@ -11,7 +11,7 @@ import 'package:astro_tale/App/views/options/IconScreen/views/match/result/match
 import "package:astro_tale/core/constants/app_colors.dart";
 import "package:astro_tale/core/widgets/animated_app_background.dart";
 import '../../../../../../services/API/APIservice.dart';
-
+import 'package:astro_tale/services/api_services/api_client.dart';
 class MatchingScreen extends StatefulWidget {
   const MatchingScreen({super.key});
 
@@ -415,17 +415,18 @@ class _MatchingScreenState extends State<MatchingScreen>
         },
       };
 
-      final res = await http.post(
-        Uri.parse("$baseurl/api/v1/compatibility/match-making/ashtakoot-score"),
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode(body),
-      );
+     final res = await ApiClient().post(
+              "/api/v1/compatibility/match-making/ashtakoot-score", 
+              body, 
+            );
 
       if (!mounted) return;
 
-      final data = jsonDecode(res.body);
+      // 1. 'res' is already your decoded JSON map!
+      final data = res; 
 
-      if (res.statusCode == 200 && data["success"] == true) {
+      // 2. ApiClient automatically handles status codes, so we only check 'success'
+      if (data["success"] == true) {
         final out = data["data"]["output"];
         if (out != null) {
           out["male"] = {"name": mName.text.isNotEmpty ? mName.text : "Groom"};
@@ -441,6 +442,7 @@ class _MatchingScreenState extends State<MatchingScreen>
         _showError(data["message"] ?? "Compatibility failed");
       }
     } catch (e) {
+      // ApiClient throws a clean Exception if the status code is an error
       _showError(e.toString());
     } finally {
       if (mounted) setState(() => isLoading = false);

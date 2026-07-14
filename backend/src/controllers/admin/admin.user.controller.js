@@ -5,6 +5,7 @@ import BirthChart from "../../models/features/birthChartModel.js";
 import { asyncHandler } from "../../utils/asyncHandler.js";
 import { ApiError } from "../../utils/ApiError.js";
 import { ApiResponse } from "../../utils/ApiResponse.js";
+import { isValidDateOfBirth } from "../users/user.js";
 
 const normalizeChartId = (value) => {
   if (!value) return null;
@@ -91,6 +92,12 @@ export const createAstrologyUserByAdmin = asyncHandler(async (req, res) => {
 
   if (!name || !phone || !password || !confirmPassword || !dateOfBirth || !timeOfBirth || !placeOfBirth) {
     throw new ApiError(400, "Missing required fields", ["name, phone, password, confirmPassword, dateOfBirth, timeOfBirth and placeOfBirth are required"]);
+  }
+
+  if (!isValidDateOfBirth(dateOfBirth)) {
+    throw new ApiError(400, "Invalid date of birth", [
+      "Invalid date of birth. Expected a real calendar date (YYYY-MM-DD), not in the future.",
+    ]);
   }
 
   if (!validator.isMobilePhone(phone, "any")) {
