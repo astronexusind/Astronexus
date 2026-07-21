@@ -5,8 +5,8 @@ class ApiEndpoints {
 
   static const String baseUrl = ApiConstants.userBaseUrl;
 
-  static const String horoscopeUrl =
-      "${ApiConstants.legacyHoroscopeBaseUrl}?sign=leo&type=daily&day=TODAY";
+  // 👇 Replaced the hardcoded legacy endpoint with the authenticated, unified route
+  static const String horoscopeUrl = "/api/unified/my-horoscope?type=daily&day=TODAY";
   static const String Horoscopeurl = horoscopeUrl;
 
   static const String me = "/me";

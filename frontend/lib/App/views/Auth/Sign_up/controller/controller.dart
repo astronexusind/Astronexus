@@ -33,8 +33,7 @@ class SignupController {
 
   // ------------------ SUBMIT SIGNUP ------------------
   Future<Map<String, dynamic>> submitSignup() async {
-    final payload = model.toJson();
-    final phone = payload['phone']?.toString() ?? '';
+    final phone = model.phone.trim();
 
     if (model.name.trim().isEmpty) {
       throw Exception('Name is required');
@@ -81,6 +80,11 @@ class SignupController {
       model.tempChartId = '';
       zodiacFromChart = '';
     }
+
+    // IMPORTANT: build payload AFTER chart generation, not before — model.toJson()
+    // is a snapshot, so building it earlier silently drops tempChartId (set above)
+    // from the request, which broke linking the generated chart to the new account.
+    final payload = model.toJson();
 
     final url = Uri.parse('$baseurl/user/signup/astrology');
     final response = await http

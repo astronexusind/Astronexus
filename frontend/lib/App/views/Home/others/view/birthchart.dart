@@ -14,6 +14,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:astro_tale/services/api_services/api_client.dart';
 
 class BirthChartScreen extends StatefulWidget {
   const BirthChartScreen({super.key});
@@ -286,17 +287,10 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
     };
 
     try {
-      final response = await http.post(
-        Uri.parse(ApiConstants.birthChartGenerateApi),
-        headers: const <String, String>{"Content-Type": "application/json"},
-        body: jsonEncode(payload),
-      );
-
-      if (response.statusCode != 200 && response.statusCode != 201) {
-        throw Exception("Birth chart failed: ${response.body}");
-      }
-
-      final body = jsonDecode(response.body) as Map<String, dynamic>;
+      // 1. Use ApiClient to automatically attach the user's Auth Token!
+      // We are using ApiClient to send the token, and the Generate API to do the math!
+       final body = await ApiClient().post('/api/birthchart/generate', payload);
+    // ApiClient automatically decodes the JSON response for us
       final data = body["data"] as Map<String, dynamic>? ?? <String, dynamic>{};
 
       final chartImagePath = data["chartImage"]?.toString() ?? "";
@@ -343,6 +337,7 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
     } finally {
       setState(() => isLoading = false);
     }
+      
   }
 
   @override

@@ -1,62 +1,40 @@
-import 'dart:convert';
 import 'package:astro_tale/core/constants/api_constants.dart';
-import 'package:http/http.dart' as http;
+import 'package:astro_tale/services/api_services/api_client.dart';
 
 class HoroscopeApi {
-  static const String _baseUrl = ApiConstants.horoscopeBaseUrl;
   static Future<Map<String, dynamic>> fetchHoroscope({
     required String sign,
     required String type,
   }) async {
-    final normalizedSign = sign.trim().toLowerCase();
     final normalizedType = type.trim().toLowerCase();
-    final endpoints = <String>[
-      _baseUrl,
-      ApiConstants.legacyHoroscopeBaseUrl,
-    ].toSet().toList(growable: false);
-
     Object? lastError;
 
-    for (final endpoint in endpoints) {
-      for (int attempt = 0; attempt < 2; attempt++) {
-        try {
-          final uri = Uri.parse(endpoint).replace(
-            queryParameters: <String, String>{
-              "sign": normalizedSign,
-              "type": normalizedType,
-            },
-          );
+    for (int attempt = 0; attempt < 2; attempt++) {
+      try {
+        final endpoint = "/api/unified/my-horoscope?type=$normalizedType&day=TODAY";
+        final responseData = await ApiClient().get(endpoint);
 
-          final timeout = Duration(seconds: 14 + (attempt * 8));
-          final response = await http.get(uri).timeout(timeout);
-          if (response.statusCode != 200) {
-            lastError = Exception(
-              "Failed to load horoscope (${response.statusCode})",
-            );
-            continue;
-          }
+        final parsed = _parseBody(responseData, normalizedType);
+        final text = parsed["horoscope"]?.toString().trim() ?? "";
 
-          final parsed = _parseBody(response.body, normalizedType);
-          final text = parsed["horoscope"]?.toString().trim() ?? "";
-          if (text.isNotEmpty) {
-            return parsed;
-          }
-          lastError = Exception("Horoscope payload was empty");
-        } catch (e) {
-          lastError = e;
+        if (text.isNotEmpty) {
+          return parsed;
         }
+        lastError = Exception("Horoscope payload was empty");
+      } catch (e) {
+        //print("Horoscope API error: $e");
+        lastError = e;
       }
     }
 
     return _fallback(
-      sign: normalizedSign,
+      sign: sign,
       type: normalizedType,
       error: lastError,
     );
   }
 
-  static Map<String, dynamic> _parseBody(String body, String type) {
-    final decoded = json.decode(body);
+  static Map<String, dynamic> _parseBody(Map<String, dynamic> decoded, String type) {
     final root = _asMap(decoded);
     final rootData = _asMap(root["data"]);
     final nestedData = _asMap(rootData["data"]);
@@ -64,13 +42,17 @@ class HoroscopeApi {
     final fromRootType = _asMap(root[type]);
     final fromDataType = _asMap(rootData[type]);
     final fromNestedType = _asMap(nestedData[type]);
+    
+    // Fallback directly to rootData or root if nested maps are empty
     final scoped = fromDataType.isNotEmpty
         ? fromDataType
         : (fromRootType.isNotEmpty
               ? fromRootType
               : (fromNestedType.isNotEmpty
                     ? fromNestedType
-                    : (nestedData.isNotEmpty ? nestedData : rootData)));
+                    : (nestedData.isNotEmpty 
+                        ? nestedData 
+                        : (rootData.isNotEmpty ? rootData : root))));
 
     final title = _titleFor(type, scoped);
     final horoscope = _extractText(scoped);
@@ -217,6 +199,17 @@ class HoroscopeApi {
     Object? error,
   }) {
     final normalizedSign = sign.toUpperCase();
+    
+    // If the backend throws our 400 error because the chart is missing, 
+    // let's show a user-friendly message asking them to complete their profile.
+    if (error != null && error.toString().contains("Birth chart not generated")) {
+      return {
+        "title": "Action Required",
+        "horoscope": "Please complete your birth profile to unlock your personalized $normalizedSign horoscope.",
+        "extra": null,
+      };
+    }
+
     final unavailable = error == null ? "" : " (network)";
     switch (type) {
       case "daily":

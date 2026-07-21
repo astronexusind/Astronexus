@@ -68,7 +68,6 @@ class _HomescreenState extends State<Homescreen> with TickerProviderStateMixin {
   bool _isHoroscopeRefreshing = false;
   int feedbackRating = 4;
   final TextEditingController feedbackCtrl = TextEditingController();
-  Timer? _subscriptionTimer;
   String userName = "";
   String userPhone = "";
   String userAvatar = "";
@@ -125,11 +124,6 @@ class _HomescreenState extends State<Homescreen> with TickerProviderStateMixin {
     _loadUserData(); // load real user info here
     _refreshHoroscopeIfNeeded();
 
-    // Start subscription page timer every 2 minutes
-    _subscriptionTimer = Timer.periodic(const Duration(minutes: 5), (timer) {
-      _showSubscriptionPage();
-    });
-
     // Example: User's birth details (from signup/login)
   }
 
@@ -138,17 +132,6 @@ class _HomescreenState extends State<Homescreen> with TickerProviderStateMixin {
     starController.dispose();
     planetController.dispose();
     super.dispose();
-
-    _subscriptionTimer?.cancel();
-  }
-
-  void _showSubscriptionPage() {
-    if (mounted) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const SubscriptionPage()),
-      );
-    }
   }
 
   Future<void> _loadUserData() async {
@@ -650,52 +633,6 @@ class _HomescreenState extends State<Homescreen> with TickerProviderStateMixin {
     );
   }
 
-  // 📅 TABS
-  // Widget _tabs() {
-  //   return Container(
-  //     height: 50,
-  //     child: Column(
-  //
-  //       children: [
-  //
-  //         Divider(),
-  //         Row(
-  //           children: List.generate(tabs.length, (i) {
-  //             final isSelected = selectedTab == i;
-  //             return Expanded(
-  //               child: GestureDetector(
-  //                 onTap: () => setState(() => selectedTab = i),
-  //                 child: Column(
-  //                   mainAxisAlignment: MainAxisAlignment.center,
-  //                   children: [
-  //                     Text(
-  //                       tabs[i],
-  //                       style: GoogleFonts.dmSans(
-  //                         fontSize: 14,
-  //                         fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-  //                         color: Colors.white70,
-  //                       ),
-  //                     ),
-  //                     const SizedBox(height: 2),
-  //                     // Yellow underline for selected tab
-  //                     Container(
-  //                       height: 3,
-  //                       width: 40, // width of the underline
-  //                       decoration: BoxDecoration(
-  //                         color: isSelected ? const Color(0xffDBC33F) : Colors.transparent,
-  //                       ),
-  //                     ),
-  //                   ],
-  //                 ),
-  //               ),
-  //             );
-  //           }),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
-
   // 📊 FOCUS & MOOD
   Widget focusMoodCard({required Map<String, double> levels}) {
     final size = MediaQuery.of(context).size;
@@ -879,11 +816,27 @@ class _HomescreenState extends State<Homescreen> with TickerProviderStateMixin {
     final metaTitle = activeData.title.trim().isEmpty
         ? formattedDate
         : activeData.title.trim();
-    final horoscopeText = activeData.text.trim().isEmpty
+        
+    // 1. Grab the raw text
+    String rawText = activeData.text.trim();
+    
+    // 2. Bulletproof cleaner: split at 'horoscope:' and grab everything after it
+    if (rawText.contains('horoscope:')) {
+      rawText = rawText.split('horoscope:').last.trim();
+      
+      // Strip off all trailing brackets from the end of the string
+      while (rawText.endsWith('}')) {
+        rawText = rawText.substring(0, rawText.length - 1).trim();
+      }
+    }
+
+    // 3. Assign the beautifully cleaned text to the UI
+    final horoscopeText = rawText.isEmpty
         ? (_isHoroscopeRefreshing
               ? "Fetching your latest horoscope..."
               : "Horoscope is syncing. Please check back in a moment.")
-        : activeData.text.trim();
+        : rawText;
+        
     final signLabel = widget.zodiacSign.trim().isEmpty
         ? "ZODIAC"
         : widget.zodiacSign.toUpperCase();
