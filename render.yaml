@@ -13,6 +13,8 @@ services:
       Python/birth_chart/astro-nexus-backend/.venv/bin/python -m pip install -r Python/birth_chart/astro-nexus-backend/requirements.txt
     startCommand: cd backend && cd src && node server.js
     envVars:
+      - key: NODE_ENV
+        value: production
       - key: BIRTH_CHART_SERVICE_URL
         value: http://127.0.0.1:8010
       - key: HOROSCOPE_SERVICE_URL

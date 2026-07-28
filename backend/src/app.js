@@ -108,15 +108,16 @@ app.use((err, req, res, next) => {
   }
 
   if (err?.name === "MulterError" || err?.code?.startsWith?.("LIMIT_")) {
+    const isDev = process.env.NODE_ENV === "development";
     const message = err.code === "LIMIT_FILE_SIZE"
       ? "Uploaded file is too large"
-      : err.message || "Invalid uploaded file";
+      : (isDev ? err.message : null) || "Invalid uploaded file";
 
     return res.status(400).json({
       success: false,
       message,
       errors: [message],
-      stack: process.env.NODE_ENV === "development" ? err.stack : undefined,
+      stack: isDev ? err.stack : undefined,
     });
   }
 
@@ -142,10 +143,11 @@ app.use((err, req, res, next) => {
 
   // Fallback for non-ApiError errors
   console.error("Unhandled error:", err);
+  const isDev = process.env.NODE_ENV === "development";
   return res.status(500).json({
     success: false,
-    message: err.message || "Internal Server Error",
-    stack: process.env.NODE_ENV === "development" ? err.stack : undefined,
+    message: (isDev ? err.message : null) || "Internal Server Error",
+    stack: isDev ? err.stack : undefined,
   });
 });
 
