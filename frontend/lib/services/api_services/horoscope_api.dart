@@ -36,23 +36,38 @@ class HoroscopeApi {
 
   static Map<String, dynamic> _parseBody(Map<String, dynamic> decoded, String type) {
     final root = _asMap(decoded);
+
+    // The real /api/unified/my-horoscope response wraps the payload one
+    // level deeper than earlier assumed: root.horoscope is itself an
+    // envelope object ({success, type, sign, data: {...}}), not the
+    // horoscope text. If we don't unwrap it here first, every fallback
+    // below comes up empty (there's no top-level "data" key), scoped
+    // collapses to root, and _extractText picks up root["horoscope"] —
+    // the whole envelope object — instead of the actual string.
+    final horoscopeEnvelope = root["horoscope"];
+    final envelopeData = horoscopeEnvelope is Map
+        ? _asMap(_asMap(horoscopeEnvelope)["data"])
+        : <String, dynamic>{};
+
     final rootData = _asMap(root["data"]);
     final nestedData = _asMap(rootData["data"]);
 
     final fromRootType = _asMap(root[type]);
     final fromDataType = _asMap(rootData[type]);
     final fromNestedType = _asMap(nestedData[type]);
-    
+
     // Fallback directly to rootData or root if nested maps are empty
-    final scoped = fromDataType.isNotEmpty
-        ? fromDataType
-        : (fromRootType.isNotEmpty
-              ? fromRootType
-              : (fromNestedType.isNotEmpty
-                    ? fromNestedType
-                    : (nestedData.isNotEmpty 
-                        ? nestedData 
-                        : (rootData.isNotEmpty ? rootData : root))));
+    final scoped = envelopeData.isNotEmpty
+        ? envelopeData
+        : (fromDataType.isNotEmpty
+            ? fromDataType
+            : (fromRootType.isNotEmpty
+                  ? fromRootType
+                  : (fromNestedType.isNotEmpty
+                        ? fromNestedType
+                        : (nestedData.isNotEmpty 
+                            ? nestedData 
+                            : (rootData.isNotEmpty ? rootData : root)))));
 
     final title = _titleFor(type, scoped);
     final horoscope = _extractText(scoped);
@@ -185,7 +200,14 @@ class HoroscopeApi {
     String fallback = "",
   ]) {
     for (final value in values) {
-      final text = value?.toString().trim() ?? "";
+      // Only ever treat plain scalars as text. A Map or List reaching here
+      // means the envelope wasn't unwrapped correctly upstream — silently
+      // calling .toString() on it is exactly what caused the raw-JSON-dump
+      // bug (Section 7.14), so we skip it and keep looking instead.
+      if (value == null || value is Map || value is List) {
+        continue;
+      }
+      final text = value.toString().trim();
       if (text.isNotEmpty) {
         return text;
       }

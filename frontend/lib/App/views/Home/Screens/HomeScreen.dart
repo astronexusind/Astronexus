@@ -817,25 +817,15 @@ class _HomescreenState extends State<Homescreen> with TickerProviderStateMixin {
         ? formattedDate
         : activeData.title.trim();
         
-    // 1. Grab the raw text
-    String rawText = activeData.text.trim();
-    
-    // 2. Bulletproof cleaner: split at 'horoscope:' and grab everything after it
-    if (rawText.contains('horoscope:')) {
-      rawText = rawText.split('horoscope:').last.trim();
-      
-      // Strip off all trailing brackets from the end of the string
-      while (rawText.endsWith('}')) {
-        rawText = rawText.substring(0, rawText.length - 1).trim();
-      }
-    }
-
-    // 3. Assign the beautifully cleaned text to the UI
-    final horoscopeText = rawText.isEmpty
+    // horoscope_api.dart now correctly unwraps the API's actual envelope
+    // shape (root.horoscope.data.horoscope) and only ever extracts plain
+    // string values, so activeData.text arrives clean here — no more
+    // stringified-object dumps to strip out.
+    final horoscopeText = activeData.text.trim().isEmpty
         ? (_isHoroscopeRefreshing
               ? "Fetching your latest horoscope..."
               : "Horoscope is syncing. Please check back in a moment.")
-        : rawText;
+        : activeData.text.trim();
         
     final signLabel = widget.zodiacSign.trim().isEmpty
         ? "ZODIAC"
