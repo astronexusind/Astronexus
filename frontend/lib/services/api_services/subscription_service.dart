@@ -96,8 +96,7 @@ class SubscriptionService {
 
   /// Fetch all active subscription plans from the backend.
   Future<List<SubscriptionPlan>> getPlans() async {
-    // FIXED: Using /../ to step out of the /user base URL
-    final data = await _client.get('/../api/subscription/plans');
+    final data = await _client.get('/api/subscription/plans');
     final list = data['plans'] as List? ?? [];
     return list
         .map((e) => SubscriptionPlan.fromJson(e as Map<String, dynamic>))
@@ -106,8 +105,7 @@ class SubscriptionService {
 
   /// Get the current user's subscription status.
   Future<SubscriptionStatus> getStatus() async {
-    // FIXED: Using /../ to step out of the /user base URL
-    final data = await _client.get('/../api/subscription/status');
+    final data = await _client.get('/api/subscription/status');
     return SubscriptionStatus.fromJson(data);
   }
 
@@ -120,8 +118,7 @@ class SubscriptionService {
     required String orderId,
     required int amountPaid,
   }) async {
-    // FIXED: Using /../ to step out of the /user base URL
-    await _client.post('/../api/subscription/activate', {
+    await _client.post('/api/subscription/activate', {
       'planKey':    planKey,
       'paymentId':  paymentId,
       'orderId':    orderId,
@@ -131,7 +128,6 @@ class SubscriptionService {
 
   /// Cancel the current subscription.
   Future<void> cancel() async {
-    // FIXED: Using /../ to step out of the /user base URL
-    await _client.post('/../api/subscription/cancel', {});
+    await _client.post('/api/subscription/cancel', {});
   }
 }

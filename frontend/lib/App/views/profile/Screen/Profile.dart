@@ -16,6 +16,7 @@ import '../Widget/Menu_section.dart';
 import '../Widget/Profile_header.dart';
 import '../Widget/logOut_button.dart';
 import '../Widget/stats_row.dart';
+import '../Widget/subscription_status_card.dart';
 
 class CosmicProfileScreen extends StatefulWidget {
   const CosmicProfileScreen({super.key});
@@ -295,6 +296,8 @@ class _CosmicProfileScreenState extends State<CosmicProfileScreen> {
                           onAvatarTap: _showAvatarActions,
                           choosePhotoLabel: l10n.tr("choosePhoto"),
                         ),
+                        const SizedBox(height: 20),
+                        const SubscriptionStatusCard(),
                         const SizedBox(height: 20),
                         const StatsRow(),
                         const SizedBox(height: 24),
